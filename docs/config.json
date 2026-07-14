@@ -1,0 +1,8 @@
+{
+  "TIMEFRAME": "1hour",
+  "VOLUME_MULTIPLIER": 1.5,
+  "RSI_OVERSOLD": 35,
+  "SHOW_DIVERGENCE": true,
+  "SHOW_FIBONACCI": true,
+  "SHOW_CHART_PATTERNS": true
+}
