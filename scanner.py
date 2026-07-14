@@ -10,7 +10,9 @@
 يعمل عبر GitHub Actions كل ساعة (مجاني).
 """
 import os
+import json
 import time
+from datetime import datetime, timezone
 import requests
 import pandas as pd
 
@@ -46,6 +48,10 @@ SHOW_CHART_PATTERNS = True
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
+SIGNALS_JSON_PATH = os.path.join(DOCS_DIR, "signals.json")
+CONFIG_JSON_PATH = os.path.join(DOCS_DIR, "config.json")
 
 
 def fetch_klines(symbol: str, timeframe: str = TIMEFRAME):
@@ -272,9 +278,48 @@ def send_telegram_message(text: str):
         print(f"[خطأ] فشل إرسال رسالة تيليغرام: {e}")
 
 
+def _to_jsonable(obj):
+    """يحوّل قيم numpy/pandas إلى أنواع بايثون عادية قابلة للتسلسل بـ JSON"""
+    if isinstance(obj, dict):
+        return {k: _to_jsonable(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_to_jsonable(v) for v in obj]
+    if hasattr(obj, "item"):  # numpy scalar (int64, float64...)
+        return obj.item()
+    if isinstance(obj, float):
+        return round(obj, 6)
+    return obj
+
+
+def write_mini_app_data(all_signals: list[dict]):
+    """يكتب signals.json وconfig.json لمجلد docs/ ليقرأهما الـ Mini App"""
+    os.makedirs(DOCS_DIR, exist_ok=True)
+
+    payload = {
+        "last_scan": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC"),
+        "signals": _to_jsonable(all_signals),
+    }
+    with open(SIGNALS_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+
+    config_snapshot = {
+        "TIMEFRAME": TIMEFRAME,
+        "VOLUME_MULTIPLIER": VOLUME_MULTIPLIER,
+        "RSI_OVERSOLD": RSI_OVERSOLD,
+        "SHOW_DIVERGENCE": SHOW_DIVERGENCE,
+        "SHOW_FIBONACCI": SHOW_FIBONACCI,
+        "SHOW_CHART_PATTERNS": SHOW_CHART_PATTERNS,
+    }
+    with open(CONFIG_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(config_snapshot, f, ensure_ascii=False, indent=2)
+
+    print(f"[Mini App] كُتبت بيانات {len(all_signals)} إشارة إلى docs/signals.json")
+
+
 def main():
     print(f"بدء الفحص لعدد {len(WATCHLIST)} عملة...")
     total_signals = 0
+    all_signals_for_app = []
 
     for symbol in WATCHLIST:
         df = fetch_klines(symbol)
@@ -290,10 +335,12 @@ def main():
         for sig in signals:
             msg = format_message(sig)
             send_telegram_message(msg)
+            all_signals_for_app.append(sig)
             total_signals += 1
 
         time.sleep(0.3)
 
+    write_mini_app_data(all_signals_for_app)
     print(f"انتهى الفحص. عدد الإشارات المُرسلة: {total_signals}")
 
 
