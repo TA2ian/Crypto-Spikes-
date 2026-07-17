@@ -1,21 +1,81 @@
 {
-  "last_scan": "2026-07-17 06:22 UTC",
+  "last_scan": "2026-07-17 09:13 UTC",
   "signals": [
     {
       "type": "ارتداد من دعم",
       "emoji": "🔵",
+      "symbol": "BTC-USDT",
+      "price": 62920.1,
+      "level": 62664.8,
+      "rsi": 30.351562938086317,
+      "volume_ratio": 0.35207009583671417,
+      "stop_loss": 61411.504,
+      "target1": 64900.0,
+      "target2": null,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": null,
+          "volume_spike": false
+        },
+        "fibonacci": {
+          "swing_low": 62664.8,
+          "swing_high": 64998.5,
+          "direction": "down",
+          "retracement_levels": {
+            "0.236": 64447.7468,
+            "0.382": 64107.0266,
+            "0.5": 63831.65,
+            "0.618": 63556.273400000005,
+            "0.786": 63164.211800000005
+          },
+          "extension_levels": {
+            "1.272": 62030.0336,
+            "1.618": 61222.5734,
+            "2.0": 60331.100000000006,
+            "2.618": 58888.87340000001
+          },
+          "time_zones": [
+            2,
+            3,
+            4,
+            6,
+            9,
+            14,
+            22
+          ],
+          "near_retracement": [
+            0.786,
+            63164.211800000005
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "هابط",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": "رأس وكتفين صاعد (مقلوب)",
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "ارتداد من دعم",
+      "emoji": "🔵",
       "symbol": "ETH-USDT",
-      "price": 1830.43,
-      "level": 1821.87,
-      "rsi": 28.92378690588764,
-      "volume_ratio": 0.6531056854644619,
-      "stop_loss": 1785.4325999999999,
+      "price": 1830.86,
+      "level": 1820.94,
+      "rsi": 30.9811245422526,
+      "volume_ratio": 0.13221830368785498,
+      "stop_loss": 1784.5212,
       "target1": 1894.29,
       "target2": null,
       "confluence": [],
       "extra": {
         "divergence": {
-          "rsi": "bullish",
+          "rsi": null,
           "macd": null,
           "volume_spike": false
         },
@@ -37,13 +97,13 @@
             "2.618": 1645.7915
           },
           "time_zones": [
-            6,
+            3,
+            4,
+            5,
             7,
-            8,
             10,
-            13,
-            18,
-            26
+            15,
+            23
           ],
           "near_retracement": [
             0.786,
@@ -53,7 +113,7 @@
         },
         "chart_patterns": {
           "trend": "هابط",
-          "double_pattern": "قاع مزدوج",
+          "double_pattern": null,
           "head_shoulders": null,
           "triangle": null,
           "channel": null,
@@ -65,11 +125,11 @@
       "type": "ارتداد من دعم",
       "emoji": "🔵",
       "symbol": "BNB-USDT",
-      "price": 567.786,
-      "level": 567.25,
-      "rsi": 31.046888364175658,
-      "volume_ratio": 0.16182880836309613,
-      "stop_loss": 555.905,
+      "price": 564.983,
+      "level": 562.771,
+      "rsi": 30.891784346930535,
+      "volume_ratio": 0.11704853666251656,
+      "stop_loss": 551.51558,
       "target1": 580.916,
       "target2": null,
       "confluence": [],
@@ -80,39 +140,39 @@
           "volume_spike": false
         },
         "fibonacci": {
-          "swing_low": 567.25,
+          "swing_low": 562.771,
           "swing_high": 585.748,
           "direction": "down",
           "retracement_levels": {
-            "0.236": 581.382472,
-            "0.382": 578.681764,
-            "0.5": 576.499,
-            "0.618": 574.316236,
-            "0.786": 571.208572
+            "0.236": 580.325428,
+            "0.382": 576.970786,
+            "0.5": 574.2595,
+            "0.618": 571.548214,
+            "0.786": 567.688078
           },
           "extension_levels": {
-            "1.272": 562.218544,
-            "1.618": 555.818236,
-            "2.0": 548.752,
-            "2.618": 537.3202359999999
+            "1.272": 556.5212559999999,
+            "1.618": 548.5712139999999,
+            "2.0": 539.7939999999999,
+            "2.618": 525.5942139999999
           },
           "time_zones": [
-            5,
+            2,
+            3,
+            4,
             6,
-            7,
             9,
-            12,
-            17,
-            25
+            14,
+            22
           ],
           "near_retracement": [
             0.786,
-            571.208572
+            567.688078
           ],
           "near_extension": null
         },
         "chart_patterns": {
-          "trend": "عرضي",
+          "trend": "هابط",
           "double_pattern": "قمة مزدوجة",
           "head_shoulders": null,
           "triangle": null,
@@ -125,235 +185,58 @@
       "type": "ارتداد من دعم",
       "emoji": "🔵",
       "symbol": "SOL-USDT",
-      "price": 74.62,
-      "level": 74.29,
-      "rsi": 33.77905557201973,
-      "volume_ratio": 0.611014477147839,
-      "stop_loss": 72.80420000000001,
+      "price": 74.61,
+      "level": 74.2,
+      "rsi": 34.69018665445711,
+      "volume_ratio": 0.15825886653924764,
+      "stop_loss": 72.71600000000001,
       "target1": 76.86,
       "target2": null,
       "confluence": [],
       "extra": {
         "divergence": {
-          "rsi": "bullish",
-          "macd": "bullish",
+          "rsi": null,
+          "macd": null,
           "volume_spike": false
         },
         "fibonacci": {
-          "swing_low": 74.29,
+          "swing_low": 74.2,
           "swing_high": 77.63,
           "direction": "down",
           "retracement_levels": {
-            "0.236": 76.84176,
-            "0.382": 76.35412,
-            "0.5": 75.96000000000001,
-            "0.618": 75.56588,
-            "0.786": 75.00476
+            "0.236": 76.82052,
+            "0.382": 76.31974,
+            "0.5": 75.91499999999999,
+            "0.618": 75.51026,
+            "0.786": 74.93402
           },
           "extension_levels": {
-            "1.272": 73.38152000000001,
-            "1.618": 72.22588000000002,
-            "2.0": 70.95000000000002,
-            "2.618": 68.88588000000003
+            "1.272": 73.26704000000001,
+            "1.618": 72.08026000000001,
+            "2.0": 70.77000000000001,
+            "2.618": 68.65026000000002
           },
           "time_zones": [
-            6,
-            7,
-            8,
-            10,
-            13,
-            18,
-            26
-          ],
-          "near_retracement": [
-            0.786,
-            75.00476
-          ],
-          "near_extension": null
-        },
-        "chart_patterns": {
-          "trend": "هابط",
-          "double_pattern": "قمة مزدوجة",
-          "head_shoulders": null,
-          "triangle": "مثلث هابط",
-          "channel": null,
-          "flag": null
-        }
-      }
-    },
-    {
-      "type": "ارتداد من دعم",
-      "emoji": "🔵",
-      "symbol": "LINK-USDT",
-      "price": 8.1974,
-      "level": 8.1729,
-      "rsi": 29.25117122401322,
-      "volume_ratio": 0.5743150498708742,
-      "stop_loss": 8.009442,
-      "target1": 8.4941,
-      "target2": null,
-      "confluence": [],
-      "extra": {
-        "divergence": {
-          "rsi": null,
-          "macd": null,
-          "volume_spike": false
-        },
-        "fibonacci": {
-          "swing_low": 8.1559,
-          "swing_high": 8.5689,
-          "direction": "down",
-          "retracement_levels": {
-            "0.236": 8.471432,
-            "0.382": 8.411134,
-            "0.5": 8.362400000000001,
-            "0.618": 8.313666,
-            "0.786": 8.244282
-          },
-          "extension_levels": {
-            "1.272": 8.043564000000002,
-            "1.618": 7.900666000000002,
-            "2.0": 7.742900000000002,
-            "2.618": 7.4876660000000035
-          },
-          "time_zones": [
-            5,
-            6,
-            7,
-            9,
-            12,
-            17,
-            25
-          ],
-          "near_retracement": [
-            0.786,
-            8.244282
-          ],
-          "near_extension": null
-        },
-        "chart_patterns": {
-          "trend": "هابط",
-          "double_pattern": "قمة مزدوجة",
-          "head_shoulders": null,
-          "triangle": null,
-          "channel": null,
-          "flag": null
-        }
-      }
-    },
-    {
-      "type": "ارتداد من دعم",
-      "emoji": "🔵",
-      "symbol": "WLD-USDT",
-      "price": 0.378,
-      "level": 0.3761,
-      "rsi": 28.21087982298586,
-      "volume_ratio": 1.1042159433984289,
-      "stop_loss": 0.36857799999999996,
-      "target1": 0.4055,
-      "target2": null,
-      "confluence": [],
-      "extra": {
-        "divergence": {
-          "rsi": null,
-          "macd": null,
-          "volume_spike": false
-        },
-        "fibonacci": {
-          "swing_low": 0.3757,
-          "swing_high": 0.4116,
-          "direction": "down",
-          "retracement_levels": {
-            "0.236": 0.40312760000000003,
-            "0.382": 0.3978862,
-            "0.5": 0.39365,
-            "0.618": 0.3894138,
-            "0.786": 0.38338259999999996
-          },
-          "extension_levels": {
-            "1.272": 0.36593519999999996,
-            "1.618": 0.35351379999999993,
-            "2.0": 0.33979999999999994,
-            "2.618": 0.3176137999999999
-          },
-          "time_zones": [
-            1,
-            2,
             3,
+            4,
             5,
-            8,
-            13,
-            21
-          ],
-          "near_retracement": null,
-          "near_extension": null
-        },
-        "chart_patterns": {
-          "trend": "هابط",
-          "double_pattern": "قاع مزدوج",
-          "head_shoulders": null,
-          "triangle": null,
-          "channel": null,
-          "flag": null
-        }
-      }
-    },
-    {
-      "type": "ارتداد من دعم",
-      "emoji": "🔵",
-      "symbol": "ATOM-USDT",
-      "price": 1.4995,
-      "level": 1.494,
-      "rsi": 33.10986418551161,
-      "volume_ratio": 0.08693862802718696,
-      "stop_loss": 1.4641199999999999,
-      "target1": 1.5472,
-      "target2": null,
-      "confluence": [],
-      "extra": {
-        "divergence": {
-          "rsi": null,
-          "macd": null,
-          "volume_spike": false
-        },
-        "fibonacci": {
-          "swing_low": 1.494,
-          "swing_high": 1.569,
-          "direction": "down",
-          "retracement_levels": {
-            "0.236": 1.5513,
-            "0.382": 1.5403499999999999,
-            "0.5": 1.5314999999999999,
-            "0.618": 1.52265,
-            "0.786": 1.51005
-          },
-          "extension_levels": {
-            "1.272": 1.4736,
-            "1.618": 1.44765,
-            "2.0": 1.419,
-            "2.618": 1.3726500000000001
-          },
-          "time_zones": [
             7,
-            8,
-            9,
-            11,
-            14,
-            19,
-            27
+            10,
+            15,
+            23
           ],
           "near_retracement": [
             0.786,
-            1.51005
+            74.93402
           ],
           "near_extension": null
         },
         "chart_patterns": {
           "trend": "هابط",
-          "double_pattern": null,
-          "head_shoulders": "رأس وكتفين هابط",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
           "triangle": null,
-          "channel": null,
+          "channel": "قناة هابطة",
           "flag": null
         }
       }
