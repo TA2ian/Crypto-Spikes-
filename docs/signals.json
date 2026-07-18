@@ -1,4 +1,65 @@
 {
-  "last_scan": "2026-07-18 19:12 UTC",
-  "signals": []
+  "last_scan": "2026-07-18 20:56 UTC",
+  "signals": [
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "BTC-USDT",
+      "price": 64697.0,
+      "level": 64663.0,
+      "rsi": 75.6394420834323,
+      "volume_ratio": 2.3033797392677986,
+      "stop_loss": 63885.3,
+      "target1": 65102.85,
+      "target2": 65508.7,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": null,
+          "volume_spike": true
+        },
+        "fibonacci": {
+          "swing_low": 62861.2,
+          "swing_high": 64742.5,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 64298.5132,
+            "0.382": 64023.8434,
+            "0.5": 63801.85,
+            "0.618": 63579.8566,
+            "0.786": 63263.7982
+          },
+          "extension_levels": {
+            "1.272": 65254.2136,
+            "1.618": 65905.1434,
+            "2.0": 66623.8,
+            "2.618": 67786.4434
+          },
+          "time_zones": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            13,
+            21
+          ],
+          "near_retracement": [
+            0.236,
+            64298.5132
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    }
+  ]
 }
