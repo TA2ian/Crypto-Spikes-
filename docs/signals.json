@@ -1,4 +1,361 @@
 {
-  "last_scan": "2026-07-20 13:10 UTC",
-  "signals": []
+  "last_scan": "2026-07-20 15:55 UTC",
+  "signals": [
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "BTC-USDT",
+      "price": 65522.2,
+      "level": 65099.9,
+      "rsi": 64.4063524575618,
+      "volume_ratio": 1.9043838859267905,
+      "stop_loss": 63766.4,
+      "target1": 66400.09999999999,
+      "target2": 67278.0,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": "bearish",
+          "macd": "bearish",
+          "volume_spike": false
+        },
+        "fibonacci": {
+          "swing_low": 63766.4,
+          "swing_high": 65667.7,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 65218.9932,
+            "0.382": 64941.403399999996,
+            "0.5": 64717.05,
+            "0.618": 64492.6966,
+            "0.786": 64173.2782
+          },
+          "extension_levels": {
+            "1.272": 66184.8536,
+            "1.618": 66842.7034,
+            "2.0": 67569.0,
+            "2.618": 68744.00339999999
+          },
+          "time_zones": [
+            21,
+            22,
+            23,
+            25,
+            28,
+            33,
+            41
+          ],
+          "near_retracement": [
+            0.236,
+            65218.9932
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "ETH-USDT",
+      "price": 1901.54,
+      "level": 1896.29,
+      "rsi": 62.98749717799573,
+      "volume_ratio": 2.25857086918485,
+      "stop_loss": 1842.9,
+      "target1": 1930.86,
+      "target2": 1960.1799999999998,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": "bearish",
+          "volume_spike": true
+        },
+        "fibonacci": {
+          "swing_low": 1842.9,
+          "swing_high": 1905.4,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 1890.65,
+            "0.382": 1881.525,
+            "0.5": 1874.15,
+            "0.618": 1866.775,
+            "0.786": 1856.275
+          },
+          "extension_levels": {
+            "1.272": 1922.4,
+            "1.618": 1944.025,
+            "2.0": 1967.9,
+            "2.618": 2006.525
+          },
+          "time_zones": [
+            21,
+            22,
+            23,
+            25,
+            28,
+            33,
+            41
+          ],
+          "near_retracement": [
+            0.236,
+            1890.65
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "XRP-USDT",
+      "price": 1.11188,
+      "level": 1.10822,
+      "rsi": 62.74420179667711,
+      "volume_ratio": 2.002649195834554,
+      "stop_loss": 1.08328,
+      "target1": 1.12618,
+      "target2": 1.14048,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": "bearish",
+          "volume_spike": true
+        },
+        "fibonacci": {
+          "swing_low": 1.08328,
+          "swing_high": 1.11356,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 1.10641392,
+            "0.382": 1.10199304,
+            "0.5": 1.09842,
+            "0.618": 1.0948469600000001,
+            "0.786": 1.08975992
+          },
+          "extension_levels": {
+            "1.272": 1.1217961600000002,
+            "1.618": 1.13227304,
+            "2.0": 1.1438400000000002,
+            "2.618": 1.1625530400000001
+          },
+          "time_zones": [
+            22,
+            23,
+            24,
+            26,
+            29,
+            34,
+            42
+          ],
+          "near_retracement": [
+            0.236,
+            1.10641392
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢🔥",
+      "symbol": "SOL-USDT",
+      "price": 77.77,
+      "level": 77.4,
+      "rsi": 63.892945922717324,
+      "volume_ratio": 2.42001722550852,
+      "stop_loss": 75.53,
+      "target1": 78.88999999999999,
+      "target2": 80.00999999999999,
+      "confluence": [
+        "نمط شمعة صعودي"
+      ],
+      "extra": {
+        "divergence": {
+          "rsi": "bearish",
+          "macd": "bearish",
+          "volume_spike": true
+        },
+        "fibonacci": {
+          "swing_low": 75.39,
+          "swing_high": 77.91,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 77.31528,
+            "0.382": 76.94736,
+            "0.5": 76.65,
+            "0.618": 76.35264,
+            "0.786": 75.92928
+          },
+          "extension_levels": {
+            "1.272": 78.59544,
+            "1.618": 79.46736,
+            "2.0": 80.42999999999999,
+            "2.618": 81.98736
+          },
+          "time_zones": [
+            9,
+            10,
+            11,
+            13,
+            16,
+            21,
+            29
+          ],
+          "near_retracement": [
+            0.236,
+            77.31528
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "BCH-USDT",
+      "price": 218.52,
+      "level": 217.89,
+      "rsi": 63.58373136566703,
+      "volume_ratio": 1.853369022507863,
+      "stop_loss": 209.8,
+      "target1": 222.88,
+      "target2": 227.24,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": null,
+          "volume_spike": false
+        },
+        "fibonacci": {
+          "swing_low": 209.8,
+          "swing_high": 218.52,
+          "direction": "up",
+          "retracement_levels": {
+            "0.236": 216.46208000000001,
+            "0.382": 215.18896,
+            "0.5": 214.16000000000003,
+            "0.618": 213.13104,
+            "0.786": 211.66608000000002
+          },
+          "extension_levels": {
+            "1.272": 220.89184,
+            "1.618": 223.90896,
+            "2.0": 227.24,
+            "2.618": 232.62896
+          },
+          "time_zones": [
+            19,
+            20,
+            21,
+            23,
+            26,
+            31,
+            39
+          ],
+          "near_retracement": null,
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    },
+    {
+      "type": "اختراق مقاومة",
+      "emoji": "🟢",
+      "symbol": "WLD-USDT",
+      "price": 0.3745,
+      "level": 0.3725,
+      "rsi": 61.99584520977825,
+      "volume_ratio": 4.9268006524141095,
+      "stop_loss": 0.3537,
+      "target1": 0.3849,
+      "target2": 0.3953,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": "bullish",
+          "macd": "bullish",
+          "volume_spike": true
+        },
+        "fibonacci": {
+          "swing_low": 0.3536,
+          "swing_high": 0.3767,
+          "direction": "down",
+          "retracement_levels": {
+            "0.236": 0.3712484,
+            "0.382": 0.3678758,
+            "0.5": 0.36515,
+            "0.618": 0.36242420000000003,
+            "0.786": 0.3585434
+          },
+          "extension_levels": {
+            "1.272": 0.34731680000000004,
+            "1.618": 0.3393242000000001,
+            "2.0": 0.33050000000000007,
+            "2.618": 0.3162242000000001
+          },
+          "time_zones": [
+            1,
+            2,
+            3,
+            5,
+            8,
+            13,
+            21
+          ],
+          "near_retracement": null,
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "عرضي",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": null,
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    }
+  ]
 }
