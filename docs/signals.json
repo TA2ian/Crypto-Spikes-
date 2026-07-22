@@ -1,76 +1,16 @@
 {
-  "last_scan": "2026-07-22 09:30 UTC",
+  "last_scan": "2026-07-22 11:51 UTC",
   "signals": [
     {
       "type": "ارتداد من دعم",
       "emoji": "🔵",
-      "symbol": "LTC-USDT",
-      "price": 46.48,
-      "level": 46.32,
-      "rsi": 34.61621047690426,
-      "volume_ratio": 0.40943499136347133,
-      "stop_loss": 45.3936,
-      "target1": 48.14,
-      "target2": null,
-      "confluence": [],
-      "extra": {
-        "divergence": {
-          "rsi": null,
-          "macd": "bearish",
-          "volume_spike": false
-        },
-        "fibonacci": {
-          "swing_low": 46.32,
-          "swing_high": 48.14,
-          "direction": "down",
-          "retracement_levels": {
-            "0.236": 47.710480000000004,
-            "0.382": 47.44476,
-            "0.5": 47.230000000000004,
-            "0.618": 47.01524,
-            "0.786": 46.70948
-          },
-          "extension_levels": {
-            "1.272": 45.82496,
-            "1.618": 45.19524,
-            "2.0": 44.5,
-            "2.618": 43.37524
-          },
-          "time_zones": [
-            11,
-            12,
-            13,
-            15,
-            18,
-            23,
-            31
-          ],
-          "near_retracement": [
-            0.786,
-            46.70948
-          ],
-          "near_extension": null
-        },
-        "chart_patterns": {
-          "trend": "هابط",
-          "double_pattern": "قمة مزدوجة",
-          "head_shoulders": null,
-          "triangle": null,
-          "channel": null,
-          "flag": null
-        }
-      }
-    },
-    {
-      "type": "ارتداد من دعم",
-      "emoji": "🔵",
       "symbol": "ATOM-USDT",
-      "price": 1.4669,
-      "level": 1.4614,
-      "rsi": 31.79338737460597,
-      "volume_ratio": 0.7737839988419924,
-      "stop_loss": 1.432172,
-      "target1": 1.5031,
+      "price": 1.4648,
+      "level": 1.4597,
+      "rsi": 32.19144616292981,
+      "volume_ratio": 1.1417751938456395,
+      "stop_loss": 1.430506,
+      "target1": 1.4976,
       "target2": null,
       "confluence": [],
       "extra": {
@@ -80,39 +20,39 @@
           "volume_spike": false
         },
         "fibonacci": {
-          "swing_low": 1.4614,
+          "swing_low": 1.4597,
           "swing_high": 1.5101,
           "direction": "down",
           "retracement_levels": {
-            "0.236": 1.4986068,
-            "0.382": 1.4914966,
-            "0.5": 1.48575,
-            "0.618": 1.4800034,
-            "0.786": 1.4718218
+            "0.236": 1.4982056,
+            "0.382": 1.4908472,
+            "0.5": 1.4849,
+            "0.618": 1.4789528,
+            "0.786": 1.4704856
           },
           "extension_levels": {
-            "1.272": 1.4481536,
-            "1.618": 1.4313034,
-            "2.0": 1.4127,
-            "2.618": 1.3826034
+            "1.272": 1.4459912,
+            "1.618": 1.4285528,
+            "2.0": 1.4093,
+            "2.618": 1.3781528
           },
           "time_zones": [
+            1,
+            2,
             3,
-            4,
             5,
-            7,
-            10,
-            15,
-            23
+            8,
+            13,
+            21
           ],
           "near_retracement": [
             0.786,
-            1.4718218
+            1.4704856
           ],
           "near_extension": null
         },
         "chart_patterns": {
-          "trend": "عرضي",
+          "trend": "هابط",
           "double_pattern": "قمة مزدوجة",
           "head_shoulders": null,
           "triangle": null,
