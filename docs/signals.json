@@ -1,4 +1,65 @@
 {
-  "last_scan": "2026-07-23 03:38 UTC",
-  "signals": []
+  "last_scan": "2026-07-23 06:35 UTC",
+  "signals": [
+    {
+      "type": "ارتداد من دعم",
+      "emoji": "🔵",
+      "symbol": "DOT-USDT",
+      "price": 0.8217,
+      "level": 0.8193,
+      "rsi": 34.79448907687609,
+      "volume_ratio": 0.14773896757984398,
+      "stop_loss": 0.802914,
+      "target1": 0.853,
+      "target2": null,
+      "confluence": [],
+      "extra": {
+        "divergence": {
+          "rsi": null,
+          "macd": null,
+          "volume_spike": false
+        },
+        "fibonacci": {
+          "swing_low": 0.8193,
+          "swing_high": 0.8585,
+          "direction": "down",
+          "retracement_levels": {
+            "0.236": 0.8492488,
+            "0.382": 0.8435256,
+            "0.5": 0.8389,
+            "0.618": 0.8342744000000001,
+            "0.786": 0.8276888
+          },
+          "extension_levels": {
+            "1.272": 0.8086376000000001,
+            "1.618": 0.7950744000000001,
+            "2.0": 0.7801,
+            "2.618": 0.7558744000000001
+          },
+          "time_zones": [
+            3,
+            4,
+            5,
+            7,
+            10,
+            15,
+            23
+          ],
+          "near_retracement": [
+            0.786,
+            0.8276888
+          ],
+          "near_extension": null
+        },
+        "chart_patterns": {
+          "trend": "هابط",
+          "double_pattern": "قمة مزدوجة",
+          "head_shoulders": "رأس وكتفين صاعد (مقلوب)",
+          "triangle": null,
+          "channel": null,
+          "flag": null
+        }
+      }
+    }
+  ]
 }
