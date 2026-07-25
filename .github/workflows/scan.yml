@@ -2,11 +2,12 @@ name: فحص العملات الحلال
 
 on:
   schedule:
+    # يعمل كل ساعة في الدقيقة 5
     - cron: "5 * * * *"
   workflow_dispatch: {}
 
 permissions:
-  contents: write   # مطلوب لكي يتمكن البوت من حفظ ملفات docs/ تلقائياً
+  contents: write   # مطلوب لمنح صلاحية حفظ وتحديث ملفات التقرير تلقائياً
 
 jobs:
   scan:
@@ -21,7 +22,9 @@ jobs:
           python-version: "3.11"
 
       - name: تثبيت المكتبات
-        run: pip install pandas requests
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas requests numpy
 
       - name: تشغيل الماسح
         env:
@@ -29,10 +32,22 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scanner.py
 
-      - name: حفظ بيانات Mini App
+      - name: حفظ بيانات Mini App والتحديث التلقائي
         run: |
           git config user.name "halal-scanner-bot"
           git config user.email "actions@github.com"
-          git add docs/signals.json docs/config.json docs/last_alerted.json docs/coin_score_state.json
-          git diff --staged --quiet || git commit -m "تحديث بيانات الإشارات [تلقائي]"
-          git push
+          
+          # إيجاد وإنشاء مجلد docs في حال عدم وجوده
+          mkdir -p docs
+          
+          # إضافة جميع الملفات والبيانات التي تم توليدها داخل مجلد docs
+          git add docs/
+          
+          # التحقق مما إذا كان هناك تغيير فعلي قبل عمل commit
+          if ! git diff --staged --quiet; then
+            git commit -m "تحديث بيانات الإشارات [تلقائي]"
+            git pull --rebase origin main || true
+            git push
+          else
+            echo "لا توجد تغييرات جديدة للحفظ."
+          fi
