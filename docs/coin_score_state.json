@@ -5,6 +5,11 @@
         "time": 1784995474,
         "points": 1.0,
         "reason": "إغلاق شمعة 1h"
+      },
+      {
+        "time": 1784999438,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
       }
     ],
     "already_alerted_at": null
@@ -13,6 +18,41 @@
     "events": [
       {
         "time": 1784995489,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      },
+      {
+        "time": 1784999457,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "ADA-USDT:bullish": {
+    "events": [
+      {
+        "time": 1784999444,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "LINK-USDT:bullish": {
+    "events": [
+      {
+        "time": 1784999446,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "AVAX-USDT:bullish": {
+    "events": [
+      {
+        "time": 1784999451,
         "points": 1.0,
         "reason": "إغلاق شمعة 1h"
       }
