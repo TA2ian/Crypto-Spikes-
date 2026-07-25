@@ -28,7 +28,26 @@ from divergence import analyze_divergence
 from fibonacci import analyze_fibonacci
 from chart_patterns import detect_all_patterns
 from multi_timeframe import scan_multi_timeframe, TIMEFRAMES
-from candle_state import load_state, save_state, is_new_candle, mark_alerted
+from candle_state import (
+    load_state as load_candle_state,
+    save_state as save_candle_state,
+    is_new_candle,
+    mark_alerted,
+)
+from cvd import analyze_cvd
+from coin_score import (
+    load_state as load_score_state,
+    save_state as save_score_state,
+    add_points,
+    should_alert,
+    mark_alert_sent,
+    get_score_breakdown,
+    current_score,
+    clean_old_events,
+    WEIGHTS,
+    SCORE_THRESHOLD,
+    WINDOW_HOURS,
+)
 
 # ============ الإعدادات ============
 KUCOIN_KLINE_URL = "https://api.kucoin.com/api/v1/market/candles"
@@ -82,6 +101,9 @@ def fetch_klines(symbol: str, timeframe: str = TIMEFRAME):
     return df.tail(CANDLE_LIMIT).reset_index(drop=True)
 
 
+SHOW_CVD = True
+
+
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
     """يجمع كل نتائج الطبقات المعلوماتية الإضافية بمكان واحد"""
     extra = {}
@@ -96,6 +118,9 @@ def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
 
     if SHOW_CHART_PATTERNS:
         extra["chart_patterns"] = detect_all_patterns(df)
+
+    if SHOW_CVD:
+        extra["cvd"] = analyze_cvd(df)
 
     return extra
 
@@ -116,6 +141,15 @@ def format_extra_lines(extra: dict) -> list[str]:
             label = "🟢 إيجابي" if div["macd"] == "bullish" else "🔴 سلبي"
             parts.append(f"MACD: {label}")
         lines.append("📐 دايفرجنس: " + " | ".join(parts) + vol_tag)
+
+    # --- CVD (ضغط شراء/بيع تقريبي) ---
+    cvd = extra.get("cvd")
+    if cvd:
+        if cvd.get("trend") and cvd["trend"] != "غير محدد":
+            lines.append(f"💧 CVD تقريبي: {cvd['trend']} (تقدير غير مباشر، راجع الملاحظة)")
+        if cvd.get("divergence"):
+            label = "إيجابي 🟢" if cvd["divergence"] == "bullish" else "سلبي 🔴"
+            lines.append(f"💧 دايفرجنس CVD: {label}")
 
     # --- فيبوناتشي ---
     fib = extra.get("fibonacci")
@@ -149,8 +183,10 @@ def format_extra_lines(extra: dict) -> list[str]:
     return lines
 
 
-def analyze_symbol(symbol: str, df: pd.DataFrame) -> list[dict]:
-    """فحص شروط الدخول الأساسية + إرفاق طبقة التحليل الإضافية الشاملة"""
+def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> list[dict]:
+    """فحص شروط الدخول الأساسية + إرفاق طبقة التحليل الإضافية الشاملة
+    score_state: إن مُرر، تُسجَّل النقاط تلقائياً بنظام التتبع التراكمي
+    """
     signals = []
 
     if len(df) < max(RESISTANCE_LOOKBACK, SUPPORT_LOOKBACK) + 5:
@@ -185,6 +221,32 @@ def analyze_symbol(symbol: str, df: pd.DataFrame) -> list[dict]:
 
     extra_analysis = build_extra_analysis(df, rsi)
 
+    def register_score(reason_prefix: str):
+        """يسجل نقاط الإشارة الأساسية وكل طبقة تأكيد إضافية متحققة"""
+        if score_state is None:
+            return
+        direction = "bullish"  # كلا نوعي الإشارة الأساسية هنا صعوديان بالتصميم الحالي
+
+        add_points(score_state, symbol, direction, WEIGHTS["base_signal"],
+                   f"{reason_prefix}")
+
+        if has_bullish_pattern or near_bull_ob:
+            add_points(score_state, symbol, direction, WEIGHTS["candle_pattern_confirm"],
+                       f"{reason_prefix} + تأكيد نمط/Order Block")
+
+        div = extra_analysis.get("divergence", {})
+        if div.get("rsi") == direction or div.get("macd") == direction:
+            add_points(score_state, symbol, direction, WEIGHTS["divergence_confirm"],
+                       f"{reason_prefix} + دايفرجنس مؤكد")
+
+        cvd = extra_analysis.get("cvd", {})
+        if cvd.get("trend") == "شراء متزايد":
+            add_points(score_state, symbol, direction, WEIGHTS["cvd_confirm"],
+                       f"{reason_prefix} + CVD شراء متزايد")
+        if cvd.get("divergence") == direction:
+            add_points(score_state, symbol, direction, WEIGHTS["cvd_divergence"],
+                       f"{reason_prefix} + دايفرجنس CVD")
+
     # --- إشارة 1: اختراق مقاومة بحجم ---
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
         notes = confluence_note()
@@ -202,6 +264,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame) -> list[dict]:
             "confluence": notes,
             "extra": extra_analysis,
         })
+        register_score("اختراق مقاومة")
 
     # --- إشارة 2: ارتداد من دعم ---
     prev_open = df["open"].iloc[-1]
@@ -224,6 +287,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame) -> list[dict]:
             "confluence": notes,
             "extra": extra_analysis,
         })
+        register_score("ارتداد من دعم")
 
     return signals
 
@@ -307,7 +371,7 @@ def format_mtf_message(mtf_result: dict) -> str:
     return "\n".join(lines)
 
 
-def run_multi_timeframe_scan(state: dict) -> int:
+def run_multi_timeframe_scan(state: dict, score_state: dict = None) -> int:
     """يفحص كل عملة على كل الفريمات، يرسل تنبيهات الشموع الجديدة فقط"""
     sent = 0
     for symbol in WATCHLIST:
@@ -316,6 +380,8 @@ def run_multi_timeframe_scan(state: dict) -> int:
         except Exception as e:
             print(f"[خطأ فحص متعدد الفريمات] {symbol}: {e}")
             continue
+
+        new_results = []  # فقط النتائج الجديدة فعلياً (لفحص تطابق الفريمات لاحقاً)
 
         for res in results:
             candle_time = res.get("candle_time")
@@ -327,9 +393,29 @@ def run_multi_timeframe_scan(state: dict) -> int:
             msg = format_mtf_message(res)
             send_telegram_message(msg)
             sent += 1
+            new_results.append(res)
 
             if candle_time is not None:
                 mark_alerted(state, symbol, tf, candle_time)
+
+            if score_state is not None:
+                add_points(score_state, symbol, res["direction"], WEIGHTS["mtf_candle_close"],
+                           f"إغلاق شمعة {res['timeframe_label']}")
+                if res.get("rsi_divergence_confirms"):
+                    add_points(score_state, symbol, res["direction"], WEIGHTS["divergence_confirm"],
+                               f"دايفرجنس RSI مؤكد بفريم {res['timeframe_label']}")
+
+        # --- تطابق فريمين أو أكثر بنفس الاتجاه بنفس التشغيلة ---
+        if score_state is not None and len(new_results) >= 2:
+            directions_count = {}
+            for res in new_results:
+                directions_count[res["direction"]] = directions_count.get(res["direction"], 0) + 1
+
+            for direction, count in directions_count.items():
+                if count >= 2:
+                    matched_tfs = [r["timeframe_label"] for r in new_results if r["direction"] == direction]
+                    add_points(score_state, symbol, direction, WEIGHTS["mtf_multi_alignment"],
+                               f"تطابق فريمات: {', '.join(matched_tfs)}")
 
         time.sleep(0.2)
 
@@ -374,10 +460,50 @@ def write_mini_app_data(all_signals: list[dict]):
     print(f"[Mini App] كُتبت بيانات {len(all_signals)} إشارة إلى docs/signals.json")
 
 
+def format_reminder_message(symbol: str, direction: str, score: float,
+                              breakdown: list[dict]) -> str:
+    """يبني رسالة التذكير عند تجاوز عملة معينة حد النقاط التراكمي"""
+    is_bullish = direction == "bullish"
+    emoji = "🏆🟢" if is_bullish else "🏆🔴"
+    direction_label = "صعودية" if is_bullish else "هبوطية"
+
+    lines = [
+        f"{emoji} تذكير تراكمي — {symbol.replace('-', '/')}",
+        f"تجمّعت إشارات {direction_label} متعددة خلال آخر {WINDOW_HOURS} ساعة",
+        f"مجموع النقاط: {score:.1f} (الحد: {SCORE_THRESHOLD})",
+        "",
+        "── مصادر النقاط ──",
+    ]
+
+    for event in breakdown[-8:]:  # آخر 8 أحداث كحد أقصى لتجنب رسالة طويلة جداً
+        lines.append(f"• {event['reason']} (+{event['points']})")
+
+    lines.append("")
+    lines.append("⚠️ هذا تجميع آلي لعدد الإشارات ووزنها، وليس توصية — راجع الوضع الحالي بنفسك")
+
+    return "\n".join(lines)
+
+
+def check_score_reminders(score_state: dict):
+    """يفحص كل العملات، يرسل تذكيراً لأي عملة تجاوزت حد النقاط ولم تُنبَّه مؤخراً"""
+    sent = 0
+    for symbol in WATCHLIST:
+        for direction in ("bullish", "bearish"):
+            if should_alert(score_state, symbol, direction):
+                score = current_score(score_state, symbol, direction)
+                breakdown = get_score_breakdown(score_state, symbol, direction)
+                msg = format_reminder_message(symbol, direction, score, breakdown)
+                send_telegram_message(msg)
+                mark_alert_sent(score_state, symbol, direction)
+                sent += 1
+    return sent
+
+
 def main():
     print(f"بدء الفحص لعدد {len(WATCHLIST)} عملة...")
     total_signals = 0
     all_signals_for_app = []
+    score_state = load_score_state()
 
     for symbol in WATCHLIST:
         df = fetch_klines(symbol)
@@ -385,7 +511,7 @@ def main():
             continue
 
         try:
-            signals = analyze_symbol(symbol, df)
+            signals = analyze_symbol(symbol, df, score_state=score_state)
         except Exception as e:
             print(f"[خطأ تحليل] {symbol}: {e}")
             continue
@@ -402,12 +528,19 @@ def main():
 
     # --- فحص إغلاق الشموع على عدة فريمات (1h, 4h, 1d, 1w) ---
     print("بدء فحص إغلاق الشموع متعدد الفريمات...")
-    candle_state = load_state()
-    mtf_sent = run_multi_timeframe_scan(candle_state)
-    save_state(candle_state)
+    candle_state = load_candle_state()
+    mtf_sent = run_multi_timeframe_scan(candle_state, score_state=score_state)
+    save_candle_state(candle_state)
     print(f"تم إرسال {mtf_sent} تنبيه إغلاق شمعة عبر الفريمات")
 
-    print(f"انتهى الفحص. عدد الإشارات المُرسلة: {total_signals + mtf_sent}")
+    # --- فحص تذكيرات النقاط التراكمية ---
+    print("فحص النقاط التراكمية للعملات...")
+    clean_old_events(score_state)
+    reminders_sent = check_score_reminders(score_state)
+    save_score_state(score_state)
+    print(f"تم إرسال {reminders_sent} تذكير تراكمي")
+
+    print(f"انتهى الفحص. عدد الإشارات المُرسلة: {total_signals + mtf_sent + reminders_sent}")
 
 
 if __name__ == "__main__":
