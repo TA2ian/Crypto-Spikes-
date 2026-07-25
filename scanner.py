@@ -45,7 +45,8 @@ from coin_score import (
 )
 
 # ============ الإعدادات ============
-KUCOIN_KLINE_URL = "https://api.kucoin.com/api/v1/market/candles"
+BINANCE_KLINE_URL = "https://api.binance.com/api/v3/klines"
+
 TIMEFRAME = "1hour"
 CANDLE_LIMIT = 80            # تغطية النماذج السعرية الأطول
 
@@ -72,28 +73,49 @@ CONFIG_JSON_PATH = os.path.join(DOCS_DIR, "config.json")
 
 
 def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
-    """جلب بيانات الشموع من KuCoin (عام، بدون مفتاح API)"""
-    params = {"symbol": symbol, "type": timeframe}
+# ============ رابط باينانس المباشر ============
+BINANCE_KLINE_URL = "https://api.binance.com/api/v3/klines"
+
+def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
+    """جلب بيانات الشموع مباشرة من باينانس (عام، بدون مفتاح API)"""
+    # تنظيف الرمز لتوافقه مع باينانس (مثل BTCUSDT)
+    clean_symbol = symbol.replace("-", "").replace("/", "").upper()
+    
+    # تحويل الفريم المكتوب إلى صيغة باينانس
+    tf_map = {"1hour": "1h", "4hour": "4h", "1day": "1d", "1week": "1w"}
+    binance_tf = tf_map.get(timeframe, timeframe)
+
+    params = {
+        "symbol": clean_symbol,
+        "interval": binance_tf,
+        "limit": CANDLE_LIMIT
+    }
+    
     try:
-        resp = requests.get(KUCOIN_KLINE_URL, params=params, timeout=12)
+        resp = requests.get(BINANCE_KLINE_URL, params=params, timeout=12)
         resp.raise_for_status()
         data = resp.json()
     except Exception as e:
-        print(f"[خطأ] فشل جلب بيانات {symbol} ({timeframe}): {e}")
+        print(f"[خطأ] فشل جلب بيانات {symbol} من باينانس: {e}")
         return None
 
-    if data.get("code") != "200000" or not data.get("data"):
+    if not isinstance(data, list) or len(data) == 0:
         return None
 
-    rows = data["data"][::-1]
+    # تنسيق بيانات باينانس في الجدول (DataFrame)
     df = pd.DataFrame(
-        rows,
-        columns=["time", "open", "close", "high", "low", "volume", "turnover"],
+        data,
+        columns=[
+            "time", "open", "high", "low", "close", "volume",
+            "close_time", "quote_vol", "trades", "taker_base", "taker_quote", "ignore"
+        ]
     )
-    for col in ["open", "close", "high", "low", "volume"]:
+    
+    df = df[["time", "open", "high", "low", "close", "volume"]]
+    for col in ["open", "high", "low", "close", "volume"]:
         df[col] = df[col].astype(float)
 
-    return df.tail(CANDLE_LIMIT).reset_index(drop=True)
+    return df.reset_index(drop=True)
 
 
 def is_volume_confirmed(df: pd.DataFrame, index: int = -2, multiplier: float = 1.3) -> bool:
