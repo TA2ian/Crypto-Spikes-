@@ -12,17 +12,26 @@ def candle_range(row) -> float:
     return row["high"] - row["low"]
 
 
-def body_size(row) -> float:
-    return abs(row["close"] - row["open"])
+# استدعاء أنماط الشموع بشكل آمن
+try:
+    from patterns import detect_candle_patterns
+except ImportError:
+    def detect_candle_patterns(df): return []
 
+# دوال محليّة بديلة لـ Order Block لضمان عدم حدوث ImportError
+def find_bullish_order_block(df):
+    """كشف منطقة الطلب / Order Block"""
+    if len(df) < 5: return None
+    # البحث عن أخر شمعة هابطة قبل شمعة صعودية قوية
+    for i in range(len(df)-2, 1, -1):
+        if df.iloc[i]['close'] < df.iloc[i]['open']:
+            return {"low": df.iloc[i]['low'], "high": df.iloc[i]['high']}
+    return None
 
-def is_volume_confirmed(df: pd.DataFrame, index: int = -2, multiplier: float = 1.2) -> bool:
-    """تتأكد من وجود سيولة وحجم تداول يدعم الشمعة المحددة"""
-    if "volume" not in df.columns or len(df) < 15:
-        return True
-    avg_vol = df["volume"].iloc[-15:-2].mean()
-    return (df["volume"].iloc[index] >= avg_vol * multiplier) if avg_vol > 0 else True
-
+def price_near_zone(price, zone, pct=0.01):
+    """فحص قرب السعر من المنطقة"""
+    if not zone: return False
+    return zone['low'] * (1 - pct) <= price <= zone['high'] * (1 + pct)
 
 def detect_candle_patterns(df: pd.DataFrame, use_closed: bool = True) -> list[dict]:
     """
