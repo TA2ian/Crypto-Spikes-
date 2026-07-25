@@ -58,5 +58,50 @@
       }
     ],
     "already_alerted_at": null
+  },
+  "BTC-USDT:bullish": {
+    "events": [
+      {
+        "time": 1785006449,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      },
+      {
+        "time": 1785006449,
+        "points": 1.5,
+        "reason": "دايفرجنس RSI مؤكد بفريم 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "ETH-USDT:bullish": {
+    "events": [
+      {
+        "time": 1785006450,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "XMR-USDT:bearish": {
+    "events": [
+      {
+        "time": 1785006458,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "ICP-USDT:bullish": {
+    "events": [
+      {
+        "time": 1785006472,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
   }
 }
