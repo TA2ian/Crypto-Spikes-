@@ -1,1 +1,22 @@
-{}
+{
+  "XRP-USDT:bullish": {
+    "events": [
+      {
+        "time": 1784995474,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  },
+  "ETC-USDT:bullish": {
+    "events": [
+      {
+        "time": 1784995489,
+        "points": 1.0,
+        "reason": "إغلاق شمعة 1h"
+      }
+    ],
+    "already_alerted_at": null
+  }
+}
