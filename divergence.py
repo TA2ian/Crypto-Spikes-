@@ -21,11 +21,7 @@ def calc_macd(close: pd.Series, fast: int = 12, slow: int = 26, signal: int = 9)
 
 
 def find_local_extrema(series: pd.Series, order: int = 3):
-    """
-    يجد القمم والقيعان المحلية بسلسلة بيانات
-    order: عدد النقاط على كل جانب يجب أن تكون أقل/أكبر منها
-    يعيد: (قائمة مواقع القيعان، قائمة مواقع القمم)
-    """
+    """يجد القمم والقيعان المحلية بسلسلة بيانات"""
     lows, highs = [], []
     n = len(series)
     for i in range(order, n - order):
@@ -38,60 +34,64 @@ def find_local_extrema(series: pd.Series, order: int = 3):
     return lows, highs
 
 
-def check_volume_spike(df: pd.DataFrame, multiplier: float = 2.0, period: int = 20) -> bool:
-    """يتحقق إذا كانت آخر شمعة ذات حجم تداول ضخم مقارنة بالمعدل"""
-    if len(df) < period + 1:
-        return False
-    avg_vol = df["volume"].iloc[-(period + 1):-1].mean()
-    last_vol = df["volume"].iloc[-1]
-    return avg_vol > 0 and last_vol >= avg_vol * multiplier
-
-
-def detect_divergence(df: pd.DataFrame, indicator: pd.Series, lookback: int = 30,
-                       order: int = 3):
+def detect_divergence_with_volume(df: pd.DataFrame, indicator: pd.Series, lookback: int = 30, 
+                                   order: int = 3, vol_multiplier: float = 2.0):
     """
-    يفحص وجود دايفرجنس بين السعر والمؤشر المُعطى (RSI أو خط MACD)
-    ضمن آخر `lookback` شمعة، بمقارنة آخر قاعين محليين أو آخر قمتين محليتين
-
-    يعيد: "bullish" / "bearish" / None
+    يفحص الدايفرجنس مع التحقق من وجود فوليوم ضخم عند شمعة الانعكاس الأحدث (i2) أو الشمعة الحالية.
     """
     if len(df) < lookback + order * 2:
-        return None
+        return {"signal": None, "volume_confirmed": False}
 
+    # اقتطاع النافذة المحددة
     window_price = df["close"].iloc[-lookback:].reset_index(drop=True)
+    window_volume = df["volume"].iloc[-lookback:].reset_index(drop=True)
     window_indicator = indicator.iloc[-lookback:].reset_index(drop=True)
+
+    # حساب المتوسط المتحرك للحجم
+    vol_sma = window_volume.rolling(window=20, min_periods=1).mean()
 
     lows, highs = find_local_extrema(window_price, order=order)
 
-    # دايفرجنس إيجابي (صعودي): آخر قاعين بالسعر
+    # 1. دايفرجنس إيجابي (صعودي)
     if len(lows) >= 2:
         i1, i2 = lows[-2], lows[-1]
         price_lower_low = window_price.iloc[i2] < window_price.iloc[i1]
         indicator_higher_low = window_indicator.iloc[i2] > window_indicator.iloc[i1]
-        if price_lower_low and indicator_higher_low:
-            return "bullish"
 
-    # دايفرجنس سلبي (هبوطي): آخر قمتين بالسعر
+        if price_lower_low and indicator_higher_low:
+            # التحقق من وجود فوليوم ضخم عند القاع الأحدث أو الشموع المجاورة له مباشرة
+            vol_at_pivot = window_volume.iloc[i2]
+            avg_vol_at_pivot = vol_sma.iloc[i2]
+            has_volume_spike = vol_at_pivot >= (avg_vol_at_pivot * vol_multiplier)
+
+            return {"signal": "bullish", "volume_confirmed": has_volume_spike}
+
+    # 2. دايفرجنس سلبي (هبوطي)
     if len(highs) >= 2:
         i1, i2 = highs[-2], highs[-1]
         price_higher_high = window_price.iloc[i2] > window_price.iloc[i1]
         indicator_lower_high = window_indicator.iloc[i2] < window_indicator.iloc[i1]
-        if price_higher_high and indicator_lower_high:
-            return "bearish"
 
-    return None
+        if price_higher_high and indicator_lower_high:
+            vol_at_pivot = window_volume.iloc[i2]
+            avg_vol_at_pivot = vol_sma.iloc[i2]
+            has_volume_spike = vol_at_pivot >= (avg_vol_at_pivot * vol_multiplier)
+
+            return {"signal": "bearish", "volume_confirmed": has_volume_spike}
+
+    return {"signal": None, "volume_confirmed": False}
 
 
 def analyze_divergence(df: pd.DataFrame, rsi: pd.Series, volume_multiplier: float = 2.0):
-    """
-    يفحص الدايفرجنس على كل من RSI وMACD، ويتحقق من شمعة فوليوم ضخمة
-    يعيد قاموساً بالنتائج: {"rsi": "bullish"/"bearish"/None, "macd": ..., "volume_spike": bool}
-    """
+    """التحليل الشامل للـ RSI و MACD مع كشف سبايك الفوليوم"""
     macd_line, _, _ = calc_macd(df["close"])
-    volume_spike = check_volume_spike(df, multiplier=volume_multiplier)
+
+    rsi_res = detect_divergence_with_volume(df, rsi, vol_multiplier=volume_multiplier)
+    macd_res = detect_divergence_with_volume(df, macd_line, vol_multiplier=volume_multiplier)
 
     return {
-        "rsi": detect_divergence(df, rsi),
-        "macd": detect_divergence(df, macd_line),
-        "volume_spike": volume_spike,
+        "rsi_signal": rsi_res["signal"],
+        "rsi_volume_confirmed": rsi_res["volume_confirmed"],
+        "macd_signal": macd_res["signal"],
+        "macd_volume_confirmed": macd_res["volume_confirmed"],
     }
