@@ -1,43 +1,26 @@
 """
 أنماط الشموع الكلاسيكية + Order Blocks متقدمة مع FVG & BOS (SMC Framework)
-يقوم هذا الملف بفرز وتحليل منطق المال الذكي وتأكيد الأنماط بحجم التداول.
 """
 import pandas as pd
 import numpy as np
 
-
-# ============ أنماط الشموع ============
+# ============ دوال مساعدة ============
 
 def candle_range(row) -> float:
-    return row["high"] - row["low"]
+    return float(row["high"] - row["low"])
 
+def body_size(row) -> float:
+    return float(abs(row["close"] - row["open"]))
 
-# --- استدعاء patterns بشكل آمن واستبدال الدوال المفقودة محلياً ---
-try:
-    from patterns import detect_candle_patterns
-except ImportError:
-    def detect_candle_patterns(df): return []
+def is_volume_confirmed(df: pd.DataFrame, index: int = -2) -> bool:
+    """فحص التأكيد بحجم التداول (أعلى من المتوسط)"""
+    if len(df) < 20:
+        return False
+    avg_vol = df["volume"].iloc[-21:-1].mean()
+    current_vol = df["volume"].iloc[index]
+    return bool(current_vol > avg_vol * 1.3)
 
-def find_bullish_order_block(df):
-    """كشف منطقة الطلب الصعودية"""
-    if len(df) < 5: return None
-    for i in range(len(df)-2, 1, -1):
-        if df.iloc[i]['close'] < df.iloc[i]['open']:
-            return {"low": df.iloc[i]['low'], "high": df.iloc[i]['high']}
-    return None
-
-def find_bearish_order_block(df):
-    """كشف منطقة العرض الهبوطية"""
-    if len(df) < 5: return None
-    for i in range(len(df)-2, 1, -1):
-        if df.iloc[i]['close'] > df.iloc[i]['open']:
-            return {"low": df.iloc[i]['low'], "high": df.iloc[i]['high']}
-    return None
-
-def price_near_zone(price, zone, pct=0.01):
-    """فحص قرب السعر من المنطقة"""
-    if not zone: return False
-    return zone['low'] * (1 - pct) <= price <= zone['high'] * (1 + pct)
+# ============ أنماط الشموع الكلاسيكية ============
 
 def detect_candle_patterns(df: pd.DataFrame, use_closed: bool = True) -> list[dict]:
     """
@@ -90,7 +73,31 @@ def detect_candle_patterns(df: pd.DataFrame, use_closed: bool = True) -> list[di
     return found
 
 
-# ============ SMC: Order Blocks & FVG & BOS ============
+# ============ SMC: Order Blocks & FVG ============
+
+def find_bullish_order_block(df: pd.DataFrame) -> dict | None:
+    """كشف منطقة الطلب الصعودية (Order Block)"""
+    if len(df) < 5: 
+        return None
+    for i in range(len(df)-2, 1, -1):
+        if df.iloc[i]['close'] < df.iloc[i]['open']:
+            return {"low": float(df.iloc[i]['low']), "high": float(df.iloc[i]['high'])}
+    return None
+
+def find_bearish_order_block(df: pd.DataFrame) -> dict | None:
+    """كشف منطقة العرض الهبوطية (Order Block)"""
+    if len(df) < 5: 
+        return None
+    for i in range(len(df)-2, 1, -1):
+        if df.iloc[i]['close'] > df.iloc[i]['open']:
+            return {"low": float(df.iloc[i]['low']), "high": float(df.iloc[i]['high'])}
+    return None
+
+def price_near_zone(price: float, zone: dict | None, pct: float = 0.01) -> bool:
+    """فحص قرب السعر من المنطقة"""
+    if not zone: 
+        return False
+    return zone['low'] * (1 - pct) <= price <= zone['high'] * (1 + pct)
 
 def detect_fvg_after_candle(df: pd.DataFrame, candle_idx: int, direction: str) -> bool:
     """تكتشف وجود Fair Value Gap (FVG) بعد شمعة الـ OB مباشرة"""
@@ -102,14 +109,9 @@ def detect_fvg_after_candle(df: pd.DataFrame, candle_idx: int, direction: str) -
     else:
         return df.iloc[candle_idx + 2]["high"] < df.iloc[candle_idx]["low"]
 
-
 def find_advanced_order_block(df: pd.DataFrame, direction: str = "bullish", lookback: int = 25) -> dict | None:
     """
-    يبحث عن Order Block متقدم بمعايير SMC عالية الجودة:
-    1. حركة اندفاعية قوية
-    2. عدم استهلاك المنطقة (Unmitigated)
-    3. فحص وجود FVG مترافق
-    4. فحص كسر بنية السوق (BOS)
+    يبحث عن Order Block متتقدم بمعايير SMC
     """
     if df is None or len(df) < lookback + 5:
         return None
@@ -130,18 +132,15 @@ def find_advanced_order_block(df: pd.DataFrame, direction: str = "bullish", look
         if future.empty:
             continue
 
-        # قياس مدى قوة الحركة بعد الشمعة
         if direction == "bullish":
             max_move = (future["close"].max() - candle["close"]) / candle["close"]
-            if max_move < 0.025: # الحد الأدنى للصعود 2.5%
+            if max_move < 0.025:
                 continue
 
             ob_low, ob_high = float(candle["low"]), float(candle["high"])
-            # التأكد أن المنطقة غير مستهلكة
             if (future["close"] < ob_low).any():
                 continue
 
-            # تقييم الـ Confluence
             has_fvg = detect_fvg_after_candle(window, i, "bullish")
             recent_peak = window.iloc[max(0, i - 10):i]["high"].max()
             has_bos = (future["close"] > recent_peak).any()
