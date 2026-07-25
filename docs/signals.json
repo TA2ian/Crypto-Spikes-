@@ -1,18 +1,20 @@
 {
-  "last_scan": "2026-07-24 23:06 UTC",
+  "last_scan": "2026-07-25 03:16 UTC",
   "signals": [
     {
       "type": "ارتداد من دعم",
-      "emoji": "🔵",
-      "symbol": "ETC-USDT",
-      "price": 6.5495,
-      "level": 6.5127,
-      "rsi": 30.163705303041553,
-      "volume_ratio": 0.6084527072055887,
-      "stop_loss": 6.382446,
-      "target1": 6.8022,
+      "emoji": "🔵🔥",
+      "symbol": "BTC-USDT",
+      "price": 64058.6,
+      "level": 63738.0,
+      "rsi": 33.256701818426464,
+      "volume_ratio": 0.10122042501896918,
+      "stop_loss": 62463.24,
+      "target1": 65799.9,
       "target2": null,
-      "confluence": [],
+      "confluence": [
+        "نمط شمعة صعودي"
+      ],
       "extra": {
         "divergence": {
           "rsi": null,
@@ -20,41 +22,41 @@
           "volume_spike": false
         },
         "fibonacci": {
-          "swing_low": 6.5127,
-          "swing_high": 6.8766,
+          "swing_low": 63738.0,
+          "swing_high": 65799.9,
           "direction": "down",
           "retracement_levels": {
-            "0.236": 6.7907196,
-            "0.382": 6.7375902,
-            "0.5": 6.694649999999999,
-            "0.618": 6.6517098,
-            "0.786": 6.5905746
+            "0.236": 65313.2916,
+            "0.382": 65012.254199999996,
+            "0.5": 64768.95,
+            "0.618": 64525.6458,
+            "0.786": 64179.2466
           },
           "extension_levels": {
-            "1.272": 6.4137192,
-            "1.618": 6.2878098,
-            "2.0": 6.1488,
-            "2.618": 5.9239098
+            "1.272": 63177.1632,
+            "1.618": 62463.745800000004,
+            "2.0": 61676.100000000006,
+            "2.618": 60401.84580000001
           },
           "time_zones": [
-            5,
-            6,
-            7,
-            9,
+            10,
+            11,
             12,
+            14,
             17,
-            25
+            22,
+            30
           ],
           "near_retracement": [
-            0.786,
-            6.5905746
+            0.618,
+            64525.6458
           ],
           "near_extension": null
         },
         "chart_patterns": {
-          "trend": "هابط",
-          "double_pattern": "قمة مزدوجة",
-          "head_shoulders": null,
+          "trend": "عرضي",
+          "double_pattern": null,
+          "head_shoulders": "رأس وكتفين هابط",
           "triangle": null,
           "channel": null,
           "flag": null
