@@ -33,6 +33,6 @@ jobs:
         run: |
           git config user.name "halal-scanner-bot"
           git config user.email "actions@github.com"
-          git add docs/signals.json docs/config.json docs/last_alerted.json
+          git add docs/signals.json docs/config.json docs/last_alerted.json docs/coin_score_state.json
           git diff --staged --quiet || git commit -m "تحديث بيانات الإشارات [تلقائي]"
           git push
