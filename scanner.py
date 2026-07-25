@@ -22,7 +22,13 @@ from patterns import (
 )
 from divergence import analyze_divergence
 from fibonacci import analyze_fibonacci
-from chart_patterns import detect_all_patterns
+# استدعاء آمن لـ chart_patterns
+try:
+    from chart_patterns import detect_all_patterns
+except ImportError:
+    def detect_all_patterns(df): 
+        return []
+
 from multi_timeframe import scan_multi_timeframe, TIMEFRAMES
 from candle_state import (
     load_state as load_candle_state,
