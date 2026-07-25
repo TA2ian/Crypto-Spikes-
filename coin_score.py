@@ -4,110 +4,160 @@
 
 كل نوع إشارة له وزن مختلف حسب قوته التحليلية النسبية.
 """
-import os
-import json
-import time
+import requests  # تأكد من تثبيت المكتبة: pip install requests
 
-STATE_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "docs", "coin_score_state.json"
-)
-
-# ============ إعدادات الأوزان ============
-WEIGHTS = {
-    "base_signal": 1.0,              # اختراق مقاومة / ارتداد دعم عادي
-    "candle_pattern_confirm": 0.5,    # نمط شمعة أو Order Block مؤكد
-    "divergence_confirm": 1.5,        # دايفرجنس RSI/MACD مؤكد بفوليوم
-    "mtf_candle_close": 1.0,          # إغلاق شمعة كاسر مستوى (لكل فريم)
-    "mtf_multi_alignment": 2.0,       # تطابق فريمين+ بنفس الاتجاه بنفس الوقت
-    "cvd_confirm": 1.0,               # تأكيد اتجاه CVD (شراء/بيع متزايد يطابق الاتجاه)
-    "cvd_divergence": 1.5,            # دايفرجنس CVD (تحذير قوي)
-}
-
-SCORE_THRESHOLD = 5.0        # الحد الذي يستوجب إرسال تذكير
-WINDOW_HOURS = 24            # النافذة الزمنية لتجميع النقاط
-DECAY_AFTER_HOURS = 48       # حذف السجلات الأقدم من هالمدة نهائياً (تنظيف الملف)
+# ============ إعدادات بوت تيليغرام ============
+TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # ضع توكن البوت الخاص بك هنا
+TELEGRAM_CHAT_ID = "YOUR_CHAT_ID_HERE"      # ضع Chat ID لقناتك أو حسابك هنا
 
 
-def load_state() -> dict:
-    if not os.path.exists(STATE_FILE):
-        return {}
-    try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError):
-        return {}
-
-
-def save_state(state: dict):
-    os.makedirs(os.path.dirname(STATE_FILE), exist_ok=True)
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        json.dump(state, f, ensure_ascii=False, indent=2)
-
-
-def _key(symbol: str, direction: str) -> str:
-    return f"{symbol}:{direction}"
-
-
-def add_points(state: dict, symbol: str, direction: str, points: float, reason: str):
-    """يضيف نقاط جديدة لعملة+اتجاه معين، مع تسجيل الوقت والسبب"""
-    key = _key(symbol, direction)
-    now = int(time.time())
-
-    if key not in state:
-        state[key] = {"events": [], "already_alerted_at": None}
-
-    state[key]["events"].append({"time": now, "points": points, "reason": reason})
-
-
-def clean_old_events(state: dict):
-    """يحذف الأحداث الأقدم من DECAY_AFTER_HOURS لتجنب تضخم الملف بلا حدود"""
-    cutoff = int(time.time()) - DECAY_AFTER_HOURS * 3600
-    for key in list(state.keys()):
-        state[key]["events"] = [e for e in state[key]["events"] if e["time"] >= cutoff]
-        if not state[key]["events"]:
-            del state[key]
-
-
-def current_score(state: dict, symbol: str, direction: str) -> float:
-    """يحسب مجموع النقاط الحالي ضمن نافذة WINDOW_HOURS فقط"""
-    key = _key(symbol, direction)
-    if key not in state:
-        return 0.0
-
-    cutoff = int(time.time()) - WINDOW_HOURS * 3600
-    return sum(e["points"] for e in state[key]["events"] if e["time"] >= cutoff)
-
-
-def should_alert(state: dict, symbol: str, direction: str) -> bool:
-    """
-    يتحقق إن كان مجموع النقاط تجاوز الحد، ولم يُرسل تذكير له خلال آخر WINDOW_HOURS
-    (لتجنب تكرار نفس رسالة التذكير بكل تشغيلة بعد ما تتجاوز العملة الحد مرة)
-    """
-    key = _key(symbol, direction)
-    score = current_score(state, symbol, direction)
-
-    if score < SCORE_THRESHOLD:
+def send_telegram_message(text: str) -> bool:
+    """دالة مساعدة لإرسال الرسائل عبر API تيليغرام المباشر"""
+    if TELEGRAM_BOT_TOKEN == "YOUR_BOT_TOKEN_HERE" or not TELEGRAM_CHAT_ID:
+        print("⚠️ لم يتم ضبط توكن البوت أو Chat ID الخاص بتيليغرام.")
         return False
 
-    last_alert = state.get(key, {}).get("already_alerted_at")
-    if last_alert is None:
-        return True
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text,
+        "parse_mode": "Markdown"  # لدعم التنسيق الغامق والرموز
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"❌ خطأ أثناء إرسال رسالة تيليغرام: {e}")
+        return False
 
-    hours_since_alert = (int(time.time()) - last_alert) / 3600
-    return hours_since_alert >= WINDOW_HOURS
+
+def format_alert_message(symbol: str, direction: str, score: float, breakdown: list) -> str:
+    """تنسيق نص الرسالة بشكل احترافي ومنظم"""
+    direction_emoji = "🟢 LONG" if direction.upper() in ["LONG", "BUY", "شراء"] else "🔴 SHORT"
+    
+    # تحويل قائمة الإشارات إلى أسطر مرتبة
+    reasons_list = []
+    for item in breakdown:
+        reasons_list.append(f"• {item['reason']} (`+{item['points']} p`)")
+    
+    reasons_text = "\n".join(reasons_list)
+
+    msg = (
+        f"🔥 **تراكم إشارات قوي: {symbol.upper()}**\n"
+        f"🎯 **الاتجاه:** {direction_emoji}\n"
+        f"📊 **مجموع النقاط:** `{score:.1f} / {SCORE_THRESHOLD}`\n\n"
+        f"📋 **الإشارات المساهمة خلال 24 ساعة:**\n"
+        f"{reasons_text}\n\n"
+        f"💡 *يُنصح بمراجعة الشارت وتأكيد النماذج قبل الدخول.*"
+    )
+    return msg
 
 
-def mark_alert_sent(state: dict, symbol: str, direction: str):
-    key = _key(symbol, direction)
-    if key in state:
-        state[key]["already_alerted_at"] = int(time.time())
+def process_signal_and_alert(symbol: str, direction: str, signal_type: str, reason: str = ""):
+    """
+    الدالة الرئيسية التي تستدعيها عند اكتشاف أي إشارة جديدة.
+    تقوم بـ: إضافة النقاط -> الفحص -> تنسيق الرسالة -> الإرسال لتيليغرام -> الحفظ.
+    """
+    state = load_state()
+    
+    # 1. التنظيف الدعمي للسجلات القديمة
+    clean_old_events(state)
+    
+    # 2. إضافة الإشارة والنقاط الجديدة
+    add_points(state, symbol, direction, signal_type, reason)
+    
+    # 3. التحقق هل تجاوزت العملة الحد المطلوب ويجب التنبيه؟
+    if should_alert(state, symbol, direction):
+        score = current_score(state, symbol, direction)
+        breakdown = get_score_breakdown(state, symbol, direction)
+        
+        # 4. بناء وإرسال الرسالة
+        message_text = format_alert_message(symbol, direction, score, breakdown)
+        sent_success = send_telegram_message(message_text)
+        
+        # 5. إذا تم الإرسال بنجاح، يتم تحديث حالة التنبيه
+        if sent_success:
+            mark_alert_sent(state, symbol, direction)
+    
+    # 6. حفظ التغييرات على القرص
+    save_state(state)
+
+import requests  # تأكد من تثبيت المكتبة: pip install requests
+
+# ============ إعدادات بوت تيليغرام ============
+TELEGRAM_BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"  # ضع توكن البوت الخاص بك هنا
+TELEGRAM_CHAT_ID = "YOUR_CHAT_ID_HERE"      # ضع Chat ID لقناتك أو حسابك هنا
 
 
-def get_score_breakdown(state: dict, symbol: str, direction: str) -> list[dict]:
-    """يعيد قائمة الأحداث المساهمة بالنقاط الحالية (للعرض بالرسالة)"""
-    key = _key(symbol, direction)
-    if key not in state:
-        return []
+def send_telegram_message(text: str) -> bool:
+    """دالة مساعدة لإرسال الرسائل عبر API تيليغرام المباشر"""
+    if TELEGRAM_BOT_TOKEN == "YOUR_BOT_TOKEN_HERE" or not TELEGRAM_CHAT_ID:
+        print("⚠️ لم يتم ضبط توكن البوت أو Chat ID الخاص بتيليغرام.")
+        return False
 
-    cutoff = int(time.time()) - WINDOW_HOURS * 3600
-    return [e for e in state[key]["events"] if e["time"] >= cutoff]
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": text,
+        "parse_mode": "Markdown"  # لدعم التنسيق الغامق والرموز
+    }
+    
+    try:
+        response = requests.post(url, json=payload, timeout=10)
+        return response.status_code == 200
+    except Exception as e:
+        print(f"❌ خطأ أثناء إرسال رسالة تيليغرام: {e}")
+        return False
+
+
+def format_alert_message(symbol: str, direction: str, score: float, breakdown: list) -> str:
+    """تنسيق نص الرسالة بشكل احترافي ومنظم"""
+    direction_emoji = "🟢 LONG" if direction.upper() in ["LONG", "BUY", "شراء"] else "🔴 SHORT"
+    
+    # تحويل قائمة الإشارات إلى أسطر مرتبة
+    reasons_list = []
+    for item in breakdown:
+        reasons_list.append(f"• {item['reason']} (`+{item['points']} p`)")
+    
+    reasons_text = "\n".join(reasons_list)
+
+    msg = (
+        f"🔥 **تراكم إشارات قوي: {symbol.upper()}**\n"
+        f"🎯 **الاتجاه:** {direction_emoji}\n"
+        f"📊 **مجموع النقاط:** `{score:.1f} / {SCORE_THRESHOLD}`\n\n"
+        f"📋 **الإشارات المساهمة خلال 24 ساعة:**\n"
+        f"{reasons_text}\n\n"
+        f"💡 *يُنصح بمراجعة الشارت وتأكيد النماذج قبل الدخول.*"
+    )
+    return msg
+
+
+def process_signal_and_alert(symbol: str, direction: str, signal_type: str, reason: str = ""):
+    """
+    الدالة الرئيسية التي تستدعيها عند اكتشاف أي إشارة جديدة.
+    تقوم بـ: إضافة النقاط -> الفحص -> تنسيق الرسالة -> الإرسال لتيليغرام -> الحفظ.
+    """
+    state = load_state()
+    
+    # 1. التنظيف الدعمي للسجلات القديمة
+    clean_old_events(state)
+    
+    # 2. إضافة الإشارة والنقاط الجديدة
+    add_points(state, symbol, direction, signal_type, reason)
+    
+    # 3. التحقق هل تجاوزت العملة الحد المطلوب ويجب التنبيه؟
+    if should_alert(state, symbol, direction):
+        score = current_score(state, symbol, direction)
+        breakdown = get_score_breakdown(state, symbol, direction)
+        
+        # 4. بناء وإرسال الرسالة
+        message_text = format_alert_message(symbol, direction, score, breakdown)
+        sent_success = send_telegram_message(message_text)
+        
+        # 5. إذا تم الإرسال بنجاح، يتم تحديث حالة التنبيه
+        if sent_success:
+            mark_alert_sent(state, symbol, direction)
+    
+    # 6. حفظ التغييرات على القرص
+    save_state(state)
