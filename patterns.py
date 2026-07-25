@@ -12,19 +12,25 @@ def candle_range(row) -> float:
     return row["high"] - row["low"]
 
 
-# استدعاء أنماط الشموع بشكل آمن
+# --- استدعاء patterns بشكل آمن واستبدال الدوال المفقودة محلياً ---
 try:
     from patterns import detect_candle_patterns
 except ImportError:
     def detect_candle_patterns(df): return []
 
-# دوال محليّة بديلة لـ Order Block لضمان عدم حدوث ImportError
 def find_bullish_order_block(df):
-    """كشف منطقة الطلب / Order Block"""
+    """كشف منطقة الطلب الصعودية"""
     if len(df) < 5: return None
-    # البحث عن أخر شمعة هابطة قبل شمعة صعودية قوية
     for i in range(len(df)-2, 1, -1):
         if df.iloc[i]['close'] < df.iloc[i]['open']:
+            return {"low": df.iloc[i]['low'], "high": df.iloc[i]['high']}
+    return None
+
+def find_bearish_order_block(df):
+    """كشف منطقة العرض الهبوطية"""
+    if len(df) < 5: return None
+    for i in range(len(df)-2, 1, -1):
+        if df.iloc[i]['close'] > df.iloc[i]['open']:
             return {"low": df.iloc[i]['low'], "high": df.iloc[i]['high']}
     return None
 
