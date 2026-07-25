@@ -46,9 +46,15 @@ from coin_score import (
 )
 
 # --- استدعاء الموديولات الذكية الجديدة ---
-from modules.smc import detect_fvg, detect_liquidity_sweep
-from modules.sentiment import get_fear_and_greed_index
-from modules.dynamic_risk import calculate_atr, calculate_dynamic_targets, rate_signal_confidence
+# --- استدعاء الموديولات الذكية الجديدة بشكل آمن ---
+try:
+    from modules.smc import detect_fvg, detect_liquidity_sweep
+    from modules.sentiment import get_fear_and_greed_index
+    from modules.dynamic_risk import calculate_atr, calculate_dynamic_targets, rate_signal_confidence
+except ImportError:
+    from smc import detect_fvg, detect_liquidity_sweep
+    from sentiment import get_fear_and_greed_index
+    from dynamic_risk import calculate_atr, calculate_dynamic_targets, rate_signal_confidence
 
 # ============ الإعدادات ============
 BINANCE_KLINE_URL = "https://api.binance.com/api/v3/klines"
