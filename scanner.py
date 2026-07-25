@@ -1,13 +1,7 @@
 """
-ماسح العملات الحلال - سكربت مجاني بالكامل
-يسحب بيانات KuCoin العامة، يفحص شروط دخول كلاسيكية (اختراق مقاومة/ارتداد دعم)
-كإشارات أساسية، ويعرض معها طبقة معلوماتية شاملة:
-- أنماط الشموع + Order Blocks
-- دايفرجنس RSI وMACD مع تأكيد فوليوم
-- مستويات فيبوناتشي (تصحيحي/امتدادي/زمني)
-- النماذج السعرية (رأس وكتفين، مثلثات، قاع/قمة مزدوجة، علم، قناة، ترند)
-
-يعمل عبر GitHub Actions كل ساعة (مجاني).
+ماسح العملات الحلال - السكربت الرئيسي الموحد
+يقوم بجلب البيانات، الفحص الفني، إدارة نظام النقاط التراكمي،
+وإرسال التنبيهات وتحديث بيانات Telegram Mini App.
 """
 import os
 import json
@@ -105,142 +99,11 @@ def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None
 def is_volume_confirmed(df: pd.DataFrame, index: int = -2, multiplier: float = 1.3) -> bool:
     """تتحقق من أن حجم التداول أعلى من المتوسط قبل اعتماد النمط"""
     if "volume" not in df.columns or len(df) < 20:
-        return True # تجنب التعطيل في حال عدم توفر حجم التداول
+        return True
         
-    avg_volume = df["volume"].iloc[-20:-2].mean()
+    avg_vol = df["volume"].iloc[-20:-2].mean()
     candle_volume = df["volume"].iloc[index]
-    
-    return candle_volume >= (avg_volume * multiplier)
-
-from patterns_and_smc import detect_candle_patterns, find_bullish_order_block, price_near_zone
-from coin_score_tracker import process_signal_and_alert
-
-# 1. فحص أنماط الشموع المكتملة
-patterns = detect_candle_patterns(df, use_closed=True)
-for pattern in patterns:
-    direction = "LONG" if "صعودي" in pattern or "مطرقة" in pattern else "SHORT"
-    process_signal_and_alert(
-        symbol=symbol,
-        direction=direction,
-        signal_type="candle_pattern",
-        reason=f"شمعة مكتملة بنمط: {pattern}"
-    )
-
-# 2. فحص اختبار منطقة Order Block
-last_price = df["close"].iloc[-1]
-bull_ob = find_bullish_order_block(df, impulse_threshold=0.025)
-
-if bull_ob and price_near_zone(last_price, bull_ob):
-    process_signal_and_alert(
-        symbol=symbol,
-        direction="LONG",
-        signal_type="order_block_test",
-        reason=f"السعر يختبر منطقة Order Block صعودي عند {bull_ob}"
-    )
-
-
-mtf_signals = scan_multi_timeframe(fetch_klines, symbol)
-
-for sig in mtf_signals:
-    direction = "LONG" if sig["direction"] == "bullish" else "SHORT"
-    tf_label = sig["timeframe_label"]
-    weight = sig["tf_weight"]  # النسبة (مثلاً 2.5 للفريم اليومي)
-
-    reason = f"إغلاق شمعة {tf_label} قوية أعلى المقاومة {sig['level_broken']} (وزن الفريم: {weight})"
-    
-    # يمكنك إضافة إشارات مخصصة أو الاعتماد المباشر على process_signal_and_alert
-    process_signal_and_alert(
-        symbol=symbol,
-        direction=direction,
-        signal_type="mtf_candle_close",
-        reason=reason
-    )
-
-TIMEFRAME_WEIGHTS = {
-    "1hour": 1.0,
-    "4hour": 1.5,
-    "1day": 2.5,
-    "1week": 3.5,
-}
-
-# يضاف بداخل المخرجات في دالة check_candle_close:
-"tf_weight": TIMEFRAME_WEIGHTS.get(timeframe, 1.0)
-
-from technical_tools import volume_spike_ratio, check_breakout
-from coin_score_tracker import process_signal_and_alert
-
-# 1. فحص الانفجار السعري وتجاوز الحجم
-spike = volume_spike_ratio(df, period=20)
-if spike >= 2.5: # دخول سيولة مفاجئة (أكثر من ضعف المتوسط)
-    process_signal_and_alert(
-        symbol=symbol,
-        direction="LONG",
-        signal_type="volume_spike",
-        reason=f"دخول سيولة عالية (الحجم {spike}x من المتوسط)"
-    )
-
-# 2. فحص اختراق المقاومة
-breakout_info = check_breakout(df, lookback=20)
-if breakout_info["is_bullish_breakout"]:
-    process_signal_and_alert(
-        symbol=symbol,
-        direction="LONG",
-        signal_type="resistance_break",
-        reason=f"إغلاق شمعة أعلى المقاومة {breakout_info['resistance']}"
-    )
-
-fib_res = analyze_fibonacci(df, lookback=30)
-
-# عند ملامسة مستوى ارتاد/تصحيح ذهبي (0.618 أو 0.5)
-if fib_res["near_retracement"]:
-    ratio, level_price = fib_res["near_retracement"]
-    if ratio in [0.5, 0.618]:
-        process_signal_and_alert(
-            symbol=symbol,
-            direction="LONG" if fib_res["direction"] == "up" else "SHORT",
-            signal_type="fib_golden_bounce",
-            reason=f"ملامسة مستوى فيبوناتشي الذهبي ({ratio}) عند {level_price}"
-        )
-
-
-from coin_score_tracker import process_signal_and_alert
-
-# مثال 1: عند اكتشاف دايفرجنس
-process_signal_and_alert(
-    symbol="BTCUSDT",
-    direction="LONG",
-    signal_type="divergence_confirm",
-    reason="دايفرجنس إيجابي على RSI فريم 1h"
-)
-
-# مثال 2: عند الكسر على فريم كبير
-process_signal_and_alert(
-    symbol="BTCUSDT",
-    direction="LONG",
-    signal_type="mtf_candle_close",
-    reason="إغلاق شمعة فوق المقاومة 65,000"
-)
-
-
-if should_alert(state, symbol, "LONG"):
-    score = current_score(state, symbol, "LONG")
-    breakdown = get_score_breakdown(state, symbol, "LONG")
-    
-    # بناء نص الإشارات المساهمة
-    reasons_text = "\n".join([f"• {item['reason']} (+{item['points']} p)" for item in breakdown])
-    
-    msg = (
-        f"🔥 **تجميع إشارات قوي: {symbol} (LONG)**\n"
-        f"📊 **مجموع النقاط:** `{score} / {SCORE_THRESHOLD}`\n\n"
-        f"📋 **الإشارات المساهمة خلال 24 ساعة:**\n"
-        f"{reasons_text}"
-    )
-    
-    # إرسال التنبيه وتسجيله
-    send_telegram(msg)
-    mark_alert_sent(state, symbol, "LONG")
-    save_state(state)
-
+    return candle_volume >= (avg_vol * multiplier)
 
 
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
@@ -365,12 +228,11 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
 
     extra_analysis = build_extra_analysis(closed_df, rsi)
 
-    def register_score(reason_prefix: str):
+    def register_score(reason_prefix: str, direction: str = "bullish", pts: float = 1.0):
         if score_state is None:
             return
-        direction = "bullish"
 
-        add_points(score_state, symbol, direction, WEIGHTS.get("base_signal", 1.0), reason_prefix)
+        add_points(score_state, symbol, direction, pts, reason_prefix)
 
         if has_bullish_pattern or near_bull_ob:
             add_points(score_state, symbol, direction, WEIGHTS.get("candle_pattern_confirm", 0.5),
@@ -382,11 +244,17 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
                        f"{reason_prefix} + دايفرجنس مؤكد")
 
         cvd = extra_analysis.get("cvd", {})
-        if cvd.get("trend") == "شراء متزايد":
+        if cvd.get("trend") == "شراء متزايد" and direction == "bullish":
             add_points(score_state, symbol, direction, WEIGHTS.get("cvd_confirm", 0.5),
                        f"{reason_prefix} + CVD شراء متزايد")
 
-    # --- إشارة 1: اختراق مقاومة بحجم ---
+    # --- 1. فحص الانفجار السعري وتجاوز الحجم ---
+    if avg_vol > 0:
+        vol_spike = last_volume / avg_vol
+        if vol_spike >= 2.5:
+            register_score(f"دخول سيولة عالية (الحجم {vol_spike:.1f}x من المتوسط)", "bullish", 1.5)
+
+    # --- 2. إشارة اختراق المقاومة ---
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
         notes = confluence_note()
         signals.append({
@@ -403,9 +271,9 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "confluence": notes,
             "extra": extra_analysis,
         })
-        register_score("اختراق مقاومة")
+        register_score("اختراق مقاومة", "bullish", WEIGHTS.get("base_signal", 1.0))
 
-    # --- إشارة 2: ارتداد من دعم ---
+    # --- 3. إشارة ارتداد من دعم ---
     is_bullish_candle = last_close > float(last_row["open"])
     near_support = float(last_row["low"]) <= support * (1 + SUPPORT_TOLERANCE)
 
@@ -425,7 +293,13 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "confluence": notes,
             "extra": extra_analysis,
         })
-        register_score("ارتداد من دعم")
+        register_score("ارتداد من دعم", "bullish", WEIGHTS.get("base_signal", 1.0))
+
+    # --- 4. فحص ملامسة مستويات فيبوناتشي الذهبية ---
+    fib_res = extra_analysis.get("fibonacci", {})
+    if fib_res.get("near_retracement"):
+        ratio_str, level_price = fib_res["near_retracement"]
+        register_score(f"ملامسة مستوى فيبوناتشي ({ratio_str}) عند {level_price:.4f}$", "bullish", 0.8)
 
     return signals
 
@@ -516,7 +390,6 @@ def run_multi_timeframe_scan(state: dict, score_state: dict = None) -> int:
             print(f"[خطأ فحص متعدد الفريمات] {symbol}: {e}")
             continue
 
-        new_results = []
         for res in results:
             candle_time = res.get("candle_time")
             tf = res["timeframe"]
@@ -527,13 +400,12 @@ def run_multi_timeframe_scan(state: dict, score_state: dict = None) -> int:
             msg = format_mtf_message(res)
             send_telegram_message(msg)
             sent += 1
-            new_results.append(res)
 
             if candle_time is not None:
                 mark_alerted(state, symbol, tf, candle_time)
 
             if score_state is not None:
-                add_points(score_state, symbol, res["direction"], WEIGHTS.get("mtf_candle_close", 1.0),
+                add_points(score_state, symbol, res["direction"], WEIGHTS.get("mtf_candle_close", 1.5),
                            f"إغلاق شمعة {res['timeframe_label']}")
 
         time.sleep(0.15)
@@ -588,13 +460,13 @@ def check_score_reminders(score_state: dict) -> int:
                 is_bull = direction == "bullish"
                 emoji = "🏆🟢" if is_bull else "🏆🔴"
                 lines = [
-                    f"<b>{emoji} تذكير تراكمي — {symbol.replace('-', '/')}</b>",
+                    f"<b>{emoji} تذكير تراكمي قوي — {symbol.replace('-', '/')} ({direction.upper()})</b>",
                     f"تجمّعت إشارات متراكمة خلال آخر {WINDOW_HOURS} ساعة",
-                    f"<b>مجموع النقاط:</b> {score:.1f} (الحد: {SCORE_THRESHOLD})",
-                    "\n<b>مصادر النقاط:</b>",
+                    f"<b>مجموع النقاط:</b> {score:.1f} / {SCORE_THRESHOLD}",
+                    "\n<b>مصادر النقاط المساهمة:</b>",
                 ]
                 for event in breakdown[-6:]:
-                    lines.append(f"• {event['reason']} (+{event['points']})")
+                    lines.append(f"• {event['reason']} (+{event['points']:.1f} p)")
 
                 send_telegram_message("\n".join(lines))
                 mark_alert_sent(score_state, symbol, direction)
