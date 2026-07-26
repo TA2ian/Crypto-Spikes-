@@ -490,9 +490,6 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
 # ============ شجرة الأولويات وتصنيف الخطط الـ 7 (آمنة تماماً) ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
-    """
-    تصنيف التنبيه وفق شجرة الشروط الحصرية - النسخة الآمنة من الرموز المعقدة
-    """
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
     extra = sig.get("extra", {})
@@ -627,7 +624,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "FVG_SCALP", msg
 
-    # تنبيه قياسي
     return "STANDARD", f"◈ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$"
 
 def send_telegram_message(text: str):
