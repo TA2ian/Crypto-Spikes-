@@ -1,7 +1,7 @@
 """
-ماسح العملات الحلال - السكربت الرئيسي الموحد (Binance + Modules Edition)
-يقوم بجلب البيانات، الفحص الفني، إدارة نظام النقاط التراكمي،
-حساب الأهداف الديناميكية (6 أهداف)، وتقييم SMC والماكرو مع التنبيهات الذكية.
+ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
+يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 7 بدون تعارض، 
+ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns).
 """
 import os
 import json
@@ -30,7 +30,6 @@ except ImportError:
     def detect_all_patterns(df): 
         return []
 
-from multi_timeframe import scan_multi_timeframe, TIMEFRAMES
 from candle_state import (
     load_state as load_candle_state,
     save_state as save_candle_state,
@@ -78,7 +77,8 @@ except ImportError:
     from dynamic_risk import calculate_atr, rate_signal_confidence
 
 # ============ الإعدادات ============
-TIMEFRAME = "1h"
+# الفريمات المفعلة بالفحص اللحظي والماكرو
+ACTIVE_TIMEFRAMES = ["1h", "4h", "1d", "3d", "1w"]
 CANDLE_LIMIT = 80
 
 RESISTANCE_LOOKBACK = 20
@@ -96,17 +96,13 @@ SHOW_CVD = True
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
-SIGNALS_JSON_PATH = os.path.join(DOCS_DIR, "signals.json")
-CONFIG_JSON_PATH = os.path.join(DOCS_DIR, "config.json")
-
-# ============ جلب البيانات ============
+# ============ جلب البيانات من المنصات ============
 def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
     clean_symbol = symbol.replace("/", "-").upper()
     if not clean_symbol.endswith("-USDT"):
         clean_symbol = f"{clean_symbol}-USDT"
 
-    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D"}
+    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D", "3d": "3D", "1w": "1W"}
     okx_tf = tf_map.get(timeframe, "1H")
 
     url = "https://www.okx.com/api/v5/market/candles"
@@ -129,7 +125,7 @@ def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
 
 def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60", "4h": "240", "1d": "D"}
+    tf_map = {"1h": "60", "4h": "240", "1d": "D", "3d": "3D", "1w": "W"}
     bybit_tf = tf_map.get(timeframe, "60")
 
     url = "https://api.bybit.com/v5/market/kline"
@@ -152,7 +148,7 @@ def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
 
 def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D"}
+    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D", "3d": "3D", "1w": "1W"}
     mexc_tf = tf_map.get(timeframe, "60m")
 
     url = "https://api.mexc.com/api/v3/klines"
@@ -172,17 +168,62 @@ def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
         pass
     return None
 
-def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
+def fetch_klines(symbol: str, timeframe: str = "1h") -> pd.DataFrame | None:
     df = fetch_from_okx(symbol, timeframe)
     if df is not None: return df
     df = fetch_from_bybit(symbol, timeframe)
     if df is not None: return df
     df = fetch_from_mexc(symbol, timeframe)
     if df is not None: return df
-    print(f"[خطأ] فشل جلب بيانات {symbol} من المنصات")
     return None
 
 # ============ أدوات التحليل الفني ============
+def calculate_bollinger_bands(df: pd.DataFrame, window: int = 20, num_std: float = 2.0) -> dict:
+    if len(df) < window:
+        return {}
+    
+    sma = df['close'].rolling(window=window).mean()
+    std = df['close'].rolling(window=window).std()
+    
+    upper_band = sma + (std * num_std)
+    lower_band = sma - (std * num_std)
+    
+    last_close = df['close'].iloc[-1]
+    last_upper = upper_band.iloc[-1]
+    last_lower = lower_band.iloc[-1]
+    
+    bandwidth = (last_upper - last_lower) / sma.iloc[-1] if sma.iloc[-1] else 0
+    
+    return {
+        "upper": float(last_upper),
+        "middle": float(sma.iloc[-1]),
+        "lower": float(last_lower),
+        "is_oversold_bb": float(last_close) <= float(last_lower),
+        "is_overbought_bb": float(last_close) >= float(last_upper),
+        "is_squeeze": bandwidth < 0.10,
+        "bandwidth": float(bandwidth)
+    }
+
+def calculate_ema_indicators(df: pd.DataFrame) -> dict:
+    if len(df) < 50:
+        return {}
+    
+    df_copy = df.copy()
+    df_copy['ema_50'] = df_copy['close'].ewm(span=50, adjust=False).mean()
+    df_copy['ema_200'] = df_copy['close'].ewm(span=min(len(df_copy), 200), adjust=False).mean()
+    
+    last_close = float(df_copy['close'].iloc[-1])
+    ema50 = float(df_copy['ema_50'].iloc[-1])
+    ema200 = float(df_copy['ema_200'].iloc[-1])
+    
+    return {
+        "ema_50": ema50,
+        "ema_200": ema200,
+        "above_ema50": last_close > ema50,
+        "above_ema200": last_close > ema200,
+        "golden_cross": ema50 > ema200
+    }
+
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
     extra = {}
     if SHOW_DIVERGENCE:
@@ -225,29 +266,61 @@ def detect_volume_imbalance_and_effort(df: pd.DataFrame, vol_mult: float = 2.0) 
     last_vol, last_close, last_open = df['volume'].iloc[-1], df['close'].iloc[-1], df['open'].iloc[-1]
     return (last_vol > avg_vol * vol_mult) and (last_close > last_open)
 
-def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_effort: bool, bull_ob: dict) -> dict:
+def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_effort: bool, bull_ob: dict, ema_data: dict) -> dict:
     wyckoff_result = {"is_bull_market": False, "wyckoff_phase": None, "is_wyckoff_setup": False}
     if len(df) < 50: return wyckoff_result
 
-    df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
-    df['ema_200'] = df['close'].ewm(span=min(len(df), 200), adjust=False).mean()
-
-    last_ema50, last_ema200, last_close = df['ema_50'].iloc[-1], df['ema_200'].iloc[-1], df['close'].iloc[-1]
-
-    if last_close > last_ema50 and last_ema50 > last_ema200:
+    if ema_data.get("above_ema50") and ema_data.get("golden_cross"):
         wyckoff_result["is_bull_market"] = True
 
     if is_sweep and bull_ob:
         wyckoff_result["wyckoff_phase"] = "Phase C (Spring - تجميع وسحب سيولة)"
         wyckoff_result["is_wyckoff_setup"] = True
     elif ms.get("bos_bullish") and is_effort:
-        wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة واختراق)"
+        wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة وااختراق)"
         wyckoff_result["is_wyckoff_setup"] = True
     elif wyckoff_result["is_bull_market"] and bull_ob and ms.get("choch_bullish"):
         wyckoff_result["wyckoff_phase"] = "Phase E (LPS - إعادة اختبار الدعم)"
         wyckoff_result["is_wyckoff_setup"] = True
 
     return wyckoff_result
+
+# ============ فحص اتجاه الماكرو (3D + 1W) ============
+def analyze_macro_trends(symbol: str) -> dict:
+    """
+    تحليل ماكرو مزدوج عبر فريم الـ 3D والفريم الأسبوعي 1W
+    """
+    df_3d = fetch_klines(symbol, timeframe="3d")
+    df_1w = fetch_klines(symbol, timeframe="1w")
+
+    macro_data = {
+        "macro_bullish": False,
+        "d3_support": 0, "d3_resistance": 0, "d3_rsi": 50,
+        "w1_support": 0, "w1_resistance": 0, "w1_rsi": 50
+    }
+
+    if df_3d is not None and len(df_3d) >= 20:
+        c_3d = df_3d.iloc[:-1]
+        last_3d_close = float(c_3d["close"].iloc[-1])
+        ema20_3d = c_3d["close"].ewm(span=20, adjust=False).mean().iloc[-1]
+        macro_data["d3_rsi"] = float(calc_rsi(c_3d["close"], 14).iloc[-1])
+        macro_data["d3_support"], macro_data["d3_resistance"] = find_support_resistance(c_3d, 10)
+        d3_bullish = last_3d_close > ema20_3d and macro_data["d3_rsi"] > 45
+    else:
+        d3_bullish = False
+
+    if df_1w is not None and len(df_1w) >= 20:
+        c_1w = df_1w.iloc[:-1]
+        last_1w_close = float(c_1w["close"].iloc[-1])
+        ema20_1w = c_1w["close"].ewm(span=20, adjust=False).mean().iloc[-1]
+        macro_data["w1_rsi"] = float(calc_rsi(c_1w["close"], 14).iloc[-1])
+        macro_data["w1_support"], macro_data["w1_resistance"] = find_support_resistance(c_1w, 10)
+        w1_bullish = last_1w_close > ema20_1w and macro_data["w1_rsi"] > 45
+    else:
+        w1_bullish = False
+
+    macro_data["macro_bullish"] = d3_bullish or w1_bullish
+    return macro_data
 
 def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, fvg: dict, ms: dict, extra_analysis: dict, candle_patterns: list) -> tuple:
     stop_loss = last_close - (atr * 1.5)
@@ -287,7 +360,7 @@ def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, 
     return sl, t1, t2, t3, t4, macro_t
 
 # ============ تحليل العملة ============
-def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> list[dict]:
+def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_state: dict = None) -> list[dict]:
     signals = []
     if df is None or len(df) < max(RESISTANCE_LOOKBACK, SUPPORT_LOOKBACK) + 5:
         return signals
@@ -301,6 +374,9 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     avg_vol = avg_volume(closed_df, 20)
     rsi = calc_rsi(closed_df["close"], 14)
     last_rsi = float(rsi.iloc[-1])
+
+    bb_data = calculate_bollinger_bands(closed_df)
+    ema_data = calculate_ema_indicators(closed_df)
 
     candle_patterns = detect_candle_patterns(closed_df)
     bull_ob = find_bullish_order_block(closed_df)
@@ -319,7 +395,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     is_choch = ms["choch_bullish"]
     is_effort_candle = detect_volume_imbalance_and_effort(closed_df)
 
-    wyckoff_data = detect_wyckoff_bull_market(closed_df, ms, is_sweep, is_effort_candle, bull_ob)
+    wyckoff_data = detect_wyckoff_bull_market(closed_df, ms, is_sweep, is_effort_candle, bull_ob, ema_data)
 
     def confluence_note() -> list[str]:
         notes = []
@@ -331,12 +407,16 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
         if is_choch: notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
         if is_effort_candle: notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
 
-        # إضافة الدايفرجنس صراحة إلى الرسالة
+        if bb_data.get("is_oversold_bb"): notes.append("ملامسة حد البولينجر السفلي 📉")
+        if bb_data.get("is_squeeze"): notes.append("انكماش البولينجر (تأهب لانفجار سعري 💥)")
+
+        if ema_data.get("above_ema50") and ema_data.get("above_ema200"): notes.append("تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع 🚀)")
+        elif ema_data.get("golden_cross"): notes.append("تقاطع ذهبي EMA 50/200 🟡")
+
         div_data = extra_analysis.get("divergence")
         if div_data and isinstance(div_data, dict) and div_data.get("bullish"):
             notes.append(f"دايفرجنس صعودي ({div_data.get('type', 'إيجابي')} 📈)")
 
-        # إضافة أنماط التشارت صراحة إلى الرسالة
         cp_data = extra_analysis.get("chart_patterns")
         if cp_data:
             if isinstance(cp_data, dict) and cp_data.get("pattern"):
@@ -346,6 +426,13 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
                 notes.append(f"أنماط تشارت: {', '.join(p_names)} 📐")
 
         return notes
+
+    # مضاعف أوزان النقاط متضمناً 3d و 1w
+    tf_weight_multiplier = 1.0
+    if timeframe == "4h": tf_weight_multiplier = 1.3
+    elif timeframe == "1d": tf_weight_multiplier = 1.8
+    elif timeframe == "3d": tf_weight_multiplier = 2.2
+    elif timeframe == "1w": tf_weight_multiplier = 2.8
 
     # 1. اختراق مقاومة
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
@@ -361,8 +448,10 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "price": last_close,
             "level": resistance,
             "rsi": last_rsi,
+            "ema": ema_data,
+            "bollinger": bb_data,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
-            "timeframe": TIMEFRAME,
+            "timeframe": timeframe,
             "stop_loss": sl,
             "target1": t1, "target2": t2, "target3": t3, "target4": t4,
             "macro_target": macro_t,
@@ -371,7 +460,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "extra": extra_analysis,
         })
         if score_state is not None: 
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "اختراق مقاومة")
+            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"اختراق مقاومة ({timeframe})")
 
     # 2. ارتداد من دعم
     is_bullish_candle = last_close > float(last_row["open"])
@@ -390,8 +479,10 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "price": last_close,
             "level": support,
             "rsi": last_rsi,
+            "ema": ema_data,
+            "bollinger": bb_data,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
-            "timeframe": TIMEFRAME,
+            "timeframe": timeframe,
             "stop_loss": sl,
             "target1": t1, "target2": t2, "target3": t3, "target4": t4,
             "macro_target": macro_t,
@@ -400,48 +491,151 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "extra": extra_analysis,
         })
         if score_state is not None: 
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "ارتداد من دعم")
+            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"ارتداد من دعم ({timeframe})")
 
     return signals
 
-# ============ قوالب التلجرام المنفصلة ============
-def format_wyckoff_message(sig: dict, fng: dict = None) -> str:
-    """قالب استراتيجي كبيـر لفرص وايكوف والاهداف الممتدة والبعيدة"""
-    wyckoff_info = sig.get("wyckoff", {})
-    lines = [
-        f"🏛️🔥 <b>فرصة استراتيجية (نموذج وايكوف)</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]",
-        f"<b>العملة:</b> <code>{sig['symbol']}</code> | <b>الفريم:</b> <code>{sig.get('timeframe', '1H').upper()}</code>",
-        f"📍 <b>مرحلة التجميع:</b> {wyckoff_info.get('wyckoff_phase')}",
-        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>\n",
-        f"🛑 <b>وقف الخسارة:</b> <code>{sig['stop_loss']}$</code>\n",
-        "🔹 <b>الأهداف التكتيكية:</b>",
-        f"• <b>هدف 1:</b> <code>{sig['target1']}$</code> 🎯",
-        f"• <b>هدف 2:</b> <code>{sig['target2']}$</code> 🎯\n",
-        "🚀 <b>الخطة الممتدة والبعيدة:</b>",
-        f"• <b>هدف 3:</b> <code>{sig['target3']}$</code> 🔥",
-        f"• <b>هدف 4:</b> <code>{sig['target4']}$</code> 💎",
-        f"🔮 <b>الهدف البعيد (Macro Target):</b> <code>{sig['macro_target']}$</code> 🌌",
-    ]
-    if fng:
-        lines.append(f"\n🧠 <b>مؤشر المشاعر العام:</b> {fng['value']} ({fng['status']})")
-    if sig.get("confluence"):
-        lines.append("\n✅ <b>التأكيدات والأنماط:</b> " + "، ".join(sig["confluence"]))
-    return "\n".join(lines)
+# ============ شجرة الأولويات وتصنيف الخطط الـ 7 ============
+def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
+    """
+    تصنيف التنبيه وفق شجرة الشروط الحصرية لمنع أي تعارض وإخراجه بالقالب المناسب
+    """
+    wyckoff = sig.get("wyckoff", {})
+    confluence = sig.get("confluence", [])
+    extra = sig.get("extra", {})
+    ema = sig.get("ema", {})
+    bb = sig.get("bollinger", {})
+    
+    symbol = sig["symbol"]
+    tf = sig.get("timeframe", "1h").upper()
+    price = sig["price"]
+    sl = sig["stop_loss"]
+    t1, t2, t3, t4, macro_t = sig["target1"], sig["target2"], sig["target3"], sig["target4"], sig["macro_target"]
+    
+    macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {'صاعد 🟢' if macro_info.get('macro_bullish') else 'محايد/هابط 🔴'}"
 
-def format_score_message(sig: dict, score: float, breakdown: str) -> str:
-    """قالب التنبيه التراكمي (عند تجاوز نقاط العملة للعتبة لتجنب التكرار)"""
-    lines = [
-        f"⚡ <b>تنبيه زخم تراكمي مرتفع (Score Alert)</b>",
-        f"<b>العملة:</b> <code>{sig['symbol']}</code>",
-        f"📊 <b>مجموع النقاط:</b> <code>{score:.1f} pts</code>",
-        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>\n",
-        f"🛑 <b>الستوب:</b> <code>{sig['stop_loss']}$</code> | 🎯 <b>الهدف الأول:</b> <code>{sig['target1']}$</code> | 🎯 <b>الهدف الثاني:</b> <code>{sig['target2']}$</code>",
-    ]
-    if sig.get("confluence"):
-        lines.append("\n✅ <b>التأكيدات والأنماط:</b> " + "، ".join(sig["confluence"]))
-    if breakdown:
-        lines.append(f"\n📝 <b>تفاصيل النقاط:</b>\n{breakdown}")
-    return "\n".join(lines)
+    # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
+    if len(confluence) >= 4 and macro_info.get("macro_bullish"):
+        msg = f"""👑💎 <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf} + (3D & 1W Macro)</code>
+🌐 <b>بيانات الماكرو:</b> {macro_str}
+
+💵 <b>سعر الدخول:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف 1:</b> <code>{t1}$</code> 🎯
+🎯 <b>هدف 2:</b> <code>{t2}$</code> 🎯
+🚀 <b>هدف 3:</b> <code>{t3}$</code> 🔥
+💎 <b>هدف 4:</b> <code>{t4}$</code> 💎
+🔮 <b>الهدف البعيد (Macro Fib):</b> <code>{macro_t}$</code> 🌌
+
+📊 <b>التوافق الفني الشامل:</b>
+• " + "\n• ".join(confluence) + f"\n\n🧠 <b>المشاعر العامة:</b> {fng_status.get('value', 'N/A') if fng_status else 'N/A'}"
+        return "MASTER_SIGNAL", msg
+
+    # الخطة 1: صفقة التجميع المؤسساتي (Wyckoff + SMC)
+    if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
+        msg = f"""🏛️🐳 <b>توصية مؤسساتية | Smart Money Accumulation</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>المرحلة:</b> {wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')}
+🌐 <b>بيانات الماكرو:</b> {macro_str}
+
+💵 <b>سعر الدخول:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>
+
+🎯 <b>الهدف التكتيكي (1):</b> <code>{t1}$</code> 🎯
+🎯 <b>الهدف الهيكلي (2):</b> <code>{t2}$</code> 🎯
+🚀 <b>الهدف الماكرو (3):</b> <code>{macro_t}$</code> 🌌
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "WYCKOFF_SMC", msg
+
+    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
+    if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike 📊)" in confluence:
+        msg = f"""🚀💥 <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{sig.get('stars', '⭐⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>النموذج:</b> انكماش البولينجر (BB Squeeze) / شمعة سيولة عالية
+
+💵 <b>سعر الدخول:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف سريع (1):</b> <code>{t1}$</code>
+🎯 <b>هدف الانفجار (2):</b> <code>{t2}$</code>
+💎 <b>الهدف البعيد (3):</b> <code>{t3}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "VOLATILE_BREAKOUT", msg
+
+    # الخطة 3: صفقة الاتجاه العام والتقاطع الذهبي (Trend Following)
+    if ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200")):
+        msg = f"""📈🛡️ <b>توصية ركوب الموجة | Trend Following</b> [{sig.get('stars', '⭐⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>النوع:</b> اتجاه صاعد قوي (EMA Golden Cross / Bullish Trend)
+🌐 <b>دعم 3D الماكرو:</b> <code>{macro_info.get('d3_support', 0):.4f}$</code>
+
+💵 <b>مناطق الشراء:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف أول:</b> <code>{t1}$</code>
+🎯 <b>هدف ثاني:</b> <code>{t2}$</code>
+🔮 <b>هدف ماكرو:</b> <code>{macro_t}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "GOLDEN_TREND", msg
+
+    # الخطة 5: أنماط التشارت الكلاسيكية (Chart Patterns)
+    if any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns"):
+        msg = f"""📐🎨 <b>توصية نموذج كلاسيكي | Chart Pattern Setup</b> [{sig.get('stars', '⭐⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>النموذج المكتشف:</b> نمط تشارت كلاسيكي مدمج
+
+💵 <b>سعر الاختراق:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف النموذج:</b> <code>{t1}$</code>
+🎯 <b>امتداد الهدف:</b> <code>{t2}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "CHART_PATTERN", msg
+
+    # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
+    if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
+        msg = f"""📉🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{sig.get('stars', '⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence
+
+💵 <b>سعر الشراء:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف 1 (الارتداد الأول):</b> <code>{t1}$</code>
+🎯 <b>هدف 2 (الدعم السابق):</b> <code>{t2}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "OVERSOLD_REVERSAL", msg
+
+    # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
+    if any("وجود FVG" in c for c in confluence):
+        msg = f"""⚡🎯 <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{sig.get('stars', '⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>الهدف:</b> إغلاق الفجوة السعرية (Imbalance Fill)
+
+💵 <b>منطقة الشراء:</b> <code>{price:.4f}$</code>
+🛑 <b>الستوب:</b> <code>{sl}$</code>
+
+🎯 <b>هدف إغلاق الفجوة:</b> <code>{t1}$</code>
+🎯 <b>هدف سحب السيولة:</b> <code>{t2}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "FVG_SCALP", msg
+
+    # تنبيه قياسي للتنبيهات العادية
+    return "STANDARD", f"⚡ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$"
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -464,11 +658,8 @@ def send_telegram_message(text: str):
 
 # ============ التشغيل الرئيسي ============
 def main():
-    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة...")
-    all_signals_for_app = []
+    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات 1h, 4h, 1d, 3d, 1w...")
     score_state = load_score_state()
-
-    # تنظيف الأحداث القديمة في نظام النقاط
     clean_old_events(score_state)
 
     try:
@@ -477,43 +668,46 @@ def main():
         fng_status = None
 
     def process_worker(sym):
-        df = fetch_klines(sym)
-        if df is None: return []
-        try:
-            return analyze_symbol(sym, df, score_state=score_state)
-        except Exception as e:
-            print(f"[خطأ تحليل] {sym}: {e}")
-            return []
+        symbol_signals = []
+        # 1. استخراج اتجاه الماكرو المزدوج (3D + 1W)
+        macro_info = analyze_macro_trends(sym)
 
+        # 2. الفحص التقني للفريمات التكتيكية (1h, 4h, 1d, 3d)
+        for tf in ["1h", "4h", "1d", "3d"]:
+            df = fetch_klines(sym, timeframe=tf)
+            if df is None:
+                continue
+            try:
+                sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
+                for sig in sigs:
+                    sig["macro_info"] = macro_info
+                    symbol_signals.append(sig)
+            except Exception as e:
+                print(f"[خطأ تحليل] {sym} على فريم {tf}: {e}")
+
+        return symbol_signals
+
+    all_signals = []
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_worker, sym) for sym in WATCHLIST]
         for future in futures:
             signals = future.result()
             for sig in signals:
                 symbol = sig["symbol"]
-                wyckoff_info = sig.get("wyckoff", {})
+                macro_info = sig.get("macro_info", {})
 
-                # 1. نمط تنبيه وايكوف الاستراتيجي (يرسل فوراً)
-                if wyckoff_info and wyckoff_info.get("is_wyckoff_setup"):
-                    msg = format_wyckoff_message(sig, fng=fng_status)
-                    send_telegram_message(msg)
-                    all_signals_for_app.append(sig)
-                    continue
+                # تصنيف الفرصة وفق الخطط الـ 7
+                strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
-                # 2. نمط التنبيه التراكمي (مع فلتر منع التكرار)
-                score = current_score(score_state, symbol)
+                # التأكد من عدم إرسال تنبيهات مكررة متقاربة
                 if should_alert(score_state, symbol, SCORE_THRESHOLD):
-                    breakdown = get_score_breakdown(score_state, symbol)
-                    msg = format_score_message(sig, score, breakdown)
-                    send_telegram_message(msg)
-                    
-                    # كتم العملة مؤقتاً بعد الإرسال
+                    send_telegram_message(formatted_msg)
                     mark_alert_sent(score_state, symbol)
-                
-                all_signals_for_app.append(sig)
+
+                all_signals.append(sig)
 
     save_score_state(score_state)
-    print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals_for_app)} إشارة.")
+    print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.")
 
 if __name__ == "__main__":
     main()
