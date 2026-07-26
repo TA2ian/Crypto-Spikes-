@@ -500,26 +500,48 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     sl = sig["stop_loss"]
     t1, t2, t3, t4, macro_t = sig["target1"], sig["target2"], sig["target3"], sig["target4"], sig["macro_target"]
     
+    # حساب النسب المئوية بالنسبة لسعر الدخول الحالي
+    sl_pct = ((sl - price) / price) * 100
+    t1_pct = ((t1 - price) / price) * 100
+    t2_pct = ((t2 - price) / price) * 100
+    t3_pct = ((t3 - price) / price) * 100
+    t4_pct = ((t4 - price) / price) * 100
+    macro_pct = ((macro_t - price) / price) * 100
+
     macro_bullish = macro_info.get("macro_bullish")
     macro_status = "صاعد" if macro_bullish else "محايد/هابط"
     macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {macro_status}"
 
     confidence_score = sig.get("stars", "عالي")
 
-    if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
-        msg = (
-            f"🔄 <b>توصية معاودة الدخول | Re-entry Setup</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تصحيح صحي وإعادة اختبار المتوسط أو الدعم\n\n"
-            f"◈ <b>سعر الشراء الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
-            f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code>\n\n"
-            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
-        )
+    # القالب المحدث متضمناً النسب المئوية (%)
+    msg = (
+        f"🎯 <b>تنبيه صفقة إحترافية | Multi-Target Setup</b> [{confidence_score}]\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
+        f"🌐 <b>حالة الماكرو:</b> {macro_str}\n\n"
+        f"📍 <b>مستويات الدخول المقترحة:</b>\n"
+        f"• سعر الدخول: <code>{price:.4f}$</code>\n"
+        f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
+        f"🎯 <b>الأهداف المئوية ومستويات جني الأرباح:</b>\n"
+        f"▸ <b>الهدف الأول (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
+        f"▸ <b>الهدف الثاني (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
+        f"▸ <b>الهدف الثالث (T3):</b> <code>{t3}$</code> (+<code>{t3_pct:.2f}%</code>)\n"
+        f"▸ <b>الهدف الرابع (T4):</b> <code>{t4}$</code> (+<code>{t4_pct:.2f}%</code>)\n"
+        f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code> (+<code>{macro_pct:.2f}%</code>)\n\n"
+        f"📊 <b>الدمج الفني والتحليل (Confluence):</b>\n• " + "\n• ".join(confluence)
+    )
+
+    if any("إعادة اختبار الدعم" in str(c) for c in confluence):
         return "RE_ENTRY", msg
+    elif len(confluence) >= 4 and macro_bullish:
+        return "MASTER_SIGNAL", msg
+    elif wyckoff.get("is_wyckoff_setup") or "سحب سيولة (Liquidity Sweep)" in confluence:
+        return "WYCKOFF_SMC", msg
+    elif bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
+        return "VOLATILE_BREAKOUT", msg
+    
+    return "STANDARD", msg
 
     if len(confluence) >= 4 and macro_bullish:
         msg = (
