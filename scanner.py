@@ -330,7 +330,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     is_choch = ms["choch_bullish"]
     is_effort_candle = detect_volume_imbalance_and_effort(closed_df)
 
-        def confluence_note() -> list[str]:
+    def confluence_note() -> list[str]:
         notes = []
         if has_bullish_pattern:
             notes.append("نمط شمعة صعودي")
