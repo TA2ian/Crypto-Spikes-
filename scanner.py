@@ -241,6 +241,58 @@ def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
         except Exception: pass
     return extra
 
+def detect_market_structure(df: pd.DataFrame, window: int = 5) -> dict:
+    """
+    محاكاة مؤشر PA Toolkit في تحديد القمم والقيعان وكسر الهيكل (BOS / CHoCH)
+    """
+    result = {"bos_bullish": False, "choch_bullish": False, "last_high": None, "last_low": None}
+    
+    if len(df) < window * 2 + 5:
+        return result
+
+    # تحديد القمم والقيعان المحلية (Pivots)
+    highs = df['high']
+    lows = df['low']
+    
+    # البحث عن آخر قمة وقاع محليين
+    pivot_highs = highs[(highs == highs.rolling(window * 2 + 1, center=True).max())]
+    pivot_lows = lows[(lows == lows.rolling(window * 2 + 1, center=True).min())]
+
+    if not pivot_highs.empty:
+        result["last_high"] = pivot_highs.iloc[-1]
+    if not pivot_lows.empty:
+        result["last_low"] = pivot_lows.iloc[-1]
+
+    last_close = df['close'].iloc[-1]
+    prev_close = df['close'].iloc[-2]
+
+    # كسر هيكل صعودي (BOS): إغلاق الشمعة الحالية أعلى من آخر قمة سابقة
+    if result["last_high"] and last_close > result["last_high"] and prev_close <= result["last_high"]:
+        result["bos_bullish"] = True
+
+    # تغير الاتجاه للصعود (CHoCH): كسر قمة رئيسية بعد اتجاه هابط
+    if result["last_high"] and last_close > result["last_high"]:
+        # إذا كان الاتجاه السابق هابطاً وتم كسر آخر قمة
+        result["choch_bullish"] = True
+
+    return result
+
+
+def detect_volume_imbalance_and_effort(df: pd.DataFrame, vol_mult: float = 2.0) -> bool:
+    """
+    محاكاة شموع الجهد والسيولة المرتفعة (Volume Spikes) الخاصة بـ PA Toolkit
+    """
+    if len(df) < 20:
+        return False
+    
+    avg_vol = df['volume'].iloc[-21:-1].mean()
+    last_vol = df['volume'].iloc[-1]
+    last_close = df['close'].iloc[-1]
+    last_open = df['open'].iloc[-1]
+
+    # شمعة صعودية بحجم تداول مضاعف مع إغلاق قوي
+    is_bullish_effort = (last_vol > avg_vol * vol_mult) and (last_close > last_open)
+    return is_bullish_effort
 
 def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> list[dict]:
     """تحليل الشمعة وتطبيق منطق الموديولات الجديدة"""
@@ -272,14 +324,26 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     atr = calculate_atr(closed_df)
     fvg = detect_fvg(closed_df)
     is_sweep = detect_liquidity_sweep(closed_df)
+    # --- تحليلات PA Toolkit Lite المضافة ---
+    ms = detect_market_structure(closed_df)
+    is_bos = ms["bos_bullish"]
+    is_choch = ms["choch_bullish"]
+    is_effort_candle = detect_volume_imbalance_and_effort(closed_df)
 
-    def confluence_note() -> list[str]:
+        def confluence_note() -> list[str]:
         notes = []
         if has_bullish_pattern: notes.append("نمط شمعة صعودي")
         if near_bull_ob: notes.append("قرب Order Block")
         if fvg: notes.append(f"وجود FVG ({fvg['size_pct']:.2f}%)")
         if is_sweep: notes.append("سحب سيولة (Liquidity Sweep)")
+
+        # إضافة تأكيدات PA Toolkit
+        if is_bos: notes.append("كسر هيكل صعودي (BOS ⚡)")
+        if is_choch: notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
+        if is_effort_candle: notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
+
         return notes
+
 
     # --- 1. إشارة اختراق المقاومة ---
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
