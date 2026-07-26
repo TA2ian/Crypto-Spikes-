@@ -112,8 +112,16 @@ SIGNALS_JSON_PATH = os.path.join(DOCS_DIR, "signals.json")
 CONFIG_JSON_PATH = os.path.join(DOCS_DIR, "config.json")
 
 
+BINANCE_ENDPOINTS = [
+    "https://data-api.binance.vision/api/v3/klines",
+    "https://api1.binance.com/api/v3/klines",
+    "https://api2.binance.com/api/v3/klines",
+    "https://api3.binance.com/api/v3/klines",
+    "https://api.binance.com/api/v3/klines"
+]
+
 def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
-    """جلب بيانات الشموع مباشرة من Binance"""
+    """جلب بيانات الشموع مباشرة من Binance مع دعم السيرفرات الاحتياطية"""
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
     tf_map = {"1hour": "1h", "4hour": "4h", "1day": "1d", "1week": "1w"}
     binance_tf = tf_map.get(timeframe, timeframe)
@@ -123,29 +131,32 @@ def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None
         "interval": binance_tf,
         "limit": CANDLE_LIMIT
     }
-    try:
-        resp = requests.get(BINANCE_KLINE_URL, params=params, timeout=12)
-        resp.raise_for_status()
-        data = resp.json()
-    except Exception as e:
-        print(f"[خطأ] فشل جلب بيانات {symbol} من باينانس: {e}")
-        return None
 
-    if not isinstance(data, list) or len(data) == 0:
-        return None
+    for endpoint in BINANCE_ENDPOINTS:
+        try:
+            resp = requests.get(endpoint, params=params, timeout=8)
+            resp.raise_for_status()
+            data = resp.json()
 
-    df = pd.DataFrame(
-        data,
-        columns=[
-            "time", "open", "high", "low", "close", "volume",
-            "close_time", "quote_vol", "trades", "taker_base", "taker_quote", "ignore"
-        ]
-    )
-    df = df[["time", "open", "high", "low", "close", "volume"]]
-    for col in ["open", "high", "low", "close", "volume"]:
-        df[col] = df[col].astype(float)
+            if isinstance(data, list) and len(data) > 0:
+                df = pd.DataFrame(
+                    data,
+                    columns=[
+                        "time", "open", "high", "low", "close", "volume",
+                        "close_time", "quote_vol", "trades", "taker_base", "taker_quote", "ignore"
+                    ]
+                )
+                df = df[["time", "open", "high", "low", "close", "volume"]]
+                for col in ["open", "high", "low", "close", "volume"]:
+                    df[col] = df[col].astype(float)
 
-    return df.reset_index(drop=True)
+                return df.reset_index(drop=True)
+        except Exception:
+            continue
+
+    print(f"[خطأ] فشل جلب بيانات {symbol} من جميع سيرفرات باينانس الاحتياطية")
+    return None
+
 
 
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
