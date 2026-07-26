@@ -37,19 +37,44 @@ from candle_state import (
     mark_alerted,
 )
 from cvd import analyze_cvd
-from coin_score import (
-    load_state as load_score_state,
-    save_state as save_score_state,
-    add_points,
-    should_alert,
-    mark_alert_sent,
-    get_score_breakdown,
-    current_score,
-    clean_old_events,
-    WEIGHTS,
-    SCORE_THRESHOLD,
-    WINDOW_HOURS,
-)
+# --- استدعاء coin_score بشكل آمن ---
+try:
+    from coin_score import (
+        load_state as load_score_state,
+        save_state as save_score_state,
+        add_points,
+        should_alert,
+        mark_alert_sent,
+        get_score_breakdown,
+        current_score,
+        clean_old_events,
+        WEIGHTS,
+        SCORE_THRESHOLD,
+        WINDOW_HOURS,
+    )
+except ImportError:
+    try:
+        from coin_score import add_points, should_alert, mark_alert_sent, WEIGHTS
+        def load_score_state(): return {}
+        def save_score_state(s): pass
+        def get_score_breakdown(s, c): return ""
+        def current_score(s, c): return 0
+        def clean_old_events(s): pass
+        SCORE_THRESHOLD = 5.0
+        WINDOW_HOURS = 24
+    except ImportError:
+        WEIGHTS = {"base_signal": 1.0}
+        SCORE_THRESHOLD = 5.0
+        WINDOW_HOURS = 24
+        def load_score_state(): return {}
+        def save_score_state(s): pass
+        def add_points(*args, **kwargs): pass
+        def should_alert(*args, **kwargs): return True
+        def mark_alert_sent(*args, **kwargs): pass
+        def get_score_breakdown(*args, **kwargs): return ""
+        def current_score(*args, **kwargs): return 0
+        def clean_old_events(*args, **kwargs): pass
+
 
 # --- استدعاء الموديولات الذكية الجديدة ---
 # --- استدعاء الموديولات الذكية الجديدة بشكل آمن ---
