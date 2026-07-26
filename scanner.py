@@ -201,7 +201,10 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     bull_ob = find_bullish_order_block(closed_df)
     near_bull_ob = price_near_zone(last_close, bull_ob)
 
-    has_bullish_pattern = any(p in {"مطرقة (ارتداد صعودي)", "ابتلاع صعودي"} for p in candle_patterns)
+    # استخراج الأسماء بأمان
+    pattern_names = [p.get("pattern", "") if isinstance(p, dict) else str(p) for p in candle_patterns]
+    has_bullish_pattern = any(p in {"مطرقة (ارتداد صعودي)", "ابتلاع صعودي"} for p in pattern_names)
+
     extra_analysis = build_extra_analysis(closed_df, rsi)
 
     # --- حاسبات الموديولات المبتكرة (SMC & Dynamic Risk) ---
