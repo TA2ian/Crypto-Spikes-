@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Binance + Modules Edition)
-يقوم بجلب البيانات من باينانس، الفحص الفني، إدارة نظام النقاط التراكمي،
-وحساب الأهداف الديناميكية وتقييم SMC والمشاعر.
+يقوم بجلب البيانات، الفحص الفني، إدارة نظام النقاط التراكمي،
+حساب الأهداف الديناميكية 6 أهداف (تكتيكية + وايكوف)، وتقييم SMC والماعر.
 """
 import os
 import json
@@ -22,6 +22,7 @@ from patterns import (
 )
 from divergence import analyze_divergence
 from fibonacci import analyze_fibonacci
+
 # استدعاء آمن لـ chart_patterns
 try:
     from chart_patterns import detect_all_patterns
@@ -37,6 +38,7 @@ from candle_state import (
     mark_alerted,
 )
 from cvd import analyze_cvd
+
 # --- استدعاء coin_score بشكل آمن ---
 try:
     from coin_score import (
@@ -53,42 +55,29 @@ try:
         WINDOW_HOURS,
     )
 except ImportError:
-    try:
-        from coin_score import add_points, should_alert, mark_alert_sent, WEIGHTS
-        def load_score_state(): return {}
-        def save_score_state(s): pass
-        def get_score_breakdown(s, c): return ""
-        def current_score(s, c): return 0
-        def clean_old_events(s): pass
-        SCORE_THRESHOLD = 5.0
-        WINDOW_HOURS = 24
-    except ImportError:
-        WEIGHTS = {"base_signal": 1.0}
-        SCORE_THRESHOLD = 5.0
-        WINDOW_HOURS = 24
-        def load_score_state(): return {}
-        def save_score_state(s): pass
-        def add_points(*args, **kwargs): pass
-        def should_alert(*args, **kwargs): return True
-        def mark_alert_sent(*args, **kwargs): pass
-        def get_score_breakdown(*args, **kwargs): return ""
-        def current_score(*args, **kwargs): return 0
-        def clean_old_events(*args, **kwargs): pass
+    WEIGHTS = {"base_signal": 1.0}
+    SCORE_THRESHOLD = 5.0
+    WINDOW_HOURS = 24
+    def load_score_state(): return {}
+    def save_score_state(s): pass
+    def add_points(*args, **kwargs): pass
+    def should_alert(*args, **kwargs): return True
+    def mark_alert_sent(*args, **kwargs): pass
+    def get_score_breakdown(*args, **kwargs): return ""
+    def current_score(*args, **kwargs): return 0
+    def clean_old_events(*args, **kwargs): pass
 
-
-# --- استدعاء الموديولات الذكية الجديدة ---
-# --- استدعاء الموديولات الذكية الجديدة بشكل آمن ---
+# --- استدعاء الموديولات الذكية ---
 try:
     from modules.smc import detect_fvg, detect_liquidity_sweep
     from modules.sentiment import get_fear_and_greed_index
-    from modules.dynamic_risk import calculate_atr, calculate_dynamic_targets, rate_signal_confidence
+    from modules.dynamic_risk import calculate_atr, rate_signal_confidence
 except ImportError:
     from smc import detect_fvg, detect_liquidity_sweep
     from sentiment import get_fear_and_greed_index
-    from dynamic_risk import calculate_atr, calculate_dynamic_targets, rate_signal_confidence
+    from dynamic_risk import calculate_atr, rate_signal_confidence
 
 # ============ الإعدادات ============
-BINANCE_KLINE_URL = "https://api.binance.com/api/v3/klines"
 TIMEFRAME = "1h"
 CANDLE_LIMIT = 80
 
@@ -111,22 +100,13 @@ DOCS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "docs")
 SIGNALS_JSON_PATH = os.path.join(DOCS_DIR, "signals.json")
 CONFIG_JSON_PATH = os.path.join(DOCS_DIR, "config.json")
 
-
-BINANCE_ENDPOINTS = [
-    "https://data-api.binance.vision/api/v3/klines",
-    "https://api1.binance.com/api/v3/klines",
-    "https://api2.binance.com/api/v3/klines",
-    "https://api3.binance.com/api/v3/klines",
-    "https://api.binance.com/api/v3/klines"
-]
-
+# ============ جلب البيانات ============
 def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
-    """جلب من OKX"""
     clean_symbol = symbol.replace("/", "-").upper()
     if not clean_symbol.endswith("-USDT"):
         clean_symbol = f"{clean_symbol}-USDT"
 
-    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D", "1hour": "1H", "4hour": "4H", "1day": "1D"}
+    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D"}
     okx_tf = tf_map.get(timeframe, "1H")
 
     url = "https://www.okx.com/api/v5/market/candles"
@@ -147,11 +127,9 @@ def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
         pass
     return None
 
-
 def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
-    """جلب من Bybit"""
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60", "4h": "240", "1d": "D", "1hour": "60", "4hour": "240", "1day": "D"}
+    tf_map = {"1h": "60", "4h": "240", "1d": "D"}
     bybit_tf = tf_map.get(timeframe, "60")
 
     url = "https://api.bybit.com/v5/market/kline"
@@ -172,11 +150,9 @@ def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
         pass
     return None
 
-
 def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
-    """جلب من MEXC"""
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D", "1hour": "60m", "4hour": "4h", "1day": "1D"}
+    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D"}
     mexc_tf = tf_map.get(timeframe, "60m")
 
     url = "https://api.mexc.com/api/v3/klines"
@@ -196,128 +172,73 @@ def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
         pass
     return None
 
-
 def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
-    """جلب البيانات بالتتابع: OKX -> Bybit -> MEXC"""
-    
-    # 1. OKX
     df = fetch_from_okx(symbol, timeframe)
-    if df is not None:
-        return df
-
-    # 2. Bybit
+    if df is not None: return df
     df = fetch_from_bybit(symbol, timeframe)
-    if df is not None:
-        return df
-
-    # 3. MEXC
+    if df is not None: return df
     df = fetch_from_mexc(symbol, timeframe)
-    if df is not None:
-        return df
-
-    print(f"[خطأ] فشل جلب بيانات {symbol} من جميع المنصات الثلاث (OKX, Bybit, MEXC)")
+    if df is not None: return df
+    print(f"[خطأ] فشل جلب بيانات {symbol} من المنصات")
     return None
 
-
-
+# ============ أدوات التحليل الفني ============
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
-    """تحليلات الطبقات الفنية الإضافية"""
     extra = {}
     if SHOW_DIVERGENCE:
-        try:
-            extra["divergence"] = analyze_divergence(df, rsi, volume_multiplier=DIVERGENCE_VOLUME_MULTIPLIER)
+        try: extra["divergence"] = analyze_divergence(df, rsi, volume_multiplier=DIVERGENCE_VOLUME_MULTIPLIER)
         except Exception: pass
     if SHOW_FIBONACCI:
-        try:
-            extra["fibonacci"] = analyze_fibonacci(df, lookback=30)
+        try: extra["fibonacci"] = analyze_fibonacci(df, lookback=30)
         except Exception: pass
     if SHOW_CHART_PATTERNS:
-        try:
-            extra["chart_patterns"] = detect_all_patterns(df)
+        try: extra["chart_patterns"] = detect_all_patterns(df)
         except Exception: pass
     if SHOW_CVD:
-        try:
-            extra["cvd"] = analyze_cvd(df)
+        try: extra["cvd"] = analyze_cvd(df)
         except Exception: pass
     return extra
 
 def detect_market_structure(df: pd.DataFrame, window: int = 5) -> dict:
-    """
-    محاكاة مؤشر PA Toolkit في تحديد القمم والقيعان وكسر الهيكل (BOS / CHoCH)
-    """
     result = {"bos_bullish": False, "choch_bullish": False, "last_high": None, "last_low": None}
-    
-    if len(df) < window * 2 + 5:
-        return result
+    if len(df) < window * 2 + 5: return result
 
-    # تحديد القمم والقيعان المحلية (Pivots)
-    highs = df['high']
-    lows = df['low']
-    
-    # البحث عن آخر قمة وقاع محليين
+    highs, lows = df['high'], df['low']
     pivot_highs = highs[(highs == highs.rolling(window * 2 + 1, center=True).max())]
     pivot_lows = lows[(lows == lows.rolling(window * 2 + 1, center=True).min())]
 
-    if not pivot_highs.empty:
-        result["last_high"] = pivot_highs.iloc[-1]
-    if not pivot_lows.empty:
-        result["last_low"] = pivot_lows.iloc[-1]
+    if not pivot_highs.empty: result["last_high"] = pivot_highs.iloc[-1]
+    if not pivot_lows.empty: result["last_low"] = pivot_lows.iloc[-1]
 
-    last_close = df['close'].iloc[-1]
-    prev_close = df['close'].iloc[-2]
+    last_close, prev_close = df['close'].iloc[-1], df['close'].iloc[-2]
 
-    # كسر هيكل صعودي (BOS): إغلاق الشمعة الحالية أعلى من آخر قمة سابقة
     if result["last_high"] and last_close > result["last_high"] and prev_close <= result["last_high"]:
         result["bos_bullish"] = True
-
-    # تغير الاتجاه للصعود (CHoCH): كسر قمة رئيسية بعد اتجاه هابط
     if result["last_high"] and last_close > result["last_high"]:
-        # إذا كان الاتجاه السابق هابطاً وتم كسر آخر قمة
         result["choch_bullish"] = True
 
     return result
 
-
 def detect_volume_imbalance_and_effort(df: pd.DataFrame, vol_mult: float = 2.0) -> bool:
-    """
-    محاكاة شموع الجهد والسيولة المرتفعة (Volume Spikes) الخاصة بـ PA Toolkit
-    """
-    if len(df) < 20:
-        return False
-    
+    if len(df) < 20: return False
     avg_vol = df['volume'].iloc[-21:-1].mean()
-    last_vol = df['volume'].iloc[-1]
-    last_close = df['close'].iloc[-1]
-    last_open = df['open'].iloc[-1]
+    last_vol, last_close, last_open = df['volume'].iloc[-1], df['close'].iloc[-1], df['open'].iloc[-1]
+    return (last_vol > avg_vol * vol_mult) and (last_close > last_open)
 
-    # شمعة صعودية بحجم تداول مضاعف مع إغلاق قوي
-    is_bullish_effort = (last_vol > avg_vol * vol_mult) and (last_close > last_open)
-    return is_bullish_effort
 def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_effort: bool, bull_ob: dict) -> dict:
-    """اكتشاف حالة البول ماركت ونموذج تجميع وايكوف"""
-    wyckoff_result = {
-        "is_bull_market": False,
-        "wyckoff_phase": None,
-        "is_wyckoff_setup": False
-    }
+    wyckoff_result = {"is_bull_market": False, "wyckoff_phase": None, "is_wyckoff_setup": False}
+    if len(df) < 50: return wyckoff_result
 
-    if len(df) < 200:
-        return wyckoff_result
-
-    # فحص اتجاه البول ماركت عبر المتوسطات
     df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
-    df['ema_200'] = df['close'].ewm(span=200, adjust=False).mean()
+    df['ema_200'] = df['close'].ewm(span=min(len(df), 200), adjust=False).mean()
 
-    last_ema50 = df['ema_50'].iloc[-1]
-    last_ema200 = df['ema_200'].iloc[-1]
-    last_close = df['close'].iloc[-1]
+    last_ema50, last_ema200, last_close = df['ema_50'].iloc[-1], df['ema_200'].iloc[-1], df['close'].iloc[-1]
 
     if last_close > last_ema50 and last_ema50 > last_ema200:
         wyckoff_result["is_bull_market"] = True
 
-    # تحديد مرحلة وايكوف (Phase C / D / E)
     if is_sweep and bull_ob:
-        wyckoff_result["wyckoff_phase"] = "Phase C (Spring - سحب سيولة للقاع وتجميع)"
+        wyckoff_result["wyckoff_phase"] = "Phase C (Spring - تجميع وسحب سيولة)"
         wyckoff_result["is_wyckoff_setup"] = True
     elif ms.get("bos_bullish") and is_effort:
         wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة واختراق)"
@@ -327,11 +248,10 @@ def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_ef
         wyckoff_result["is_wyckoff_setup"] = True
 
     return wyckoff_result
+
 def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, fvg: dict, ms: dict, extra_analysis: dict, candle_patterns: list) -> tuple:
-    """حساب الأهداف القريبة، أهداف الخطة الثانية، والهدف المستقبلي البعيد"""
     stop_loss = last_close - (atr * 1.5)
 
-    # 1. الهدف الأول (طول شمعة النمط أو المقاومة)
     pattern_target = 0
     if candle_patterns and isinstance(candle_patterns[0], dict):
         p = candle_patterns[0]
@@ -340,18 +260,13 @@ def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, 
 
     target1 = pattern_target if pattern_target > last_close else (resistance if resistance > last_close else last_close + (atr * 1.5))
 
-    # 2. الهدف الثاني (النموذج السعري أو الفجوة FVG)
     chart_patterns = extra_analysis.get("chart_patterns", {})
     cp_target = chart_patterns.get("target", 0) if isinstance(chart_patterns, dict) else 0
 
-    if cp_target > target1:
-        target2 = cp_target
-    elif fvg and fvg.get("top", 0) > target1:
-        target2 = fvg["top"]
-    else:
-        target2 = target1 + (atr * 2.0)
+    if cp_target > target1: target2 = cp_target
+    elif fvg and fvg.get("top", 0) > target1: target2 = fvg["top"]
+    else: target2 = target1 + (atr * 2.0)
 
-    # 3. الخطة الثانية: أهداف امتداد فيبوناتشي وقمة الهيكل
     fib_data = extra_analysis.get("fibonacci", {})
     fib_1618 = fib_data.get("ext_1618", 0) if isinstance(fib_data, dict) else 0
     target3 = ms["last_high"] if (ms.get("last_high") and ms["last_high"] > target2) else (fib_1618 if fib_1618 > target2 else target2 + (atr * 3.5))
@@ -359,11 +274,9 @@ def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, 
     fib_2618 = fib_data.get("ext_2618", 0) if isinstance(fib_data, dict) else 0
     target4 = fib_2618 if fib_2618 > target3 else target3 + (atr * 4.5)
 
-    # 4. الهدف المستقبلي البعيد (Wyckoff / Macro Target)
     fib_3618 = fib_data.get("ext_3618", 0) if isinstance(fib_data, dict) else 0
     macro_target = fib_3618 if fib_3618 > target4 else last_close + (atr * 8.0)
 
-    # تنسيق القيم وضمان الترتيب المنطقي
     t1 = round(max(target1, last_close * 1.01), 4)
     t2 = round(max(target2, t1 * 1.015), 4)
     t3 = round(max(target3, t2 * 1.02), 4)
@@ -373,8 +286,8 @@ def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, 
 
     return sl, t1, t2, t3, t4, macro_t
 
+# ============ تحليل العملة ============
 def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> list[dict]:
-    """تحليل الشمعة وتطبيق منطق الموديولات الجديدة"""
     signals = []
     if df is None or len(df) < max(RESISTANCE_LOOKBACK, SUPPORT_LOOKBACK) + 5:
         return signals
@@ -393,49 +306,36 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
     bull_ob = find_bullish_order_block(closed_df)
     near_bull_ob = price_near_zone(last_close, bull_ob)
 
-    # استخراج الأسماء بأمان
     pattern_names = [p.get("pattern", "") if isinstance(p, dict) else str(p) for p in candle_patterns]
     has_bullish_pattern = any(p in {"مطرقة (ارتداد صعودي)", "ابتلاع صعودي"} for p in pattern_names)
 
     extra_analysis = build_extra_analysis(closed_df, rsi)
 
-    # --- حاسبات الموديولات المبتكرة (SMC & Dynamic Risk) ---
     atr = calculate_atr(closed_df)
     fvg = detect_fvg(closed_df)
     is_sweep = detect_liquidity_sweep(closed_df)
-    # --- تحليلات PA Toolkit Lite المضافة ---
     ms = detect_market_structure(closed_df)
     is_bos = ms["bos_bullish"]
     is_choch = ms["choch_bullish"]
     is_effort_candle = detect_volume_imbalance_and_effort(closed_df)
 
+    wyckoff_data = detect_wyckoff_bull_market(closed_df, ms, is_sweep, is_effort_candle, bull_ob)
+
     def confluence_note() -> list[str]:
         notes = []
-        if has_bullish_pattern:
-            notes.append("نمط شمعة صعودي")
-        if near_bull_ob:
-            notes.append("قرب Order Block")
-        if fvg:
-            notes.append(f"وجود FVG ({fvg['size_pct']:.2f}%)")
-        if is_sweep:
-            notes.append("سحب سيولة (Liquidity Sweep)")
-
-        # إضافة تأكيدات PA Toolkit
-        if is_bos:
-            notes.append("كسر هيكل صعودي (BOS ⚡)")
-        if is_choch:
-            notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
-        if is_effort_candle:
-            notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
-
+        if has_bullish_pattern: notes.append("نمط شمعة صعودي")
+        if near_bull_ob: notes.append("قرب Order Block")
+        if fvg: notes.append(f"وجود FVG ({fvg['size_pct']:.2f}%)")
+        if is_sweep: notes.append("سحب سيولة (Liquidity Sweep)")
+        if is_bos: notes.append("كسر هيكل صعودي (BOS ⚡)")
+        if is_choch: notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
+        if is_effort_candle: notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
         return notes
- 
 
-
-    # --- 1. إشارة اختراق المقاومة ---
+    # 1. اختراق مقاومة
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
         notes = confluence_note()
-        stop_loss, target1, target2 = calculate_dynamic_targets(last_close, atr, "LONG")
+        sl, t1, t2, t3, t4, macro_t = calculate_dynamic_targets(last_close, atr, resistance, fvg, ms, extra_analysis, candle_patterns)
         stars = rate_signal_confidence(bool(notes), fvg, is_sweep)
 
         signals.append({
@@ -447,22 +347,23 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "level": resistance,
             "rsi": last_rsi,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
-            "stop_loss": stop_loss,
-            "target1": target1,
-            "target2": target2,
+            "timeframe": TIMEFRAME,
+            "stop_loss": sl,
+            "target1": t1, "target2": t2, "target3": t3, "target4": t4,
+            "macro_target": macro_t,
+            "wyckoff": wyckoff_data,
             "confluence": notes,
             "extra": extra_analysis,
         })
-        if score_state:
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "اختراق مقاومة")
+        if score_state: add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "اختراق مقاومة")
 
-    # --- 2. إشارة ارتداد من دعم ---
+    # 2. ارتداد من دعم
     is_bullish_candle = last_close > float(last_row["open"])
     near_support = float(last_row["low"]) <= support * (1 + SUPPORT_TOLERANCE)
 
     if near_support and is_bullish_candle and last_rsi < RSI_OVERSOLD:
         notes = confluence_note()
-        stop_loss, target1, target2 = calculate_dynamic_targets(last_close, atr, "LONG")
+        sl, t1, t2, t3, t4, macro_t = calculate_dynamic_targets(last_close, atr, support, fvg, ms, extra_analysis, candle_patterns)
         stars = rate_signal_confidence(bool(notes), fvg, is_sweep)
 
         signals.append({
@@ -474,46 +375,55 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "level": support,
             "rsi": last_rsi,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
-            "stop_loss": stop_loss,
-            "target1": target1,
-            "target2": target2,
+            "timeframe": TIMEFRAME,
+            "stop_loss": sl,
+            "target1": t1, "target2": t2, "target3": t3, "target4": t4,
+            "macro_target": macro_t,
+            "wyckoff": wyckoff_data,
             "confluence": notes,
             "extra": extra_analysis,
         })
-        if score_state:
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "ارتداد من دعم")
+        if score_state: add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "ارتداد من دعم")
 
     return signals
 
-
+# ============ قالب التلجرام الجديد ============
 def format_message(sig: dict, fng: dict = None) -> str:
-    """تنسيق رسالة التنبيه لـ Telegram بأسلوب محترف"""
-    stars_str = f" [{sig.get('stars', '⭐')}]" if sig.get('stars') else ""
+    """تنسيق رسالة التنبيه لـ Telegram بالقالب المحدث والجديد"""
+    timeframe_str = sig.get("timeframe", "1H").upper()
+    wyckoff_info = sig.get("wyckoff", {})
+
     lines = [
-        f"<b>{sig['emoji']} إشارة {sig['type']}{stars_str}</b>",
-        f"<b>العملة:</b> {sig['symbol'].replace('-', '/')}",
-        f"<b>السعر الحالي:</b> {sig['price']:.4f}$",
-        f"<b>المستوى:</b> {sig['level']:.4f}$",
+        f"{sig['emoji']} <b>إشارة {sig['type']}</b> [{sig.get('stars', '⭐')}]",
+        f"<b>العملة:</b> <code>{sig['symbol']}</code>",
+        f"⏱️ <b>الفريم الزمني:</b> <code>{timeframe_str}</code>",
+        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>",
+        f"<b>المستوى:</b> <code>{sig['level']:.4f}$</code>",
         f"<b>RSI:</b> {sig['rsi']:.1f} | <b>الحجم:</b> {sig['volume_ratio']:.1f}x",
     ]
+
+    if wyckoff_info and wyckoff_info.get("is_wyckoff_setup"):
+        lines.append(f"\n🏛️ <b>تحليل وايكوف:</b> {wyckoff_info['wyckoff_phase']}")
 
     if fng:
         lines.append(f"🧠 <b>مؤشر المشاعر العام:</b> {fng['value']} ({fng['status']})")
 
     if sig.get("confluence"):
-        lines.append("")
-        lines.append("✅ <b>تأكيدات السيولة والنماذج:</b> " + "، ".join(sig["confluence"]))
+        lines.append("\n✅ <b>تأكيدات السيولة والهيكل:</b> " + "، ".join(sig["confluence"]))
 
     lines += [
         "",
-        "📊 <b>مستويات إدارة المخاطر (مبنية على ATR):</b>",
-        f"• <b>وقف الخسارة:</b> {sig['stop_loss']:.4f}$",
-        f"• <b>هدف 1:</b> {sig['target1']:.4f}$",
-        f"• <b>هدف 2:</b> {sig['target2']:.4f}$",
+        f"🛑 <b>وقف الخسارة:</b> <code>{sig['stop_loss']}$</code>\n",
+        "🔹 <b>الخطة الأولى (أهداف النموذج):</b>",
+        f"• <b>هدف 1:</b> <code>{sig['target1']}$</code> 🎯",
+        f"• <b>هدف 2:</b> <code>{sig['target2']}$</code> 🎯\n",
+        "🚀 <b>الخطة الثانية (أهداف امتدادية):</b>",
+        f"• <b>هدف 3:</b> <code>{sig['target3']}$</code> 🔥",
+        f"• <b>هدف 4:</b> <code>{sig['target4']}$</code> 💎\n",
+        f"🔮 <b>الهدف المستقبلي البعيد (Macro Target):</b> <code>{sig['macro_target']}$</code> 🌌",
         "\n⚠️ <i>تنبيه آلي استرشادي - راجع الشارت بنفسك قبل اتخاذ القرار</i>"
     ]
     return "\n".join(lines)
-
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -534,14 +444,16 @@ def send_telegram_message(text: str):
     except Exception as e:
         print(f"[خطأ] فشل إرسال رسالة تيليغرام: {e}")
 
-
+# ============ التشغيل الرئيسي ============
 def main():
-    print(f"بدء فحص باينانس لعدد {len(WATCHLIST)} عملة...")
+    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة...")
     all_signals_for_app = []
     score_state = load_score_state()
 
-    # جلب مؤشر الخوف والجشع لفلترة المشاعر
-    fng_status = get_fear_and_greed_index()
+    try:
+        fng_status = get_fear_and_greed_index()
+    except Exception:
+        fng_status = None
 
     def process_worker(sym):
         df = fetch_klines(sym)
@@ -563,7 +475,6 @@ def main():
 
     save_score_state(score_state)
     print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals_for_app)} إشارة.")
-
 
 if __name__ == "__main__":
     main()
