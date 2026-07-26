@@ -1,12 +1,13 @@
 """
-ماسح العملات الحلال - السكربت الرئيسي الموحد والمزود بالأوامر التفاعلية (نسخة GitHub Actions)
-(Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w + Direct Telegram Alert)
+ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
+يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
+ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns).
 """
 import os
 import json
 import time
-import sys
 from datetime import datetime, timezone
+from concurrent.futures import ThreadPoolExecutor
 import requests
 import pandas as pd
 
@@ -283,6 +284,7 @@ def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_ef
 
     return wyckoff_result
 
+# ============ فحص اتجاه الماكرو (3D + 1W) ============
 def analyze_macro_trends(symbol: str) -> dict:
     df_3d = fetch_klines(symbol, timeframe="3d")
     df_1w = fetch_klines(symbol, timeframe="1w")
@@ -486,7 +488,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 8 ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 (آمنة تماماً) ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
@@ -500,49 +502,29 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     sl = sig["stop_loss"]
     t1, t2, t3, t4, macro_t = sig["target1"], sig["target2"], sig["target3"], sig["target4"], sig["macro_target"]
     
-    # حساب النسب المئوية بالنسبة لسعر الدخول الحالي
-    sl_pct = ((sl - price) / price) * 100
-    t1_pct = ((t1 - price) / price) * 100
-    t2_pct = ((t2 - price) / price) * 100
-    t3_pct = ((t3 - price) / price) * 100
-    t4_pct = ((t4 - price) / price) * 100
-    macro_pct = ((macro_t - price) / price) * 100
-
     macro_bullish = macro_info.get("macro_bullish")
     macro_status = "صاعد" if macro_bullish else "محايد/هابط"
     macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {macro_status}"
 
     confidence_score = sig.get("stars", "عالي")
 
-    # القالب المحدث متضمناً النسب المئوية (%)
-    msg = (
-        f"🎯 <b>تنبيه صفقة إحترافية | Multi-Target Setup</b> [{confidence_score}]\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-        f"🌐 <b>حالة الماكرو:</b> {macro_str}\n\n"
-        f"📍 <b>مستويات الدخول المقترحة:</b>\n"
-        f"• سعر الدخول: <code>{price:.4f}$</code>\n"
-        f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
-        f"🎯 <b>الأهداف المئوية ومستويات جني الأرباح:</b>\n"
-        f"▸ <b>الهدف الأول (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
-        f"▸ <b>الهدف الثاني (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
-        f"▸ <b>الهدف الثالث (T3):</b> <code>{t3}$</code> (+<code>{t3_pct:.2f}%</code>)\n"
-        f"▸ <b>الهدف الرابع (T4):</b> <code>{t4}$</code> (+<code>{t4_pct:.2f}%</code>)\n"
-        f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code> (+<code>{macro_pct:.2f}%</code>)\n\n"
-        f"📊 <b>الدمج الفني والتحليل (Confluence):</b>\n• " + "\n• ".join(confluence)
-    )
-
-    if any("إعادة اختبار الدعم" in str(c) for c in confluence):
+    # الخطة 8: توصية الـ Re-entry (معاودة الدخول بعد التصحيح السليم)
+    if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
+        msg = (
+            f"🔄 <b>توصية معاودة الدخول | Re-entry Setup</b> [{confidence_score}]\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
+            f"📍 <b>النموذج:</b> تصحيح صحي وإعادة اختبار المتوسط أو الدعم\n\n"
+            f"◈ <b>سعر الشراء الحالي:</b> <code>{price:.4f}$</code>\n"
+            f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>\n\n"
+            f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
+            f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
+            f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code>\n\n"
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
+        )
         return "RE_ENTRY", msg
-    elif len(confluence) >= 4 and macro_bullish:
-        return "MASTER_SIGNAL", msg
-    elif wyckoff.get("is_wyckoff_setup") or "سحب سيولة (Liquidity Sweep)" in confluence:
-        return "WYCKOFF_SMC", msg
-    elif bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
-        return "VOLATILE_BREAKOUT", msg
-    
-    return "STANDARD", msg
 
+    # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
     if len(confluence) >= 4 and macro_bullish:
         msg = (
             f"❖ <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{confidence_score}]\n"
@@ -561,6 +543,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "MASTER_SIGNAL", msg
 
+    # الخطة 1: صفقة التجميع المؤسساتي (Wyckoff + SMC)
     if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
         phase_str = wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')
         msg = (
@@ -578,6 +561,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "WYCKOFF_SMC", msg
 
+    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
     if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
         msg = (
             f"⚡ <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{confidence_score}]\n"
@@ -593,6 +577,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "VOLATILE_BREAKOUT", msg
 
+    # الخطة 3: صفقة الاتجاه العام والتقاطع الذهبي (Trend Following)
     if ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200")):
         d3_sup = macro_info.get('d3_support', 0)
         msg = (
@@ -610,6 +595,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "GOLDEN_TREND", msg
 
+    # الخطة 5: أنماط التشارت الكلاسيكية (Chart Patterns)
     if any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns"):
         msg = (
             f"📐 <b>توصية نموذج كلاسيكي | Chart Pattern Setup</b> [{confidence_score}]\n"
@@ -624,6 +610,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "CHART_PATTERN", msg
 
+    # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
     if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
         msg = (
             f"🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{confidence_score}]\n"
@@ -638,6 +625,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "OVERSOLD_REVERSAL", msg
 
+    # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
     if any("وجود FVG" in c for c in confluence):
         msg = (
             f"◈ <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{confidence_score}]\n"
@@ -656,8 +644,10 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("خطأ: التوكن أو الشات آي دي غير متوفر.")
+        print("[تنبيه] لم يتم تعيين مفاتيح تيليغرام. طباعة الرسالة:")
+        print(text)
         return
+
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
@@ -667,54 +657,58 @@ def send_telegram_message(text: str):
     }
     try:
         resp = requests.post(url, json=payload, timeout=12)
-        print(f"Telegram API Response: {resp.status_code} - {resp.text}")
+        resp.raise_for_status()
     except Exception as e:
-        print(f"فشل إرسال تيليغرام: {e}")
+        print(f"[خطأ] فشل إرسال رسالة تيليغرام: {e}")
 
-
-# ============ التنفيذ المباشر للماسح عبر GitHub Actions ============
+# ============ التشغيل الرئيسي ============
 def main():
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("تنبيه: لم يتم تعيين متغيرات تيليغرام (Token أو Chat ID).")
+    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات 1h, 4h, 1d, 3d, 1w...")
+    score_state = load_score_state()
+    clean_old_events(score_state)
 
-    print("بدء عملية فحص الأسواق عبر GitHub Actions...")
-    
     try:
-        score_state = load_score_state()
-        clean_old_events(score_state)
+        fng_status = get_fear_and_greed_index()
+    except Exception:
+        fng_status = None
 
-        try:
-            fng_status = get_fear_and_greed_index()
-        except Exception:
-            fng_status = None
+    def process_worker(sym):
+        symbol_signals = []
+        macro_info = analyze_macro_trends(sym)
 
-        alerts_sent = 0
-        for sym in list(WATCHLIST):
-            macro_info = analyze_macro_trends(sym)
-            for tf in ["1h", "4h", "1d", "3d"]:
-                df = fetch_klines(sym, timeframe=tf)
-                if df is None:
-                    continue
-                try:
-                    sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
-                    for sig in sigs:
-                        strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
-                        if should_alert(score_state, sym, SCORE_THRESHOLD):
-                            send_telegram_message(formatted_msg)
-                            mark_alert_sent(score_state, sym)
-                            alerts_sent += 1
-                except Exception:
-                    pass
-            time.sleep(1)
+        for tf in ["1h", "4h", "1d", "3d"]:
+            df = fetch_klines(sym, timeframe=tf)
+            if df is None:
+                continue
+            try:
+                sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
+                for sig in sigs:
+                    sig["macro_info"] = macro_info
+                    symbol_signals.append(sig)
+            except Exception as e:
+                print(f"[خطأ تحليل] {sym} على فريم {tf}: {e}")
 
-        save_score_state(score_state)
-        print(f"تم الانتهاء من الفحص بنجاح. عدد التنبيهات المرسلة: {alerts_sent}")
-        
-    except Exception as e:
-        print(f"حدث خطأ أثناء تشغيل الماسح: {e}")
+        return symbol_signals
 
-    # الخروج التام والفوري لكي لا يعلق GitHub Actions
-    sys.exit(0)
+    all_signals = []
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        futures = [executor.submit(process_worker, sym) for sym in WATCHLIST]
+        for future in futures:
+            signals = future.result()
+            for sig in signals:
+                symbol = sig["symbol"]
+                macro_info = sig.get("macro_info", {})
+
+                strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
+
+                if should_alert(score_state, symbol, SCORE_THRESHOLD):
+                    send_telegram_message(formatted_msg)
+                    mark_alert_sent(score_state, symbol)
+
+                all_signals.append(sig)
+
+    save_score_state(score_state)
+    print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.")
 
 if __name__ == "__main__":
     main()
