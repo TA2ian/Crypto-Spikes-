@@ -496,6 +496,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
     return signals
 
 # ============ شجرة الأولويات وتصنيف الخطط الـ 7 ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 7 ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     """
     تصنيف التنبيه وفق شجرة الشروط الحصرية لمنع أي تعارض وإخراجه بالقالب المناسب
@@ -514,9 +515,13 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     
     macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {'صاعد 🟢' if macro_info.get('macro_bullish') else 'محايد/هابط 🔴'}"
 
+    # تعريف الإيموجيز الحساسة كمتغيرات آمنة
+    crown_emoji = "\U0001F451"
+    bank_emoji = "\U0001F3DB"
+
     # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
     if len(confluence) >= 4 and macro_info.get("macro_bullish"):
-        msg = f"""👑💎 <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
+        msg = f"""{crown_emoji}💎 <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
 <b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf} + (3D & 1W Macro)</code>
 🌐 <b>بيانات الماكرو:</b> {macro_str}
 
@@ -535,7 +540,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 
     # الخطة 1: صفقة التجميع المؤسساتي (Wyckoff + SMC)
     if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
-        msg = f"""🏛️🐳 <b>توصية مؤسساتية | Smart Money Accumulation</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
+        msg = f"""{bank_emoji}🐳 <b>توصية مؤسساتية | Smart Money Accumulation</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]
 <b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
 📍 <b>المرحلة:</b> {wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')}
 🌐 <b>بيانات الماكرو:</b> {macro_str}
@@ -601,6 +606,42 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 📊 <b>الدمج الفني (Confluence):</b>
 • " + "\n• ".join(confluence)
         return "CHART_PATTERN", msg
+
+    # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
+    if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
+        msg = f"""📉🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{sig.get('stars', '⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence
+
+💵 <b>سعر الشراء:</b> <code>{price:.4f}$</code>
+🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>
+
+🎯 <b>هدف 1 (الارتداد الأول):</b> <code>{t1}$</code>
+🎯 <b>هدف 2 (الدعم السابق):</b> <code>{t2}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "OVERSOLD_REVERSAL", msg
+
+    # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
+    if any("وجود FVG" in c for c in confluence):
+        msg = f"""⚡🎯 <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{sig.get('stars', '⭐⭐⭐')}]
+<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>
+📍 <b>الهدف:</b> إغلاق الفجوة السعرية (Imbalance Fill)
+
+💵 <b>منطقة الشراء:</b> <code>{price:.4f}$</code>
+🛑 <b>الستوب:</b> <code>{sl}$</code>
+
+🎯 <b>هدف إغلاق الفجوة:</b> <code>{t1}$</code>
+🎯 <b>هدف سحب السيولة:</b> <code>{t2}$</code>
+
+📊 <b>الدمج الفني (Confluence):</b>
+• " + "\n• ".join(confluence)
+        return "FVG_SCALP", msg
+
+    # تنبيه قياسي للتنبيهات العادية
+    return "STANDARD", f"⚡ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$"
+
 
     # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
     if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
