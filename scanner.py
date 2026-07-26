@@ -120,41 +120,102 @@ BINANCE_ENDPOINTS = [
     "https://api.binance.com/api/v3/klines"
 ]
 
-def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
-    """جلب بيانات الشموع مباشرة من Binance مع دعم السيرفرات الاحتياطية"""
-    clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1hour": "1h", "4hour": "4h", "1day": "1d", "1week": "1w"}
-    binance_tf = tf_map.get(timeframe, timeframe)
+def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
+    """جلب من OKX"""
+    clean_symbol = symbol.replace("/", "-").upper()
+    if not clean_symbol.endswith("-USDT"):
+        clean_symbol = f"{clean_symbol}-USDT"
 
-    params = {
-        "symbol": clean_symbol,
-        "interval": binance_tf,
-        "limit": CANDLE_LIMIT
-    }
+    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D", "1hour": "1H", "4hour": "4H", "1day": "1D"}
+    okx_tf = tf_map.get(timeframe, "1H")
 
-    for endpoint in BINANCE_ENDPOINTS:
-        try:
-            resp = requests.get(endpoint, params=params, timeout=8)
-            resp.raise_for_status()
+    url = "https://www.okx.com/api/v5/market/candles"
+    params = {"instId": clean_symbol, "bar": okx_tf, "limit": str(CANDLE_LIMIT)}
+
+    try:
+        resp = requests.get(url, params=params, timeout=6)
+        if resp.status_code == 200:
             data = resp.json()
-
-            if isinstance(data, list) and len(data) > 0:
-                df = pd.DataFrame(
-                    data,
-                    columns=[
-                        "time", "open", "high", "low", "close", "volume",
-                        "close_time", "quote_vol", "trades", "taker_base", "taker_quote", "ignore"
-                    ]
-                )
+            if data.get("code") == "0" and data.get("data"):
+                raw_candles = list(reversed(data["data"]))
+                df = pd.DataFrame(raw_candles, columns=["time", "open", "high", "low", "close", "volume", "volCcy", "volCcyQuote", "confirm"])
                 df = df[["time", "open", "high", "low", "close", "volume"]]
                 for col in ["open", "high", "low", "close", "volume"]:
                     df[col] = df[col].astype(float)
-
                 return df.reset_index(drop=True)
-        except Exception:
-            continue
+    except Exception:
+        pass
+    return None
 
-    print(f"[خطأ] فشل جلب بيانات {symbol} من جميع سيرفرات باينانس الاحتياطية")
+
+def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
+    """جلب من Bybit"""
+    clean_symbol = symbol.replace("-", "").replace("/", "").upper()
+    tf_map = {"1h": "60", "4h": "240", "1d": "D", "1hour": "60", "4hour": "240", "1day": "D"}
+    bybit_tf = tf_map.get(timeframe, "60")
+
+    url = "https://api.bybit.com/v5/market/kline"
+    params = {"category": "spot", "symbol": clean_symbol, "interval": bybit_tf, "limit": CANDLE_LIMIT}
+
+    try:
+        resp = requests.get(url, params=params, timeout=6)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("retCode") == 0 and data.get("result", {}).get("list"):
+                raw_candles = list(reversed(data["result"]["list"]))
+                df = pd.DataFrame(raw_candles, columns=["time", "open", "high", "low", "close", "volume", "turnover"])
+                df = df[["time", "open", "high", "low", "close", "volume"]]
+                for col in ["open", "high", "low", "close", "volume"]:
+                    df[col] = df[col].astype(float)
+                return df.reset_index(drop=True)
+    except Exception:
+        pass
+    return None
+
+
+def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
+    """جلب من MEXC"""
+    clean_symbol = symbol.replace("-", "").replace("/", "").upper()
+    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D", "1hour": "60m", "4hour": "4h", "1day": "1D"}
+    mexc_tf = tf_map.get(timeframe, "60m")
+
+    url = "https://api.mexc.com/api/v3/klines"
+    params = {"symbol": clean_symbol, "interval": mexc_tf, "limit": CANDLE_LIMIT}
+
+    try:
+        resp = requests.get(url, params=params, timeout=6)
+        if resp.status_code == 200:
+            data = resp.json()
+            if isinstance(data, list) and len(data) > 0:
+                df = pd.DataFrame(data, columns=["time", "open", "high", "low", "close", "volume", "close_time", "quote_vol"])
+                df = df[["time", "open", "high", "low", "close", "volume"]]
+                for col in ["open", "high", "low", "close", "volume"]:
+                    df[col] = df[col].astype(float)
+                return df.reset_index(drop=True)
+    except Exception:
+        pass
+    return None
+
+
+def fetch_klines(symbol: str, timeframe: str = TIMEFRAME) -> pd.DataFrame | None:
+    """جلب البيانات بالتتابع: OKX -> Bybit -> MEXC"""
+    
+    # 1. OKX
+    df = fetch_from_okx(symbol, timeframe)
+    if df is not None:
+        return df
+
+    # 2. Bybit
+    df = fetch_from_bybit(symbol, timeframe)
+    if df is not None:
+        return df
+
+    # 3. MEXC
+    df = fetch_from_mexc(symbol, timeframe)
+    if df is not None:
+        return df
+
+    print(f"[خطأ] فشل جلب بيانات {symbol} من جميع المنصات الثلاث (OKX, Bybit, MEXC)")
     return None
 
 
