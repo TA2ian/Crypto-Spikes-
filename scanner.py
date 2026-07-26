@@ -634,6 +634,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        print("خطأ: التوكن أو الشات آي دي غير متوفر.")
         return
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
@@ -643,9 +644,11 @@ def send_telegram_message(text: str):
         "disable_web_page_preview": True,
     }
     try:
-        requests.post(url, json=payload, timeout=12)
-    except Exception:
-        pass
+        resp = requests.post(url, json=payload, timeout=12)
+        print(f"Telegram API Response: {resp.status_code} - {resp.text}")
+    except Exception as e:
+        print(f"فشل إرسال تيليغرام: {e}")
+
 
 # ============ التنفيذ المباشر للماسح عبر GitHub Actions ============
 def main():
