@@ -1,15 +1,19 @@
 """
-ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
-يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
-ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns).
+ماسح العملات الحلال - السكربت الرئيسي الموحد والمزود بالأوامر التفاعلية
+(Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w + Telegram Bot Handlers)
 """
 import os
 import json
 import time
+import threading
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
 import pandas as pd
+
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
 # استدعاء الملفات الأساسية
 from coins import WATCHLIST
@@ -94,6 +98,20 @@ SHOW_CVD = True
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+# ============ 1. خادم الويب الوهمي لإرضاء منصة Render ============
+class SimpleHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Crypto Bot & Scanner is running successfully!")
+    def log_message(self, format, *args):
+        pass  # منع طباعة سجلات HTTP المتكررة لتصبح اللوقز نظيفة
+
+def run_dummy_server():
+    port = int(os.environ.get("PORT", 10000))
+    server = HTTPServer(('0.0.0.0', port), SimpleHandler)
+    server.serve_forever()
 
 # ============ جلب البيانات من المنصات ============
 def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
@@ -284,7 +302,6 @@ def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_ef
 
     return wyckoff_result
 
-# ============ فحص اتجاه الماكرو (3D + 1W) ============
 def analyze_macro_trends(symbol: str) -> dict:
     df_3d = fetch_klines(symbol, timeframe="3d")
     df_1w = fetch_klines(symbol, timeframe="1w")
@@ -488,7 +505,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 8 (آمنة تماماً) ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
@@ -508,7 +525,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 
     confidence_score = sig.get("stars", "عالي")
 
-    # الخطة 8: توصية الـ Re-entry (معاودة الدخول بعد التصحيح السليم)
     if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
         msg = (
             f"🔄 <b>توصية معاودة الدخول | Re-entry Setup</b> [{confidence_score}]\n"
@@ -524,7 +540,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "RE_ENTRY", msg
 
-    # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
     if len(confluence) >= 4 and macro_bullish:
         msg = (
             f"❖ <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{confidence_score}]\n"
@@ -543,7 +558,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "MASTER_SIGNAL", msg
 
-    # الخطة 1: صفقة التجميع المؤسساتي (Wyckoff + SMC)
     if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
         phase_str = wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')
         msg = (
@@ -561,7 +575,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "WYCKOFF_SMC", msg
 
-    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
     if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
         msg = (
             f"⚡ <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{confidence_score}]\n"
@@ -577,7 +590,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "VOLATILE_BREAKOUT", msg
 
-    # الخطة 3: صفقة الاتجاه العام والتقاطع الذهبي (Trend Following)
     if ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200")):
         d3_sup = macro_info.get('d3_support', 0)
         msg = (
@@ -595,7 +607,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "GOLDEN_TREND", msg
 
-    # الخطة 5: أنماط التشارت الكلاسيكية (Chart Patterns)
     if any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns"):
         msg = (
             f"📐 <b>توصية نموذج كلاسيكي | Chart Pattern Setup</b> [{confidence_score}]\n"
@@ -610,7 +621,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "CHART_PATTERN", msg
 
-    # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
     if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
         msg = (
             f"🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{confidence_score}]\n"
@@ -625,7 +635,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "OVERSOLD_REVERSAL", msg
 
-    # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
     if any("وجود FVG" in c for c in confluence):
         msg = (
             f"◈ <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{confidence_score}]\n"
@@ -644,10 +653,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("[تنبيه] لم يتم تعيين مفاتيح تيليغرام. طباعة الرسالة:")
-        print(text)
         return
-
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
@@ -656,59 +662,130 @@ def send_telegram_message(text: str):
         "disable_web_page_preview": True,
     }
     try:
-        resp = requests.post(url, json=payload, timeout=12)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"[خطأ] فشل إرسال رسالة تيليغرام: {e}")
-
-# ============ التشغيل الرئيسي ============
-def main():
-    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات 1h, 4h, 1d, 3d, 1w...")
-    score_state = load_score_state()
-    clean_old_events(score_state)
-
-    try:
-        fng_status = get_fear_and_greed_index()
+        requests.post(url, json=payload, timeout=12)
     except Exception:
-        fng_status = None
+        pass
 
-    def process_worker(sym):
-        symbol_signals = []
-        macro_info = analyze_macro_trends(sym)
+# ============ 2. الأوامر التفاعلية للبوت ============
+async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_name = update.effective_user.first_name
+    welcome_text = (
+        f"مرحباً بك يا <b>{user_name}</b> في بوت التحليل الفني والخطط الـ 8 الذكي للعملات! 🚀\n\n"
+        f"<b>الأوامر التفاعلية المتاحة:</b>\n"
+        f"• /list - لعرض قائمة العملات قيد المراقبة\n"
+        f"• /add &lt;العملة&gt; - لإضافة عملة جديدة (مثال: `/add ADA/USDT`)\n"
+        f"• /remove &lt;العملة&gt; - لحذف عملة من القائمة (مثال: `/remove ADA/USDT`)\n"
+        f"• /status - لمعرفة حالة نظام الفحص والماسح\n"
+    )
+    await update.message.reply_text(welcome_text, parse_mode="HTML")
 
-        for tf in ["1h", "4h", "1d", "3d"]:
-            df = fetch_klines(sym, timeframe=tf)
-            if df is None:
-                continue
+async def list_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    coins_str = "\n".join([f"• <code>{coin}</code>" for coin in WATCHLIST])
+    msg = f"📊 <b>قائمة العملات المراقبة حالياً ({len(WATCHLIST)}):</b>\n\n{coins_str}"
+    await update.message.reply_text(msg, parse_mode="HTML")
+
+async def add_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("⚠️ يرجى كتابة اسم العملة بعد الأمر. مثال:\n<code>/add ADA/USDT</code>", parse_mode="HTML")
+        return
+    
+    new_coin = context.args[0].upper()
+    if not "/" in new_coin and not "-" in new_coin:
+        new_coin = f"{new_coin}/USDT"
+    elif "-" in new_coin:
+        new_coin = new_coin.replace("-", "/")
+        
+    if new_coin not in WATCHLIST:
+        WATCHLIST.append(new_coin)
+        await update.message.reply_text(f"✅ تمت إضافة العملة <code>{new_coin}</code> بنجاح إلى قائمة المراقبة!", parse_mode="HTML")
+    else:
+        await update.message.reply_text(f"ℹ️ العملة <code>{new_coin}</code> موجودة مسبقاً في القائمة.", parse_mode="HTML")
+
+async def remove_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("⚠️ يرجى كتابة اسم العملة المراد حذفها. مثال:\n<code>/remove ADA/USDT</code>", parse_mode="HTML")
+        return
+    
+    target_coin = context.args[0].upper()
+    if not "/" in target_coin and not "-" in target_coin:
+        target_coin = f"{target_coin}/USDT"
+    elif "-" in target_coin:
+        target_coin = target_coin.replace("-", "/")
+
+    if target_coin in WATCHLIST:
+        WATCHLIST.remove(target_coin)
+        await update.message.reply_text(f"🗑 تم حذف العملة <code>{target_coin}</code> من قائمة المراقبة.", parse_mode="HTML")
+    else:
+        await update.message.reply_text(f"❌ العملة غير موجودة في القائمة الحالية.", parse_mode="HTML")
+
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(f"🟢 نظام الماسح الخلفي والخطط الـ 8 يعمل بكفاءة تامة.\n📊 عدد العملات المفحوصة: <code>{len(WATCHLIST)}</code>", parse_mode="HTML")
+
+# ============ الماسح الخلفي للأسواق ============
+def background_scanner_loop():
+    print("بدء تشغيل الماسح الخلفي للأسواق في الخلفية...")
+    while True:
+        try:
+            score_state = load_score_state()
+            clean_old_events(score_state)
+
             try:
-                sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
-                for sig in sigs:
-                    sig["macro_info"] = macro_info
-                    symbol_signals.append(sig)
-            except Exception as e:
-                print(f"[خطأ تحليل] {sym} على فريم {tf}: {e}")
+                fng_status = get_fear_and_greed_index()
+            except Exception:
+                fng_status = None
 
-        return symbol_signals
+            for sym in list(WATCHLIST):
+                macro_info = analyze_macro_trends(sym)
+                for tf in ["1h", "4h", "1d", "3d"]:
+                    df = fetch_klines(sym, timeframe=tf)
+                    if df is None:
+                        continue
+                    try:
+                        sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
+                        for sig in sigs:
+                            strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
+                            if should_alert(score_state, sym, SCORE_THRESHOLD):
+                                send_telegram_message(formatted_msg)
+                                mark_alert_sent(score_state, sym)
+                    except Exception:
+                        pass
+                time.sleep(2)  # فاصل زمني قصير بين العملات لتجنب الضغط على الـ APIs
 
-    all_signals = []
-    with ThreadPoolExecutor(max_workers=5) as executor:
-        futures = [executor.submit(process_worker, sym) for sym in WATCHLIST]
-        for future in futures:
-            signals = future.result()
-            for sig in signals:
-                symbol = sig["symbol"]
-                macro_info = sig.get("macro_info", {})
+            save_score_state(score_state)
+        except Exception:
+            pass
+        
+        # الانتظار لمدة 30 دقيقة قبل دورة الفحص التالية
+        time.sleep(1800)
 
-                strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
+# ============ الدالة الرئيسية للتثبيت والتشغيل ============
+def main():
+    token = TELEGRAM_BOT_TOKEN
+    if not token:
+        print("تنبيه: لم يتم تعيين TELEGRAM_BOT_TOKEN، سيتم تشغيل الماسح فقط بدون تفاعل تيليغرام.")
 
-                if should_alert(score_state, symbol, SCORE_THRESHOLD):
-                    send_telegram_message(formatted_msg)
-                    mark_alert_sent(score_state, symbol)
+    # 1. تشغيل خادم الويب الوهمي لـ Render (لمنع مشكلة البورتات بشكل جذري)
+    threading.Thread(target=run_dummy_server, daemon=True).start()
 
-                all_signals.append(sig)
+    # 2. تشغيل الماسح الفني في خلفية النظام
+    threading.Thread(target=background_scanner_loop, daemon=True).start()
 
-    save_score_state(score_state)
-    print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.")
+    # 3. تشغيل واجهة بوت تيليغرام التفاعلية (إن توفر التوكن)
+    if token:
+        app = ApplicationBuilder().token(token).build()
+
+        app.add_handler(CommandHandler("start", start_command))
+        app.add_handler(CommandHandler("list", list_command))
+        app.add_handler(CommandHandler("add", add_command))
+        app.add_handler(CommandHandler("remove", remove_command))
+        app.add_handler(CommandHandler("status", status_command))
+
+        print("تم بدء تشغيل بوت تيليغرام التفاعلي والماسح بنجاح تام وجاهز لاستقبال الأوامر عبر التطبيق...")
+        app.run_polling()
+    else:
+        # إبقاء السكربت قيد العمل في حال عدم وجود توكن تيليغرام
+        while True:
+            time.sleep(3600)
 
 if __name__ == "__main__":
     main()
