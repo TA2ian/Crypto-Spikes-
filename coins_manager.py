@@ -8,6 +8,8 @@ file_lock = threading.Lock()  # قفل لحماية البيانات أثناء 
 # القائمة الافتراضية لأي مستخدم جديد يفتح البوت لأول مرة
 DEFAULT_WATCHLIST = [
     "BTC-USDT",
+    "ETH/BTC",
+    "DASH/USDT",
     "ETH-USDT",
     "BNB-USDT",
     "XRP-USDT",
