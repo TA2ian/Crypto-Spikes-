@@ -293,6 +293,85 @@ def detect_volume_imbalance_and_effort(df: pd.DataFrame, vol_mult: float = 2.0) 
     # شمعة صعودية بحجم تداول مضاعف مع إغلاق قوي
     is_bullish_effort = (last_vol > avg_vol * vol_mult) and (last_close > last_open)
     return is_bullish_effort
+def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_effort: bool, bull_ob: dict) -> dict:
+    """اكتشاف حالة البول ماركت ونموذج تجميع وايكوف"""
+    wyckoff_result = {
+        "is_bull_market": False,
+        "wyckoff_phase": None,
+        "is_wyckoff_setup": False
+    }
+
+    if len(df) < 200:
+        return wyckoff_result
+
+    # فحص اتجاه البول ماركت عبر المتوسطات
+    df['ema_50'] = df['close'].ewm(span=50, adjust=False).mean()
+    df['ema_200'] = df['close'].ewm(span=200, adjust=False).mean()
+
+    last_ema50 = df['ema_50'].iloc[-1]
+    last_ema200 = df['ema_200'].iloc[-1]
+    last_close = df['close'].iloc[-1]
+
+    if last_close > last_ema50 and last_ema50 > last_ema200:
+        wyckoff_result["is_bull_market"] = True
+
+    # تحديد مرحلة وايكوف (Phase C / D / E)
+    if is_sweep and bull_ob:
+        wyckoff_result["wyckoff_phase"] = "Phase C (Spring - سحب سيولة للقاع وتجميع)"
+        wyckoff_result["is_wyckoff_setup"] = True
+    elif ms.get("bos_bullish") and is_effort:
+        wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة واختراق)"
+        wyckoff_result["is_wyckoff_setup"] = True
+    elif wyckoff_result["is_bull_market"] and bull_ob and ms.get("choch_bullish"):
+        wyckoff_result["wyckoff_phase"] = "Phase E (LPS - إعادة اختبار الدعم)"
+        wyckoff_result["is_wyckoff_setup"] = True
+
+    return wyckoff_result
+def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, fvg: dict, ms: dict, extra_analysis: dict, candle_patterns: list) -> tuple:
+    """حساب الأهداف القريبة، أهداف الخطة الثانية، والهدف المستقبلي البعيد"""
+    stop_loss = last_close - (atr * 1.5)
+
+    # 1. الهدف الأول (طول شمعة النمط أو المقاومة)
+    pattern_target = 0
+    if candle_patterns and isinstance(candle_patterns[0], dict):
+        p = candle_patterns[0]
+        if "high" in p and "low" in p:
+            pattern_target = last_close + (p["high"] - p["low"])
+
+    target1 = pattern_target if pattern_target > last_close else (resistance if resistance > last_close else last_close + (atr * 1.5))
+
+    # 2. الهدف الثاني (النموذج السعري أو الفجوة FVG)
+    chart_patterns = extra_analysis.get("chart_patterns", {})
+    cp_target = chart_patterns.get("target", 0) if isinstance(chart_patterns, dict) else 0
+
+    if cp_target > target1:
+        target2 = cp_target
+    elif fvg and fvg.get("top", 0) > target1:
+        target2 = fvg["top"]
+    else:
+        target2 = target1 + (atr * 2.0)
+
+    # 3. الخطة الثانية: أهداف امتداد فيبوناتشي وقمة الهيكل
+    fib_data = extra_analysis.get("fibonacci", {})
+    fib_1618 = fib_data.get("ext_1618", 0) if isinstance(fib_data, dict) else 0
+    target3 = ms["last_high"] if (ms.get("last_high") and ms["last_high"] > target2) else (fib_1618 if fib_1618 > target2 else target2 + (atr * 3.5))
+
+    fib_2618 = fib_data.get("ext_2618", 0) if isinstance(fib_data, dict) else 0
+    target4 = fib_2618 if fib_2618 > target3 else target3 + (atr * 4.5)
+
+    # 4. الهدف المستقبلي البعيد (Wyckoff / Macro Target)
+    fib_3618 = fib_data.get("ext_3618", 0) if isinstance(fib_data, dict) else 0
+    macro_target = fib_3618 if fib_3618 > target4 else last_close + (atr * 8.0)
+
+    # تنسيق القيم وضمان الترتيب المنطقي
+    t1 = round(max(target1, last_close * 1.01), 4)
+    t2 = round(max(target2, t1 * 1.015), 4)
+    t3 = round(max(target3, t2 * 1.02), 4)
+    t4 = round(max(target4, t3 * 1.025), 4)
+    macro_t = round(max(macro_target, t4 * 1.05), 4)
+    sl = round(stop_loss, 4)
+
+    return sl, t1, t2, t3, t4, macro_t
 
 def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> list[dict]:
     """تحليل الشمعة وتطبيق منطق الموديولات الجديدة"""
