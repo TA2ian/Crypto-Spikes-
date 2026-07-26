@@ -332,17 +332,25 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
 
         def confluence_note() -> list[str]:
         notes = []
-        if has_bullish_pattern: notes.append("نمط شمعة صعودي")
-        if near_bull_ob: notes.append("قرب Order Block")
-        if fvg: notes.append(f"وجود FVG ({fvg['size_pct']:.2f}%)")
-        if is_sweep: notes.append("سحب سيولة (Liquidity Sweep)")
+        if has_bullish_pattern:
+            notes.append("نمط شمعة صعودي")
+        if near_bull_ob:
+            notes.append("قرب Order Block")
+        if fvg:
+            notes.append(f"وجود FVG ({fvg['size_pct']:.2f}%)")
+        if is_sweep:
+            notes.append("سحب سيولة (Liquidity Sweep)")
 
         # إضافة تأكيدات PA Toolkit
-        if is_bos: notes.append("كسر هيكل صعودي (BOS ⚡)")
-        if is_choch: notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
-        if is_effort_candle: notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
+        if is_bos:
+            notes.append("كسر هيكل صعودي (BOS ⚡)")
+        if is_choch:
+            notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
+        if is_effort_candle:
+            notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
 
         return notes
+ 
 
 
     # --- 1. إشارة اختراق المقاومة ---
