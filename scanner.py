@@ -1,6 +1,6 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
-يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 7 بدون تعارض، 
+يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
 ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns).
 """
 import os
@@ -488,7 +488,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 7 (آمنة تماماً) ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 (آمنة تماماً) ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
@@ -507,6 +507,22 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {macro_status}"
 
     confidence_score = sig.get("stars", "عالي")
+
+    # الخطة 8: توصية الـ Re-entry (معاودة الدخول بعد التصحيح السليم)
+    if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
+        msg = (
+            f"🔄 <b>توصية معاودة الدخول | Re-entry Setup</b> [{confidence_score}]\n"
+            f"━━━━━━━━━━━━━━━━━━━━━━\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
+            f"📍 <b>النموذج:</b> تصحيح صحي وإعادة اختبار المتوسط أو الدعم\n\n"
+            f"◈ <b>سعر الشراء الحالي:</b> <code>{price:.4f}$</code>\n"
+            f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>\n\n"
+            f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
+            f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
+            f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code>\n\n"
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
+        )
+        return "RE_ENTRY", msg
 
     # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
     if len(confluence) >= 4 and macro_bullish:
