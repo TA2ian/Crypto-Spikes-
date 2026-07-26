@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Binance + Modules Edition)
 يقوم بجلب البيانات، الفحص الفني، إدارة نظام النقاط التراكمي،
-حساب الأهداف الديناميكية 6 أهداف (تكتيكية + وايكوف)، وتقييم SMC والماعر.
+حساب الأهداف الديناميكية (6 أهداف)، وتقييم SMC والماكرو مع التنبيهات الذكية.
 """
 import os
 import json
@@ -330,6 +330,21 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
         if is_bos: notes.append("كسر هيكل صعودي (BOS ⚡)")
         if is_choch: notes.append("تغير اتجاه صعودي (CHoCH 🔄)")
         if is_effort_candle: notes.append("شمعة جهد وسيولة عالية (Volume Spike 📊)")
+
+        # إضافة الدايفرجنس صراحة إلى الرسالة
+        div_data = extra_analysis.get("divergence")
+        if div_data and isinstance(div_data, dict) and div_data.get("bullish"):
+            notes.append(f"دايفرجنس صعودي ({div_data.get('type', 'إيجابي')} 📈)")
+
+        # إضافة أنماط التشارت صراحة إلى الرسالة
+        cp_data = extra_analysis.get("chart_patterns")
+        if cp_data:
+            if isinstance(cp_data, dict) and cp_data.get("pattern"):
+                notes.append(f"نمط تشارت: {cp_data['pattern']} 📐")
+            elif isinstance(cp_data, list) and len(cp_data) > 0:
+                p_names = [p.get("pattern", "") if isinstance(p, dict) else str(p) for p in cp_data]
+                notes.append(f"أنماط تشارت: {', '.join(p_names)} 📐")
+
         return notes
 
     # 1. اختراق مقاومة
@@ -355,7 +370,8 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "confluence": notes,
             "extra": extra_analysis,
         })
-        if score_state: add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "اختراق مقاومة")
+        if score_state is not None: 
+            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "اختراق مقاومة")
 
     # 2. ارتداد من دعم
     is_bullish_candle = last_close > float(last_row["open"])
@@ -383,46 +399,48 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, score_state: dict = None) -> l
             "confluence": notes,
             "extra": extra_analysis,
         })
-        if score_state: add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "ارتداد من دعم")
+        if score_state is not None: 
+            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0), "ارتداد من دعم")
 
     return signals
 
-# ============ قالب التلجرام الجديد ============
-def format_message(sig: dict, fng: dict = None) -> str:
-    """تنسيق رسالة التنبيه لـ Telegram بالقالب المحدث والجديد"""
-    timeframe_str = sig.get("timeframe", "1H").upper()
+# ============ قوالب التلجرام المنفصلة ============
+def format_wyckoff_message(sig: dict, fng: dict = None) -> str:
+    """قالب استراتيجي كبيـر لفرص وايكوف والاهداف الممتدة والبعيدة"""
     wyckoff_info = sig.get("wyckoff", {})
-
     lines = [
-        f"{sig['emoji']} <b>إشارة {sig['type']}</b> [{sig.get('stars', '⭐')}]",
-        f"<b>العملة:</b> <code>{sig['symbol']}</code>",
-        f"⏱️ <b>الفريم الزمني:</b> <code>{timeframe_str}</code>",
-        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>",
-        f"<b>المستوى:</b> <code>{sig['level']:.4f}$</code>",
-        f"<b>RSI:</b> {sig['rsi']:.1f} | <b>الحجم:</b> {sig['volume_ratio']:.1f}x",
-    ]
-
-    if wyckoff_info and wyckoff_info.get("is_wyckoff_setup"):
-        lines.append(f"\n🏛️ <b>تحليل وايكوف:</b> {wyckoff_info['wyckoff_phase']}")
-
-    if fng:
-        lines.append(f"🧠 <b>مؤشر المشاعر العام:</b> {fng['value']} ({fng['status']})")
-
-    if sig.get("confluence"):
-        lines.append("\n✅ <b>تأكيدات السيولة والهيكل:</b> " + "، ".join(sig["confluence"]))
-
-    lines += [
-        "",
+        f"🏛️🔥 <b>فرصة استراتيجية (نموذج وايكوف)</b> [{sig.get('stars', '⭐⭐⭐⭐⭐')}]",
+        f"<b>العملة:</b> <code>{sig['symbol']}</code> | <b>الفريم:</b> <code>{sig.get('timeframe', '1H').upper()}</code>",
+        f"📍 <b>مرحلة التجميع:</b> {wyckoff_info.get('wyckoff_phase')}",
+        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>\n",
         f"🛑 <b>وقف الخسارة:</b> <code>{sig['stop_loss']}$</code>\n",
-        "🔹 <b>الخطة الأولى (أهداف النموذج):</b>",
+        "🔹 <b>الأهداف التكتيكية:</b>",
         f"• <b>هدف 1:</b> <code>{sig['target1']}$</code> 🎯",
         f"• <b>هدف 2:</b> <code>{sig['target2']}$</code> 🎯\n",
-        "🚀 <b>الخطة الثانية (أهداف امتدادية):</b>",
+        "🚀 <b>الخطة الممتدة والبعيدة:</b>",
         f"• <b>هدف 3:</b> <code>{sig['target3']}$</code> 🔥",
-        f"• <b>هدف 4:</b> <code>{sig['target4']}$</code> 💎\n",
-        f"🔮 <b>الهدف المستقبلي البعيد (Macro Target):</b> <code>{sig['macro_target']}$</code> 🌌",
-        "\n⚠️ <i>تنبيه آلي استرشادي - راجع الشارت بنفسك قبل اتخاذ القرار</i>"
+        f"• <b>هدف 4:</b> <code>{sig['target4']}$</code> 💎",
+        f"🔮 <b>الهدف البعيد (Macro Target):</b> <code>{sig['macro_target']}$</code> 🌌",
     ]
+    if fng:
+        lines.append(f"\n🧠 <b>مؤشر المشاعر العام:</b> {fng['value']} ({fng['status']})")
+    if sig.get("confluence"):
+        lines.append("\n✅ <b>التأكيدات والأنماط:</b> " + "، ".join(sig["confluence"]))
+    return "\n".join(lines)
+
+def format_score_message(sig: dict, score: float, breakdown: str) -> str:
+    """قالب التنبيه التراكمي (عند تجاوز نقاط العملة للعتبة لتجنب التكرار)"""
+    lines = [
+        f"⚡ <b>تنبيه زخم تراكمي مرتفع (Score Alert)</b>",
+        f"<b>العملة:</b> <code>{sig['symbol']}</code>",
+        f"📊 <b>مجموع النقاط:</b> <code>{score:.1f} pts</code>",
+        f"<b>السعر الحالي:</b> <code>{sig['price']:.4f}$</code>\n",
+        f"🛑 <b>الستوب:</b> <code>{sig['stop_loss']}$</code> | 🎯 <b>الهدف الأول:</b> <code>{sig['target1']}$</code> | 🎯 <b>الهدف الثاني:</b> <code>{sig['target2']}$</code>",
+    ]
+    if sig.get("confluence"):
+        lines.append("\n✅ <b>التأكيدات والأنماط:</b> " + "، ".join(sig["confluence"]))
+    if breakdown:
+        lines.append(f"\n📝 <b>تفاصيل النقاط:</b>\n{breakdown}")
     return "\n".join(lines)
 
 def send_telegram_message(text: str):
@@ -450,6 +468,9 @@ def main():
     all_signals_for_app = []
     score_state = load_score_state()
 
+    # تنظيف الأحداث القديمة في نظام النقاط
+    clean_old_events(score_state)
+
     try:
         fng_status = get_fear_and_greed_index()
     except Exception:
@@ -469,8 +490,26 @@ def main():
         for future in futures:
             signals = future.result()
             for sig in signals:
-                msg = format_message(sig, fng=fng_status)
-                send_telegram_message(msg)
+                symbol = sig["symbol"]
+                wyckoff_info = sig.get("wyckoff", {})
+
+                # 1. نمط تنبيه وايكوف الاستراتيجي (يرسل فوراً)
+                if wyckoff_info and wyckoff_info.get("is_wyckoff_setup"):
+                    msg = format_wyckoff_message(sig, fng=fng_status)
+                    send_telegram_message(msg)
+                    all_signals_for_app.append(sig)
+                    continue
+
+                # 2. نمط التنبيه التراكمي (مع فلتر منع التكرار)
+                score = current_score(score_state, symbol)
+                if should_alert(score_state, symbol, SCORE_THRESHOLD):
+                    breakdown = get_score_breakdown(score_state, symbol)
+                    msg = format_score_message(sig, score, breakdown)
+                    send_telegram_message(msg)
+                    
+                    # كتم العملة مؤقتاً بعد الإرسال
+                    mark_alert_sent(score_state, symbol)
+                
                 all_signals_for_app.append(sig)
 
     save_score_state(score_state)
