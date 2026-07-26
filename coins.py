@@ -17,7 +17,7 @@ WATCHLIST = [
     "ADA-USDT",
     "LINK-USDT",
     "BCH-USDT",
-    "TON-USDT",
+    "GRAM-USDT",
     "LTC-USDT",
     "SUI-USDT",
     "AVAX-USDT",
