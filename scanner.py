@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
 يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
-ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns) مع الدعم الذكي للتعزيز (Smart DCA).
+ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns) مع الدعم الذكي للتعزيز (Smart DCA بنسبة 50-50).
 """
 import os
 import json
@@ -176,10 +176,27 @@ def fetch_klines(symbol: str, timeframe: str = "1h") -> pd.DataFrame | None:
     if df is not None: return df
     return None
 
-# ============ أدوات التحليل الفني والتعزيز الذكي (Smart DCA) ============
+# ============ دالة جلب السعر اللحظي المباشر بدون CCXT (لتجنب الأخطاء) ============
+def get_live_price(symbol: str, fallback_price: float) -> float:
+    clean_symbol = symbol.replace("/", "-").upper()
+    if not clean_symbol.endswith("-USDT"):
+        clean_symbol = f"{clean_symbol}-USDT"
+    url = f"https://www.okx.com/api/v5/market/ticker?instId={clean_symbol}"
+    try:
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("code") == "0" and data.get("data"):
+                return float(data["data"][0]["last"])
+    except Exception:
+        pass
+    return fallback_price
+
+# ============ أدوات التحليل الفني والتعزيز الذكي (Smart DCA 50-50) ============
 def find_nearest_support(df: pd.DataFrame, current_price: float) -> float:
     """
     البحث برمجياً عن أقرب مستوى دعم تحت السعر الحالي بناءً على القيعان السابقة للشموع
+    لتنفيذ خطة التعزيز (50% دخول حالي + 50% تعزيز عند الدعم)
     """
     try:
         if df is not None and len(df) > 0:
@@ -191,7 +208,7 @@ def find_nearest_support(df: pd.DataFrame, current_price: float) -> float:
                     return float(nearest)
     except Exception:
         pass
-    return float(current_price * 0.985)
+    return float(current_price * 0.985) # قيمة افتراضية آمنة في حال عدم توفر قاع قريب
 
 def calculate_bollinger_bands(df: pd.DataFrame, window: int = 20, num_std: float = 2.0) -> dict:
     if len(df) < window:
@@ -468,7 +485,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "wyckoff": wyckoff_data,
             "confluence": notes,
             "extra": extra_analysis,
-            "dataframe": closed_df,  # مررنا الداتا فريم لاستخدامها في حساب الدعم الذكي للتعزيز
+            "dataframe": closed_df,
         })
         if score_state is not None: 
             add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"اختراق مقاومة ({timeframe})")
@@ -506,8 +523,8 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 8 مع التعزيز الذكي والدعم الفعلي ============
-def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None, exchange=None) -> tuple[str, str]:
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 مع التعزيز الذكي (50-50) ============
+def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
     extra = sig.get("extra", {})
@@ -518,25 +535,18 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     symbol = sig["symbol"]
     tf = sig.get("timeframe", "1h").upper()
     
-    # جلب السعر اللحظي المباشر لتلافي أي مفارقة مع سعر الإغلاق
-    current_price = sig["price"]
-    if exchange:
-        try:
-            ticker = exchange.fetch_ticker(symbol)
-            if ticker and 'last' in ticker:
-                current_price = float(ticker['last'])
-        except Exception:
-            pass
+    # جلب السعر اللحظي المباشر عبر requests لتحديث السعر بدقة لحظية
+    fallback_price = sig["price"]
+    price = get_live_price(symbol, fallback_price)
 
-    price = current_price
     sl = sig["stop_loss"]
     t1, t2, t3, t4, macro_t = sig["target1"], sig["target2"], sig["target3"], sig["target4"], sig["macro_target"]
     
-    # حساب أقرب مستوى دعم حقيقي للتعزيز الذكي (Smart DCA)
+    # حساب مستوى الدعم الذكي الفعلي لتنفيذ استراتيجية التعزيز (50-50)
     dca_support = find_nearest_support(df, price)
     dca_pct = ((dca_support - price) / price) * 100
 
-    # حساب النسب المئوية الدقيقة للأهداف ووقف الخسارة بناءً على السعر الحالي
+    # حساب النسب المئوية الدقيقة للأهداف ووقف الخسارة بناءً على السعر الحالي المباشر
     sl_pct = ((sl - price) / price) * 100
     t1_pct = ((t1 - price) / price) * 100
     t2_pct = ((t2 - price) / price) * 100
@@ -553,12 +563,12 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     # الخطة 8: توصية الـ Re-entry (معاودة الدخول بعد التصحيح السليم)
     if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
         msg = (
-            f"🔄 <b>توصية معاودة الدخول | Re-entry & Smart DCA</b> [{confidence_score}]\n"
+            f"🔄 <b>توصية معاودة الدخول | 50-50 Smart DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تصحيح صحي وإعادة اختبار المتوسط أو الدعم\n\n"
-            f"◈ <b>سعر الدخول الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف أول (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف ثاني (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
@@ -570,12 +580,13 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
     if len(confluence) >= 4 and macro_bullish:
         msg = (
-            f"❖ <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{confidence_score}]\n"
+            f"❖ <b>توصية فائقة القوة | 50-50 Master Confluence</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf} + (3D/1W Macro)</code>\n"
             f"🌐 <b>الماكرو:</b> {macro_str}\n\n"
-            f"◈ <b>سعر الدخول الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف 1 (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف 2 (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
@@ -591,102 +602,100 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
         phase_str = wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')
         msg = (
-            f"🏛 <b>توصية مؤسساتية | Smart Money & Smart DCA</b> [{confidence_score}]\n"
+            f"🏛 <b>توصية مؤسساتية | 50-50 Smart DCA & SMC</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>المرحلة:</b> {phase_str}\n"
-            f"🌐 <b>بيانات الماكرو:</b> {macro_str}\n\n"
-            f"◈ <b>سعر الدخول الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"📍 <b>المرحلة:</b> {phase_str}\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>الهدف التكتيكي (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>الهدف الهيكلي (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
             f"✦ <b>الهدف الماكرو:</b> <code>{macro_t}$</code> (+<code>{macro_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "WYCKOFF_SMC", msg
 
-    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
+    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout)
     if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
         msg = (
-            f"⚡ <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{confidence_score}]\n"
+            f"⚡ <b>توصية انفجار سعري | 50-50 Breakout DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> انكماش البولينجر (BB Squeeze) / شمعة سيولة عالية\n\n"
-            f"◈ <b>سعر الدخول الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف سريع (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف الانفجار (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
             f"▸ <b>الهدف البعيد (T3):</b> <code>{t3}$</code> (+<code>{t3_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "VOLATILE_BREAKOUT", msg
 
     # الخطة 3: صفقة الاتجاه العام والتقاطع الذهبي (Trend Following)
     if ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200")):
-        d3_sup = macro_info.get('d3_support', 0)
         msg = (
-            f"▲ <b>توصية ركوب الموجة | Trend Following</b> [{confidence_score}]\n"
+            f"▲ <b>توصية ركوب الموجة | 50-50 Trend DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النوع:</b> اتجاه صاعد قوي (EMA Golden Cross / Bullish Trend)\n"
-            f"🌐 <b>دعم 3D الماكرو:</b> <code>{d3_sup:.4f}$</code>\n\n"
-            f"◈ <b>سعر الدخول الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف أول (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف ثاني (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n"
             f"✦ <b>هدف ماكرو:</b> <code>{macro_t}$</code> (+<code>{macro_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "GOLDEN_TREND", msg
 
     # الخطة 5: أنماط التشارت الكلاسيكية (Chart Patterns)
     if any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns"):
         msg = (
-            f"📐 <b>توصية نموذج كلاسيكي | Chart Pattern Setup</b> [{confidence_score}]\n"
+            f"📐 <b>توصية نموذج كلاسيكي | 50-50 Pattern DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج المكتشف:</b> نمط تشارت كلاسيكي مدمج\n\n"
-            f"◈ <b>سعر الاختراق الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف النموذج (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>امتداد الهدف (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "CHART_PATTERN", msg
 
     # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
     if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
         msg = (
-            f"🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{confidence_score}]\n"
+            f"🔄 <b>توصية ارتداد وصيد قاع | 50-50 Reversion DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence\n\n"
-            f"◈ <b>سعر الشراء الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف 1 (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف 2 (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "OVERSOLD_REVERSAL", msg
 
     # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
     if any("وجود FVG" in c for c in confluence):
         msg = (
-            f"◈ <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{confidence_score}]\n"
+            f"◈ <b>توصية FVG سريعة | 50-50 Gap Fill DCA</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>الهدف:</b> إغلاق الفجوة السعرية (Imbalance Fill)\n\n"
-            f"◈ <b>منطقة الشراء الحالية:</b> <code>{price:.4f}$</code>\n"
-            f"🛡️ <b>منطقة التعزيز (أقرب دعم فني):</b> <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n"
+            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n\n"
+            f"📥 <b>خطة الدخول (50-50):</b>\n"
+            f"• <b>الدفعة الأولى (50%):</b> سعر السوق الحالي <code>{price:.4f}$</code>\n"
+            f"• <b>الدفعة الثانية (50% تعزيز):</b> عند الدعم <code>{dca_support:.4f}$</code> (<code>{dca_pct:.2f}%</code>)\n\n"
             f"🛑 <b>الستوب:</b> <code>{sl}$</code> (<code>{sl_pct:.2f}%</code>)\n\n"
             f"▸ <b>هدف إغلاق الفجوة (T1):</b> <code>{t1}$</code> (+<code>{t1_pct:.2f}%</code>)\n"
             f"▸ <b>هدف سحب السيولة (T2):</b> <code>{t2}$</code> (+<code>{t2_pct:.2f}%</code>)\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "FVG_SCALP", msg
 
@@ -722,10 +731,6 @@ def main():
     except Exception:
         fng_status = None
 
-    # تهيئة كائن للتبادل لجلب السعر اللحظي (باستخدام ccxt إذا متوفر أو استدعاء عام)
-    import ccxt
-    exchange = ccxt.okx() # أو أي منصة رئيسية لجلب الـ Ticker اللحظي
-
     def process_worker(sym):
         symbol_signals = []
         macro_info = analyze_macro_trends(sym)
@@ -753,7 +758,7 @@ def main():
                 symbol = sig["symbol"]
                 macro_info = sig.get("macro_info", {})
 
-                strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status, exchange=exchange)
+                strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
                 if should_alert(score_state, symbol, SCORE_THRESHOLD):
                     send_telegram_message(formatted_msg)
