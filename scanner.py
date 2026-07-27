@@ -1,7 +1,7 @@
 """
 =============================================================
 ماسح العملات الرقمية الحلال (Halal Crypto Scanner & Bot)
-محدث مع التحسين رقم 2: Caching, Rate Limiting & Retry Mechanism
+شامل الخطط الاستراتيجية الـ 8 + حماية Caching + تنسيق احترافي ومنع التكرار
 =============================================================
 """
 import os
@@ -27,7 +27,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "")
 BACKTEST_RESULTS_FILE = "backtest_results.json"
 
-# قائمة العملات الحلال المعتمدة (مثال)
+# قائمة العملات الحلال المعتمدة
 HALAL_COINS = [
     "BTC/USDT", "ETH/USDT", "SOL/USDT", "ADA/USDT", 
     "NEAR/USDT", "MATIC/USDT", "ATOM/USDT", "DOT/USDT"
@@ -38,8 +38,11 @@ TIMEFRAMES = ["4h", "1h"]
 # تخزين مؤقت للماكرو والأسعار (صالح لمدة 60 ثانية لمنع حظر الطلبات)
 macro_cache = TTLCache(maxsize=10, ttl=60)
 
+# ذاكرة مؤقتة لمنع تكرار إرسال نفس الإشارة في نفس جلسة التشغيل
+sent_signals_cache = set()
 
-# ==================== 1. جلب البيانات مع نظام إعادة المحاولة (Retry Mechanism) ====================
+
+# ==================== 1. جلب البيانات مع نظام إعادة المحاولة ====================
 
 def fetch_from_okx(symbol: str, timeframe: str = "1h", limit: int = 100, retries: int = 3, delay: float = 2.0) -> pd.DataFrame | None:
     """جلب الشموع التاريخية من منصة OKX مع آلية إعادة المحاولة عند الفشل"""
@@ -72,21 +75,6 @@ def fetch_from_okx(symbol: str, timeframe: str = "1h", limit: int = 100, retries
             
     logging.error(f"فشل نهائي في جلب بيانات {symbol} بعد {retries} محاولات.")
     return None
-
-
-def get_live_price(symbol: str, fallback_price: float = 0.0) -> float:
-    """جلب السعر الفوري الحي مع معالجة الاستثناءات"""
-    okx_symbol = symbol.replace("/", "-")
-    url = f"https://www.okx.com/api/v5/market/ticker?instId={okx_symbol}"
-    try:
-        resp = requests.get(url, timeout=5)
-        if resp.status_code == 200:
-            data = resp.json().get("data", [])
-            if data:
-                return float(data[0].get("last", fallback_price))
-    except Exception:
-        pass
-    return fallback_price
 
 
 # ==================== 2. المؤشرات الفنية المتقدمة ====================
@@ -160,7 +148,7 @@ def calculate_ema_indicators(df: pd.DataFrame) -> dict:
 def detect_market_structure(df: pd.DataFrame) -> dict:
     """كشف كسر الهيكل (BOS) وتغير الطابع (CHoCH)"""
     if df is None or len(df) < 20:
-        return {"bos_bullish": False, "choch_bullish": False, "last_high": 0, "last_low": 0}
+        return {"bos_bullish": False, "choch_bullish": False}
     
     recent_highs = df['high'].tail(15).values
     recent_lows = df['low'].tail(15).values
@@ -175,16 +163,14 @@ def detect_market_structure(df: pd.DataFrame) -> dict:
     return {
         "bos_bullish": bool(bos_bullish),
         "choch_bullish": bool(choch_bullish),
-        "last_high": prev_high,
-        "last_low": prev_low,
     }
 
 
-# ==================== 3. فلاتر الماكرو مع التخزين المؤقت (Caching) ====================
+# ==================== 3. فلاتر الماكرو وحالة السوق ====================
 
 @cached(macro_cache)
 def evaluate_btc_dominance_filter() -> dict:
-    """فلتر هيمنة البيتكوين مع استخدام الـ Caching لمنع حظر الطلبات المتكررة"""
+    """فلتر هيمنة البيتكوين مع استخدام الـ Caching"""
     url = "https://api.coingecko.com/api/v3/global"
     headers = {"User-Agent": "Mozilla/5.0"}
     result = {"allow_signals": True, "signal_weight": 1.0, "market_phase": "neutral"}
@@ -205,7 +191,7 @@ def evaluate_btc_dominance_filter() -> dict:
 
 
 def detect_market_regime(df: pd.DataFrame) -> dict:
-    """تحديد حالة السوق (Trending / Ranging / Squeeze)"""
+    """تحديد حالة السوق وفلترة الاستراتيجيات غير المناسبة"""
     if df is None or len(df) < 30:
         return {"regime": "neutral", "allowed_strategies": ["all"]}
     
@@ -217,38 +203,53 @@ def detect_market_regime(df: pd.DataFrame) -> dict:
     elif bandwidth > 0.18:
         return {"regime": "volatile", "allowed_strategies": ["OVERSOLD_REVERSAL"]}
     
-    return {"regime": "trend", "allowed_strategies": ["GOLDEN_TREND", "MASTER_SIGNAL", "WYCKOFF_SMC"]}
+    return {"regime": "trend", "allowed_strategies": [
+        "MASTER_SIGNAL", "RE_ENTRY", "WYCKOFF_SMC", 
+        "VOLATILE_BREAKOUT", "GOLDEN_TREND", "CHART_PATTERN", 
+        "OVERSOLD_REVERSAL", "FVG_SCALP"
+    ]}
 
 
-# ==================== 4. شجرة التصنيف والاستراتيجيات ====================
+# ==================== 4. شجرة التصنيف للخطط الـ 8 ====================
 
-def classify_and_format_signal(sig: dict, macro_info: dict) -> tuple[str, str]:
-    """تصنيف الإشارة الاستراتيجية وتحديد نوع الخطة"""
-    confluences = sig.get("confluence", [])
-    bollinger = sig.get("bollinger", {})
-    wyckoff = sig.get("wyckoff", {})
-    ema = sig.get("ema", {})
+def classify_strategy(df: pd.DataFrame, bb: dict, ema: dict, ms: dict) -> str:
+    """تصنيف الإشارة بدقة وتوزيعها على الخطط الـ 8 بناءً على الشروط الفنية"""
+    current_close = float(df['close'].iloc[-1])
     
-    strategy_type = "STANDARD"
-    
-    if wyckoff.get("is_wyckoff_setup"):
-        strategy_type = "WYCKOFF_SMC"
-    elif bollinger.get("is_squeeze"):
-        strategy_type = "VOLATILE_BREAKOUT"
-    elif ema.get("golden_cross") and ema.get("above_ema50"):
-        strategy_type = "GOLDEN_TREND"
-    elif bollinger.get("is_oversold_bb"):
-        strategy_type = "OVERSOLD_REVERSAL"
-    elif len(confluences) >= 3:
-        strategy_type = "MASTER_SIGNAL"
-    else:
-        strategy_type = "FVG_SCALP"
+    # الخطة 1: MASTER_SIGNAL (توافق مؤشرات قوية + كسر هيكل)
+    if ms.get("bos_bullish") and ema.get("above_ema50") and bb.get("bandwidth", 0) > 0.07:
+        return "MASTER_SIGNAL"
         
-    msg = f"🚀 <b>إشارة تداول: {sig['symbol']}</b> ({strategy_type})\n- السعر: {sig['price']}\n- الوقف: {sig['stop_loss']}"
-    return strategy_type, msg
+    # الخطة 2: RE_ENTRY (ارتداد تصحيحي نحو المتوسطات في ترند صاعد)
+    elif ema.get("golden_cross") and current_close <= bb.get("middle", current_close):
+        return "RE_ENTRY"
+        
+    # الخطة 3: WYCKOFF_SMC (سحب سيولة / اختراق هيكلي مفاجئ)
+    elif ms.get("choch_bullish"):
+        return "WYCKOFF_SMC"
+        
+    # الخطة 4: VOLATILE_BREAKOUT (انكماش بولينجر واختراق)
+    elif bb.get("is_squeeze"):
+        return "VOLATILE_BREAKOUT"
+        
+    # الخطة 5: GOLDEN_TREND (تقاطع ذهبي واستقرار فوق EMA 50)
+    elif ema.get("golden_cross") and ema.get("above_ema50"):
+        return "GOLDEN_TREND"
+        
+    # الخطة 6: CHART_PATTERN (محاكاة لاكتمال نموذج كلاسيكي مع تدفق الحجم)
+    elif float(df['volume'].iloc[-1]) > float(df['volume'].rolling(20).mean().iloc[-1]) * 1.5:
+        return "CHART_PATTERN"
+        
+    # الخطة 7: OVERSOLD_REVERSAL (تشبع بيعي عند الحد السفلي للبولينجر)
+    elif bb.get("is_oversold_bb"):
+        return "OVERSOLD_REVERSAL"
+        
+    # الخطة 8: FVG_SCALP (الافتراض الافتراضي للسكالبينج السريع على الفريمات الصغيرة)
+    else:
+        return "FVG_SCALP"
 
 
-# ==================== 5. إرسال التنبيهات عبر تيليغرام ====================
+# ==================== 5. تنسيق وإرسال التنبيهات المطور ====================
 
 def send_telegram_message(message: str):
     """إرسال التنبيه مع حماية ضد أخطاء الشبكة"""
@@ -264,10 +265,42 @@ def send_telegram_message(message: str):
         logging.error(f"فشل إرسال رسالة تيليغرام: {e}")
 
 
+def format_and_send_signal(symbol: str, timeframe: str, strategy_type: str, price: float, atr: float, macro_info: dict):
+    """تنسيق الإشارة بشكل احترافي ومنع التكرار وعرض الأهداف بدقة"""
+    signal_key = f"{symbol}_{strategy_type}_{timeframe}"
+    if signal_key in sent_signals_cache:
+        return # تم إرسالها مسبقاً في هذه الجلسة، منع التكرار
+    
+    sent_signals_cache.add(signal_key)
+    
+    sl = price - (atr * 1.5)
+    t1 = price + (atr * 1.5)
+    t2 = price + (atr * 2.5)
+    t3 = price + (atr * 3.5)
+    
+    msg = (
+        f"🚨 <b>تنبيه صفقة حلال جديدة</b>\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"💎 <b>العملة:</b> <code>{symbol}</code>\n"
+        f"🎯 <b>الخطة الاستراتيجية:</b> <code>{strategy_type}</code>\n"
+        f"⏱ <b>الفريم:</b> {timeframe}\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"📍 <b>سعر الدخول:</b> <code>{price:.4f}</code>\n"
+        f"🛑 <b>وقف الخسارة (SL):</b> <code>{sl:.4f}</code>\n"
+        f"🎯 <b>الهدف الأول (T1):</b> <code>{t1:.4f}</code>\n"
+        f"🎯 <b>الهدف الثاني (T2):</b> <code>{t2:.4f}</code>\n"
+        f"🎯 <b>الهدف الثالث (T3):</b> <code>{t3:.4f}</code>\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"⚖️ <i>حالة السوق: {macro_info.get('market_phase', 'neutral')}</i>"
+    )
+    
+    send_telegram_message(msg)
+
+
 # ==================== التشغيل الرئيسي (Main Execution) ====================
 
 def main():
-    logging.info("--- بدء دورة فحص العملات (مع تفعيل الحماية والـ Caching) ---")
+    logging.info("--- بدء دورة فحص العملات (الخطط الـ 8 المفعلة مع الحماية) ---")
     
     macro_btc = evaluate_btc_dominance_filter()
     logging.info(f"حالة هيمنة البيتكوين: {macro_btc['market_phase']} (وزن الإشارة: {macro_btc['signal_weight']})")
@@ -287,27 +320,18 @@ def main():
                 current_price = float(df['close'].iloc[-1])
                 atr = calculate_atr(df)
                 
-                sig = {
-                    "symbol": symbol,
-                    "price": current_price,
-                    "stop_loss": current_price - (atr * 1.5),
-                    "target1": current_price + (atr * 1.5),
-                    "target3": current_price + (atr * 3.5),
-                    "confluence": ["دعم قوي", "تقاطع ايجابي"],
-                    "bollinger": bb,
-                    "ema": ema,
-                    "wyckoff": {"is_wyckoff_setup": False}
-                }
+                # تصنيف الاستراتيجية عبر الخطط الـ 8
+                strat_type = classify_strategy(df, bb, ema, ms)
                 
-                strat_type, msg = classify_and_format_signal(sig, macro_btc)
-                
-                if strat_type not in regime.get("allowed_strategies", ["all"]) and "all" not in regime.get("allowed_strategies", []):
+                # فحص توافق الخطة مع حالة السوق (Market Regime)
+                allowed = regime.get("allowed_strategies", ["all"])
+                if strat_type not in allowed and "all" not in allowed:
                     continue
                     
                 if macro_btc["signal_weight"] > 0.4:
-                    send_telegram_message(msg)
+                    format_and_send_signal(symbol, tf, strat_type, current_price, atr, macro_btc)
                     
-                # فاصل زمني قصير لمنع الضغط على السيرفرات (Rate Limiting احترازي)
+                # فاصل زمني لمنع الضغط على السيرفر (Rate Limiting)
                 time.sleep(0.5)
                 
             except Exception as loop_err:
