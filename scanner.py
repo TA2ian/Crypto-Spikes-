@@ -284,8 +284,8 @@ def detect_market_structure(df: pd.DataFrame, window: int = 5) -> dict:
     pivot_highs = highs[(highs == highs.rolling(window * 2 + 1, center=True).max())]
     pivot_lows = lows[(lows == lows.rolling(window * 2 + 1, center=True).min())]
 
-    if not pivot_highs.empty: result["last_high"] = pivot_highs.iloc[-1]
-    if not pivot_lows.empty: result["last_low"] = pivot_lows.iloc[-1]
+    if not pivot_highs.empty: result["last_high"] = float(pivot_highs.iloc[-1])
+    if not pivot_lows.empty: result["last_low"] = float(pivot_lows.iloc[-1])
 
     last_close, prev_close = df['close'].iloc[-1], df['close'].iloc[-2]
 
@@ -375,9 +375,10 @@ def analyze_macro_trends(symbol: str) -> dict:
     if df_3d is not None and len(df_3d) >= 20:
         c_3d = df_3d.iloc[:-1]
         last_3d_close = float(c_3d["close"].iloc[-1])
-        ema20_3d = c_3d["close"].ewm(span=20, adjust=False).mean().iloc[-1]
+        ema20_3d = float(c_3d["close"].ewm(span=20, adjust=False).mean().iloc[-1])
         macro_data["d3_rsi"] = float(calc_rsi(c_3d["close"], 14).iloc[-1])
-        macro_data["d3_support"], macro_data["d3_resistance"] = find_support_resistance(c_3d, 10)
+        s_supp, s_res = find_support_resistance(c_3d, 10)
+        macro_data["d3_support"], macro_data["d3_resistance"] = float(s_supp), float(s_res)
         d3_bullish = last_3d_close > ema20_3d and macro_data["d3_rsi"] > 45
     else:
         d3_bullish = False
@@ -385,14 +386,15 @@ def analyze_macro_trends(symbol: str) -> dict:
     if df_1w is not None and len(df_1w) >= 20:
         c_1w = df_1w.iloc[:-1]
         last_1w_close = float(c_1w["close"].iloc[-1])
-        ema20_1w = c_1w["close"].ewm(span=20, adjust=False).mean().iloc[-1]
+        ema20_1w = float(c_1w["close"].ewm(span=20, adjust=False).mean().iloc[-1])
         macro_data["w1_rsi"] = float(calc_rsi(c_1w["close"], 14).iloc[-1])
-        macro_data["w1_support"], macro_data["w1_resistance"] = find_support_resistance(c_1w, 10)
+        w_supp, w_res = find_support_resistance(c_1w, 10)
+        macro_data["w1_support"], macro_data["w1_resistance"] = float(w_supp), float(w_res)
         w1_bullish = last_1w_close > ema20_1w and macro_data["w1_rsi"] > 45
     else:
         w1_bullish = False
 
-    macro_data["macro_bullish"] = d3_bullish or w1_bullish
+    macro_data["macro_bullish"] = bool(d3_bullish or w1_bullish)
     return macro_data
 
 def calculate_dynamic_targets(last_close: float, atr: float, resistance: float, fvg: dict, ms: dict, extra_analysis: dict, candle_patterns: list) -> tuple:
@@ -528,7 +530,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "ema": ema_data,
             "bollinger": bb_data,
             "dpr_data": dpr_data,
-            "volume_ratio": last_volume / avg_vol if avg_vol else 0,
+            "volume_ratio": float(last_volume / avg_vol) if avg_vol else 0.0,
             "timeframe": timeframe,
             "stop_loss": sl,
             "target1": t1, "target2": t2, "target3": t3, "target4": t4,
@@ -559,7 +561,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "ema": ema_data,
             "bollinger": bb_data,
             "dpr_data": dpr_data,
-            "volume_ratio": last_volume / avg_vol if avg_vol else 0,
+            "volume_ratio": float(last_volume / avg_vol) if avg_vol else 0.0,
             "timeframe": timeframe,
             "stop_loss": sl,
             "target1": t1, "target2": t2, "target3": t3, "target4": t4,
@@ -825,7 +827,7 @@ def main():
 
     save_score_state(score_state)
 
-    # حفظ النتائج تلقائياً في مجلد docs للـ Mini App
+    # حفظ النتائج تلقائياً في مجلد docs للـ Mini App مع دعم التشفير التلقائي للأنواع غير المدعومة عبر default=str
     os.makedirs("docs", exist_ok=True)
     market_macro_data = {
         "timestamp": str(datetime.now(timezone.utc)),
@@ -838,7 +840,7 @@ def main():
     }
 
     with open("docs/market_status.json", "w", encoding="utf-8") as f:
-        json.dump(market_macro_data, f, ensure_ascii=False, indent=4)
+        json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
     console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير في مجلد docs.[/bold green]", title="[bold]Summary[/bold]"))
 
