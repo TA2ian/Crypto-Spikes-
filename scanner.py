@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
 يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
-ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns).
+ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns, DPR).
 """
 import os
 import json
@@ -10,6 +10,9 @@ from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import pandas as pd
+from blessed import Terminal
+
+term = Terminal()
 
 # استدعاء الملفات الأساسية
 from coins import WATCHLIST
@@ -223,6 +226,37 @@ def calculate_ema_indicators(df: pd.DataFrame) -> dict:
         "golden_cross": ema50 > ema200
     }
 
+# ============ حساب مؤشر ضغط السوق (DPR) ============
+def calculate_market_pressure(df: pd.DataFrame, length: int = 13) -> dict:
+    if len(df) < length + 5:
+        return {"value": 50.0, "status": "balanced", "display": "N/A"}
+    
+    delta = df['close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=length).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=length).mean()
+    
+    rs = gain / (loss + 1e-9)
+    oscillator = 100 - (100 / (1 + rs))
+    
+    smoothed_osc = oscillator.ewm(span=length, adjust=False).mean()
+    last_val = float(smoothed_osc.iloc[-1])
+    
+    if last_val >= 75:
+        status = "overbought"
+        display_str = term.red_bold(f"▲ [OVERBOUGHT RISK] ({last_val:.1f})")
+    elif last_val <= 25:
+        status = "oversold"
+        display_str = term.green_bold(f"▼ [OVERSOLD OPPORTUNITY] ({last_val:.1f})")
+    else:
+        status = "balanced"
+        display_str = term.yellow(f"◆ [BALANCED] ({last_val:.1f})")
+        
+    return {
+        "value": last_val,
+        "status": status,
+        "display": display_str
+    }
+
 def build_extra_analysis(df: pd.DataFrame, rsi: pd.Series) -> dict:
     extra = {}
     if SHOW_DIVERGENCE:
@@ -373,6 +407,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     bb_data = calculate_bollinger_bands(closed_df)
     ema_data = calculate_ema_indicators(closed_df)
+    dpr_data = calculate_market_pressure(closed_df, length=13)
 
     candle_patterns = detect_candle_patterns(closed_df)
     bull_ob = find_bullish_order_block(closed_df)
@@ -405,6 +440,12 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
         if bb_data.get("is_oversold_bb"): notes.append("ملامسة حد البولينجر السفلي")
         if bb_data.get("is_squeeze"): notes.append("انكماش البولينجر (تأهب لانفجار سعري)")
+
+        # ربط مؤشر ضغط السوق (DPR) بشجرة الخطط
+        if dpr_data["status"] == "oversold":
+            notes.append("مؤشر DPR تحت النطاق 25 (فرصة تشبع بيعي)")
+        elif dpr_data["status"] == "overbought":
+            notes.append("مؤشر DPR فوق النطاق 75 (هيمنة ضغط الشراء)")
 
         if ema_data.get("above_ema50") and ema_data.get("above_ema200"): notes.append("تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)")
         elif ema_data.get("golden_cross"): notes.append("تقاطع ذهبي EMA 50/200")
@@ -444,6 +485,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "rsi": last_rsi,
             "ema": ema_data,
             "bollinger": bb_data,
+            "dpr_data": dpr_data,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
             "timeframe": timeframe,
             "stop_loss": sl,
@@ -474,6 +516,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "rsi": last_rsi,
             "ema": ema_data,
             "bollinger": bb_data,
+            "dpr_data": dpr_data,
             "volume_ratio": last_volume / avg_vol if avg_vol else 0,
             "timeframe": timeframe,
             "stop_loss": sl,
@@ -495,6 +538,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     extra = sig.get("extra", {})
     ema = sig.get("ema", {})
     bb = sig.get("bollinger", {})
+    dpr_info = sig.get("dpr_data", {"value": 50.0, "status": "balanced"})
     
     symbol = sig["symbol"]
     tf = sig.get("timeframe", "1h").upper()
@@ -505,6 +549,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     macro_bullish = macro_info.get("macro_bullish")
     macro_status = "صاعد" if macro_bullish else "محايد/هابط"
     macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {macro_status}"
+    dpr_text = f"📊 <b>مؤشر ضغط السوق (DPR):</b> <code>{dpr_info['value']:.1f}</code> ({dpr_info['status'].upper()})"
 
     confidence_score = sig.get("stars", "عالي")
 
@@ -520,6 +565,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
             f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
             f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
         )
         return "RE_ENTRY", msg
@@ -538,6 +584,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ <b>هدف 3:</b> <code>{t3}$</code>\n"
             f"▸ <b>هدف 4:</b> <code>{t4}$</code>\n"
             f"✦ <b>الهدف البعيد (Macro Fib):</b> <code>{macro_t}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>التوافق الفني الشامل:</b>\n• " + "\n• ".join(confluence) +
             f"\n\n🧠 <b>المشاعر العامة:</b> {fng_status.get('value', 'N/A') if fng_status else 'N/A'}"
         )
@@ -557,12 +604,13 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ <b>الهدف التكتيكي (1):</b> <code>{t1}$</code>\n"
             f"▸ <b>الهدف الهيكلي (2):</b> <code>{t2}$</code>\n"
             f"✦ <b>الهدف الماكرو (3):</b> <code>{macro_t}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "WYCKOFF_SMC", msg
 
     # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
-    if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence:
+    if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence or dpr_info.get("status") == "overbought":
         msg = (
             f"⚡ <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
@@ -573,6 +621,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ <b>هدف سريع (1):</b> <code>{t1}$</code>\n"
             f"▸ <b>هدف الانفجار (2):</b> <code>{t2}$</code>\n"
             f"▸ <b>الهدف البعيد (3):</b> <code>{t3}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "VOLATILE_BREAKOUT", msg
@@ -591,6 +640,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
             f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
             f"✦ <b>هدف ماكرو:</b> <code>{macro_t}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "GOLDEN_TREND", msg
@@ -606,21 +656,23 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
             f"▸ <b>هدف النموذج:</b> <code>{t1}$</code>\n"
             f"▸ <b>امتداد الهدف:</b> <code>{t2}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "CHART_PATTERN", msg
 
     # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
-    if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence):
+    if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence) or dpr_info.get("status") == "oversold":
         msg = (
             f"🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{confidence_score}]\n"
             f"━━━━━━━━━━━━━━━━━━━━━━\n"
             f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence\n\n"
+            f"📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence / DPR Oversold\n\n"
             f"◈ <b>سعر الشراء:</b> <code>{price:.4f}$</code>\n"
             f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
             f"▸ <b>هدف 1 (الارتداد الأول):</b> <code>{t1}$</code>\n"
             f"▸ <b>هدف 2 (الدعم السابق):</b> <code>{t2}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "OVERSOLD_REVERSAL", msg
@@ -636,11 +688,12 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"🛑 <b>الستوب:</b> <code>{sl}$</code>\n\n"
             f"▸ <b>هدف إغلاق الفجوة:</b> <code>{t1}$</code>\n"
             f"▸ <b>هدف سحب السيولة:</b> <code>{t2}$</code>\n\n"
+            f"{dpr_text}\n\n"
             f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
         )
         return "FVG_SCALP", msg
 
-    return "STANDARD", f"◈ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$"
+    return "STANDARD", f"◈ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$\n{dpr_text}"
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
