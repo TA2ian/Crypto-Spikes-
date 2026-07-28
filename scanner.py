@@ -4,6 +4,7 @@
 """
 import os
 import time
+import json
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 import requests
@@ -26,6 +27,7 @@ from patterns import (
 )
 from divergence import analyze_divergence
 from fibonacci import analyze_fibonacci
+from dominance_analyzer import analyze_market_dominance
 
 # استدعاء آمن لـ chart_patterns
 try:
@@ -319,6 +321,46 @@ def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_ef
 
     return wyckoff_result
 
+# ============ رصد تحذيرات الهبوط والمخاطر ============
+def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> list[dict]:
+    bearish_signals = []
+    if df is None or len(df) < 30:
+        return bearish_signals
+
+    closed_df = df.iloc[:-1]
+    last_row = closed_df.iloc[-1]
+    last_close = float(last_row["close"])
+    last_volume = float(last_row["volume"])
+
+    support, resistance = find_support_resistance(closed_df, RESISTANCE_LOOKBACK)
+    avg_vol = avg_volume(closed_df, 20)
+    rsi = calc_rsi(closed_df["close"], 14)
+    last_rsi = float(rsi.iloc[-1])
+
+    is_support_broken = last_close < support and last_volume > avg_vol * 1.5
+    is_overbought_warning = last_rsi >= 78
+
+    if is_support_broken:
+        bearish_signals.append({
+            "type": "كسر دعم خطير",
+            "symbol": symbol,
+            "price": last_close,
+            "level": support,
+            "timeframe": timeframe,
+            "message": f"🔴 **تنبيه انهيار دعم:** العملة `{symbol}` كسرت دعم الأمان عند **{support:.4f}$** على فريم `{timeframe.upper()}` مع فوليوم بيع مكثف!"
+        })
+    elif is_overbought_warning:
+        bearish_signals.append({
+            "type": "تحذير تشبع شرائي",
+            "symbol": symbol,
+            "price": last_close,
+            "level": resistance,
+            "timeframe": timeframe,
+            "message": f"⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `{symbol}` وصلت لمنطقة تشبع مفرط (RSI: `{last_rsi:.1f}`) بالقرب من المقاومة **{resistance:.4f}$**."
+        })
+
+    return bearish_signals
+
 # ============ فحص اتجاه الماكرو (3D + 1W) ============
 def analyze_macro_trends(symbol: str) -> dict:
     df_3d = fetch_klines(symbol, timeframe="3d")
@@ -531,7 +573,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 8 المطورة (مستندة إلى مكتبة rich) ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 المطورة ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
@@ -548,10 +590,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     rsi = sig["rsi"]
     
     macro_bullish = macro_info.get("macro_bullish")
-    macro_status = "صاعد" if macro_bullish else "محايد/هابط"
-    macro_str = f"3D RSI: [cyan]{macro_info.get('d3_rsi', 0):.1f}[/cyan] | 1W RSI: [cyan]{macro_info.get('w1_rsi', 0):.1f}[/cyan] | الاتجاه: {macro_status}"
-    dpr_text = f"[bold]📊 مؤشر ضغط السوق (DPR):[/bold] [cyan]{dpr_info['value']:.1f}[/cyan] ([yellow]{dpr_info['status'].upper()}[/yellow])"
-
     confidence_score = sig.get("stars", "عالي")
 
     # --- الخطة 1: التجميع المؤسساتي المتقدم (Wyckoff + SMC + BOS) ---
@@ -564,14 +602,10 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n"
             f"• [bold green]منطقة التجميع والدخول:[/bold green] [bold]{price:.4f}$[/bold]\n"
             f"• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]{sl}$[/bold]\n\n"
-            f"▸ [bold]الهدف الأول (نهاية نطاق التجميع/الرسم):[/bold] [green]{t1}$[/green]\n"
-            f"▸ [bold]الهدف الرئيسي (اختراق الهيكل):[/bold] [green]{t2}$[/green]\n"
+            f"▸ [bold]الهدف الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي:[/bold] [green]{t2}$[/green]\n"
             f"✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n"
-            f"  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n"
-            f"  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة (Order Block)\n"
-            f"  [green]✔[/green] تدفق سيولة إيجابي (CVD Accumulation)"
+            f"[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         )
         return "WYCKOFF_SMC_ACCUMULATION", msg
 
@@ -582,17 +616,12 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]{confidence_score}[/yellow]]\n"
             f"────────────────────────────────────────\n"
             f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
-            f"[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط (Positive CVD)\n\n"
+            f"[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n"
             f"• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]{price:.4f}$[/bold]\n"
             f"• [bold red]وقف الخسارة المحكم:[/bold red] [bold]{sl}$[/bold]\n\n"
             f"▸ [bold]الهدف الأول (T1):[/bold] [green]{t1}$[/green]\n"
             f"▸ [bold]الهدف الممتد (T2):[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 مؤشرات تأكيد الزخم وتدفق السيولة:[/bold]\n"
-            f"  [green]✔[/green] تحرر السعر من نطاق الاحتقان\n"
-            f"  [green]✔[/green] تأكيد هجوم المشترين عبر صافي تدفق السيولة المرتفع (CVD Buying Delta)\n"
-            f"  [green]✔[/green] دعم من مؤشر ضغط السوق (DPR ≥ 70)"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "CVD_BREAKOUT_CONFIRMED", msg
 
@@ -605,16 +634,10 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
             f"[bold]هيكل الاتجاه:[/bold] ترتيب مثالي للمتوسطات + تقاطع ذهبي مدعوم\n\n"
             f"• [bold green]سعر الدخول المناسب:[/bold green] [bold]{price:.4f}$[/bold]\n"
-            f"• [bold red]وقف الخسارة (تحت متوسط EMA 50):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"• [bold red]وقف الخسارة:[/bold red] [bold]{sl}$[/bold]\n\n"
             f"▸ [bold]الهدف الأول (T1):[/bold] [green]{t1}$[/green]\n"
             f"▸ [bold]الهدف الاتجاهي (T2):[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]هدف ماكرو:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
-            f"  [green]✔[/green] سيطرة هيكلية تامة للمتوسطات (Price > EMA 50 > EMA 200)\n"
-            f"  [green]✔[/green] تدفق سيولة تراكمي إيجابي ومستمر (CVD Trend)\n"
-            f"  [green]✔[/green] زخم سوق صحي ومتوازن (DPR بين 50 و 75)\n"
-            f"  [green]✔[/green] مؤشر القوة النسبية في النطاق الآمن والصاعد (RSI بين 50 و 75)"
+            f"✦ [bold]هدف ماكرو:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "TREND_FOLLOWING_4_CONFIRMS", msg
 
@@ -627,16 +650,10 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
             f"[bold]نموذج الانعكاس:[/bold] تشبع بيعي (BB) + دايفرجنس صعودي + ارتداد تدفق السيولة\n\n"
             f"• [bold green]سعر الدخول عند القاع:[/bold green] [bold]{price:.4f}$[/bold]\n"
-            f"• [bold red]وقف الخسارة المحكم (تحت ذيل شمعة الارتداد):[/bold red] [bold]{sl}$[/bold]\n\n"
-            f"▸ [bold]الهدف الأول (منتصف البولينجر/EMA 20):[/bold] [green]{t1}$[/green]\n"
-            f"▸ [bold]الهدف الرئيسي (الحد العلوي):[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
-            f"  [green]✔[/green] ملامسة واختراق حد البولينجر السفلي (Oversold BB)\n"
-            f"  [green]✔[/green] رصد دايفرجنس صعودي يدعم تغير الزخم\n"
-            f"  [green]✔[/green] مؤشر ضغط السوق في منطقة التشبع السفلي (≤ 25) مع تحول الـ CVD للأعلى\n"
-            f"  [green]✔[/green] ظهور شمعة انعكاسية (Pin Bar) مع انحسار فوليوم البيع"
+            f"• [bold red]وقف الخسارة المحكم:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي:[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "MEAN_REVERSION_4_CONFIRMS", msg
 
@@ -647,18 +664,12 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold yellow]📐 توصية النمط الكلاسيكي المؤكد | Verified Chart Pattern[/bold yellow] [[yellow]{confidence_score}[/yellow]]\n"
             f"────────────────────────────────────────\n"
             f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
-            f"[bold]النموذج المرصود:[/bold] نمط تشارت كلاسيكي مدمج (اكتمال الهيكل + إغلاق مؤكد)\n\n"
-            f"• [bold green]سعر الدخول بعد الاختراق:[/bold green] [bold]{price:.4f}$[/bold]\n"
-            f"• [bold red]وقف الخسارة المحكم (تحت خط العنق/النموذج):[/bold red] [bold]{sl}$[/bold]\n\n"
-            f"▸ [bold]الهدف الأول (هدف قياس النمط T1):[/bold] [green]{t1}$[/green]\n"
-            f"▸ [bold]الهدف الرئيسي (T2):[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
-            f"  [green]✔[/green] اكتمال هندسة النموذج الفني بدقة\n"
-            f"  [green]✔[/green] إغلاق شمعة مؤكدة خارج خط العنق أو حدود الاختراق\n"
-            f"  [green]✔[/green] دعم من حجم التداول وتدفق السيولة التراكمية (CVD)\n"
-            f"  [green]✔[/green] توافق زخم مؤشر ضغط السوق أو نجاح إعادة الاختبار (Retest)"
+            f"[bold]النموذج المرصود:[/bold] نمط تشارت كلاسيكي مدمج\n\n"
+            f"• [bold green]سعر الدخول:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي:[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "CHART_PATTERN_4_CONFIRMS", msg
 
@@ -669,18 +680,12 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold cyan]🕳️ توصية صيد الفجوات المؤكدة | Verified FVG Scalp Setup[/bold cyan] [[yellow]{confidence_score}[/yellow]]\n"
             f"────────────────────────────────────────\n"
             f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
-            f"[bold]هيكل الفجوة:[/bold] فجوة مؤسسية (FVG) متوافقة مع منطقة طلب (Order Block)\n\n"
-            f"• [bold green]سعر الدخول عند ملامسة الفجوة:[/bold green] [bold]{price:.4f}$[/bold]\n"
-            f"• [bold red]وقف الخسارة المحكم (تحت هيكل الفجوة/الطلب):[/bold red] [bold]{sl}$[/bold]\n\n"
-            f"▸ [bold]الهدف الأول (إغلاق الفجوة الكامل T1):[/bold] [green]{t1}$[/green]\n"
-            f"▸ [bold]الهدف الممتد لاختراق السيولة (T2):[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
-            f"  [green]✔[/green] فجوة سعرية مؤسسية بحجم معتبر ومؤثر\n"
-            f"  [green]✔[/green] تزامن الفجوة مع منطقة طلب أو سحب سيولة سابقة\n"
-            f"  [green]✔[/green] ظهور ذيل رفض سعري وانحسار فوليوم الهبوط عند حافة الفجوة\n"
-            f"  [green]✔[/green] ارتداد إيجابي في تدفق السيولة التراكمية (CVD) وضغط السوق (DPR)"
+            f"[bold]هيكل الفجوة:[/bold] فجوة مؤسسية (FVG) متوافقة مع منطقة طلب\n\n"
+            f"• [bold green]سعر الدخول عند الفجوة:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الممتد:[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "FVG_SCALP_4_CONFIRMS", msg
 
@@ -697,9 +702,7 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"▸ [bold]الهدف الثاني (T2):[/bold] [green]{t2}$[/green]\n"
             f"▸ [bold]الهدف الرئيسي (TP):[/bold] [green]{t3}$[/green]\n"
             f"✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 باقة التأكيدات الفنية المعتمدة ({len(confluence)}/5+):[/bold]\n• " + "\n• ".join(confluence) +
-            f"\n\n[bold]🧠 المشاعر العامة:[/bold] {fng_status.get('value', 'N/A') if fng_status else 'N/A'}"
+            f"[bold]📊 التأكيدات ({len(confluence)}/5+):[/bold]\n• " + "\n• ".join(confluence)
         )
         return "ULTIMATE_MASTER_A_PLUS", msg
 
@@ -713,18 +716,13 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
             f"[bold]طبيعة القاع:[/bold] غياب فوليوم البيع والشراء (Dry-up) مع ذعر تشبع بيعي متطرف\n\n"
             f"• [bold green]منطقة الشراء والتجميع:[/bold green] [bold]{price:.4f}$[/bold]\n"
             f"• [bold red]وقف الخسارة التكتيكي:[/bold red] [bold]{sl}$[/bold]\n\n"
-            f"▸ [bold]الهدف التصحيحي الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الأول:[/bold] [green]{t1}$[/green]\n"
             f"▸ [bold]الهدف الرئيسي:[/bold] [green]{t2}$[/green]\n"
-            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
-            f"{dpr_text}\n\n"
-            f"[bold]📊 مؤشرات تأكيد القاع الهادئ:[/bold]\n"
-            f"  [green]✔[/green] RSI / DPR في مناطق التشبع المتطرف (< 20)\n"
-            f"  [green]✔[/green] جفاف تام في فوليوم التداول (دلالة على انتهاء ضغط البيع)\n"
-            f"  [green]✔[/green] ارتداد من دعم ماكرو تاريخي"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]"
         )
         return "CAPITULATION_RE_ENTRY", msg
 
-    return "STANDARD", f"[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]{symbol}[/cyan] على فريم [yellow]{tf}[/yellow] بسعر [bold]{price:.4f}$[/bold]\n{dpr_text}"
+    return "STANDARD", f"[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]{symbol}[/cyan] على فريم [yellow]{tf}[/yellow] بسعر [bold]{price:.4f}$[/bold]"
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
@@ -732,7 +730,6 @@ def send_telegram_message(text: str):
         console.print(Panel(text, title="Telegram Preview"))
         return
 
-    # إزالة أكواد تنسيق rich قبل الإرسال لتيليغرام لتجنب مشاكل HTML العشوائية
     clean_text = text
     for tag in ["[bold magenta]", "[/bold magenta]", "[bold cyan]", "[/bold cyan]", "[bold blue]", "[/bold blue]", 
                 "[bold green]", "[/bold green]", "[bold red]", "[/bold red]", "[bold yellow]", "[/bold yellow]", 
@@ -765,8 +762,18 @@ def main():
     except Exception:
         fng_status = None
 
+    # 1. فحص الهيمنة الكلية (BTC.D & USDT.D)
+    btc_d_df = fetch_klines("BTC.D", timeframe="1d")
+    usdt_d_df = fetch_klines("USDT.D", timeframe="1d")
+    dominance_report = analyze_market_dominance(btc_d_df, usdt_d_df)
+
+    if dominance_report["status"] != "NEUTRAL":
+        console.print(Panel(dominance_report["message"], title="[bold yellow]Macro Dominance Alert[/bold yellow]", border_style="yellow"))
+        send_telegram_message(dominance_report["message"])
+
     def process_worker(sym):
         symbol_signals = []
+        symbol_bearish = []
         macro_info = analyze_macro_trends(sym)
 
         for tf in ["1h", "4h", "1d", "3d"]:
@@ -774,27 +781,35 @@ def main():
             if df is None:
                 continue
             try:
+                # صفقات الشراء
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
                 for sig in sigs:
                     sig["macro_info"] = macro_info
                     symbol_signals.append(sig)
+                
+                # تحذيرات الهبوط والمخاطر
+                bearish_alerts = analyze_bearish_signals(sym, df, timeframe=tf)
+                for b_alert in bearish_alerts:
+                    symbol_bearish.append(b_alert)
+
             except Exception as e:
                 console.print(f"[red][خطأ تحليل][/red] {sym} على فريم {tf}: {e}")
 
-        return symbol_signals
+        return symbol_signals, symbol_bearish
 
     all_signals = []
+    all_bearish_alerts = []
+
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_worker, sym) for sym in WATCHLIST]
         for future in futures:
-            signals = future.result()
+            signals, bearish_list = future.result()
+            
             for sig in signals:
                 symbol = sig["symbol"]
                 macro_info = sig.get("macro_info", {})
-
                 strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
-                # طباعة التقرير بصيغة rich جمالية في التيرمينال المحلي
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{sig.get('timeframe', '').upper()}[/cyan]", border_style="cyan"))
 
                 if should_alert(score_state, symbol, SCORE_THRESHOLD):
@@ -803,8 +818,29 @@ def main():
 
                 all_signals.append(sig)
 
+            for b_alert in bearish_list:
+                console.print(Panel(b_alert["message"], title="[bold red]Bearish Risk Alert[/bold red]", border_style="red"))
+                send_telegram_message(b_alert["message"])
+                all_bearish_alerts.append(b_alert)
+
     save_score_state(score_state)
-    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.[/bold green]", title="[bold]Summary[/bold]"))
+
+    # حفظ النتائج تلقائياً في مجلد docs للـ Mini App
+    os.makedirs("docs", exist_ok=True)
+    market_macro_data = {
+        "timestamp": str(datetime.now(timezone.utc)),
+        "dominance_status": dominance_report.get("status", "NEUTRAL"),
+        "dominance_summary": dominance_report.get("message", ""),
+        "bullish_signals_count": len(all_signals),
+        "bearish_signals_count": len(all_bearish_alerts),
+        "bullish_signals": all_signals,
+        "bearish_signals": all_bearish_alerts
+    }
+
+    with open("docs/market_status.json", "w", encoding="utf-8") as f:
+        json.dump(market_macro_data, f, ensure_ascii=False, indent=4)
+
+    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير في مجلد docs.[/bold green]", title="[bold]Summary[/bold]"))
 
 if __name__ == "__main__":
     main()
