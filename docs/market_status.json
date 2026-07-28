@@ -1,41 +1,41 @@
 {
-    "timestamp": "2026-07-28 16:48:38.727873+00:00",
+    "timestamp": "2026-07-28 18:25:20.132649+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 10,
-    "bearish_signals_count": 7,
+    "bullish_signals_count": 8,
+    "bearish_signals_count": 8,
     "bullish_signals": [
         {
             "type": "ارتداد من دعم",
             "stars": "⭐⭐⭐",
             "symbol": "TRX-USDT",
-            "price": 0.32457,
+            "price": 0.32454,
             "level": 0.32324,
-            "rsi": 33.23375065781627,
+            "rsi": 34.069862097412795,
             "ema": {
-                "ema_50": 0.3276555603496054,
-                "ema_200": 0.32852129056578333,
+                "ema_50": 0.3274150763080709,
+                "ema_200": 0.32833507073814705,
                 "above_ema50": false,
                 "above_ema200": false,
                 "golden_cross": false
             },
             "bollinger": {
-                "upper": 0.3274271205809064,
-                "middle": 0.3251885,
-                "lower": 0.3229498794190936,
+                "upper": 0.32642381472370785,
+                "middle": 0.32487699999999997,
+                "lower": 0.3233301852762921,
                 "is_oversold_bb": false,
                 "is_overbought_bb": false,
                 "is_squeeze": "True",
-                "bandwidth": 0.013768141129876383
+                "bandwidth": 0.009522463724473441
             },
             "dpr_data": {
-                "value": 40.924013491232074,
+                "value": 43.42076769516344,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (40.9)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (43.4)[/yellow]"
             },
-            "volume_ratio": 0.5789342100894755,
+            "volume_ratio": 0.3429691732958796,
             "timeframe": "1h",
-            "stop_loss": 0.3235,
+            "stop_loss": 0.3236,
             "target1": 0.3278,
             "target2": 0.3327,
             "target3": 0.3394,
@@ -59,20 +59,20 @@
                 },
                 "fibonacci": {
                     "swing_low": 0.32324,
-                    "swing_high": 0.33146,
+                    "swing_high": 0.33115,
                     "direction": "down",
                     "retracement_levels": {
-                        "0.236": 0.32952,
-                        "0.382": 0.32832,
-                        "0.5": 0.32735,
-                        "0.618": 0.32638,
-                        "0.786": 0.324999
+                        "0.236": 0.329283,
+                        "0.382": 0.328128,
+                        "0.5": 0.327195,
+                        "0.618": 0.326262,
+                        "0.786": 0.324933
                     },
                     "extension_levels": {
-                        "1.272": 0.321004,
-                        "1.618": 0.31816,
-                        "2.0": 0.31502,
-                        "2.618": 0.30994
+                        "1.272": 0.321088,
+                        "1.618": 0.318352,
+                        "2.0": 0.31533,
+                        "2.618": 0.310442
                     },
                     "time_zones": [
                         1,
@@ -85,15 +85,15 @@
                     ],
                     "near_retracement": [
                         0.5,
-                        0.32735
+                        0.327195
                     ],
                     "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
-                    "trend": "شراء متزايد",
+                    "trend": "متوازن",
                     "divergence": null,
-                    "last_clv": 0.556
+                    "last_clv": 0.848
                 }
             },
             "macro_info": {
@@ -104,108 +104,6 @@
                 "w1_support": 0.31061,
                 "w1_resistance": 0.37719,
                 "w1_rsi": 54.55167862446846
-            }
-        },
-        {
-            "type": "ارتداد من دعم",
-            "stars": "⭐⭐⭐⭐",
-            "symbol": "XMR-USDT",
-            "price": 337.82,
-            "level": 335.99,
-            "rsi": 34.42489908048012,
-            "ema": {
-                "ema_50": 347.88008001724,
-                "ema_200": 351.7052923929657,
-                "above_ema50": false,
-                "above_ema200": false,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 349.1876292937783,
-                "middle": 342.329,
-                "lower": 335.47037070622173,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "True",
-                "bandwidth": 0.04007039598619035
-            },
-            "dpr_data": {
-                "value": 35.69783357690487,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (35.7)[/yellow]"
-            },
-            "volume_ratio": 1.6530141997397902,
-            "timeframe": "1h",
-            "stop_loss": 333.7914,
-            "target1": 341.8486,
-            "target2": 347.22,
-            "target3": 356.62,
-            "target4": 368.7057,
-            "macro_target": 387.141,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": "Phase C (Spring - تجميع وسحب سيولة)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "سحب سيولة (Liquidity Sweep)",
-                "انكماش البولينجر (تأهب لانفجار سعري)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 334.14,
-                    "swing_high": 354.23,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 349.48876,
-                        "0.382": 346.55562,
-                        "0.5": 344.185,
-                        "0.618": 341.81438,
-                        "0.786": 338.43926
-                    },
-                    "extension_levels": {
-                        "1.272": 328.67552,
-                        "1.618": 321.72438,
-                        "2.0": 314.05,
-                        "2.618": 301.63438
-                    },
-                    "time_zones": [
-                        2,
-                        3,
-                        4,
-                        6,
-                        9,
-                        14,
-                        22
-                    ],
-                    "near_retracement": [
-                        0.786,
-                        338.43926
-                    ],
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.878
-                }
-            },
-            "macro_info": {
-                "macro_bullish": true,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
-                "w1_support": 292.03,
-                "w1_resistance": 427.22,
-                "w1_rsi": 50.1418409948098
             }
         },
         {
@@ -608,104 +506,6 @@
         },
         {
             "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "UB-USDT",
-            "price": 0.13578,
-            "level": 0.13488,
-            "rsi": 65.46689284366869,
-            "ema": {
-                "ema_50": 0.12736897592437404,
-                "ema_200": 0.12748619727813484,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 0.13398556623528246,
-                "middle": 0.12209600000000001,
-                "lower": 0.11020643376471755,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "False",
-                "bandwidth": 0.19475766995286425
-            },
-            "dpr_data": {
-                "value": 54.99148512150351,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (55.0)[/yellow]"
-            },
-            "volume_ratio": 4.5294043444015655,
-            "timeframe": "1h",
-            "stop_loss": 0.128,
-            "target1": 0.1435,
-            "target2": 0.1539,
-            "target3": 0.157,
-            "target4": 0.1801,
-            "macro_target": 0.1891,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": null,
-                "is_wyckoff_setup": false
-            },
-            "confluence": [
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": "bullish",
-                    "rsi_volume_confirmed": "True",
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.11306,
-                    "swing_high": 0.13841,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 0.132427,
-                        "0.382": 0.128726,
-                        "0.5": 0.125735,
-                        "0.618": 0.122744,
-                        "0.786": 0.118485
-                    },
-                    "extension_levels": {
-                        "1.272": 0.106165,
-                        "1.618": 0.097394,
-                        "2.0": 0.08771,
-                        "2.618": 0.072044
-                    },
-                    "time_zones": [
-                        2,
-                        3,
-                        4,
-                        6,
-                        9,
-                        14,
-                        22
-                    ],
-                    "near_retracement": null,
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.63
-                }
-            },
-            "macro_info": {
-                "macro_bullish": true,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
-                "w1_support": 0.05794,
-                "w1_resistance": 0.24664,
-                "w1_rsi": 61.46977455261934
-            }
-        },
-        {
-            "type": "اختراق مقاومة",
             "stars": "⭐⭐⭐⭐",
             "symbol": "ZAMA-USDT",
             "price": 0.05498,
@@ -1041,6 +841,14 @@
             "level": 1.339,
             "timeframe": "1d",
             "message": "🔴 **تنبيه انهيار دعم:** العملة `ATOM-USDT` كسرت دعم الأمان عند **1.3390$** على فريم `1D` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ORDI-USDT",
+            "price": 3.374,
+            "level": 3.411,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ORDI-USDT` كسرت دعم الأمان عند **3.4110$** على فريم `1H` مع فوليوم بيع مكثف!"
         },
         {
             "type": "كسر دعم خطير",
