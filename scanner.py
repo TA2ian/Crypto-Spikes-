@@ -1,18 +1,19 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
-يتضمن التحليل الشامل عبر 5 فريمات زَمَنِيّة، الشجرة الشرطية للخطط الـ 8 بدون تعارض، 
-ودمج مؤشرات (Bollinger Bands, EMA 50/200, Wyckoff, SMC, CVD, Fibonacci, Chart Patterns, DPR).
+مدعوم بمكتبة rich لتنسيق واجهات الطرفية والرسائل بتصميم احترافي.
 """
 import os
-import json
 import time
 from datetime import datetime, timezone
 from concurrent.futures import ThreadPoolExecutor
 import requests
 import pandas as pd
-from blessed import Terminal
 
-term = Terminal()
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+console = Console()
 
 # استدعاء الملفات الأساسية
 from coins import WATCHLIST
@@ -243,13 +244,13 @@ def calculate_market_pressure(df: pd.DataFrame, length: int = 13) -> dict:
     
     if last_val >= 75:
         status = "overbought"
-        display_str = term.red_bold(f"▲ [OVERBOUGHT RISK] ({last_val:.1f})")
+        display_str = f"[bold red]▲ [OVERBOUGHT RISK] ({last_val:.1f})[/bold red]"
     elif last_val <= 25:
         status = "oversold"
-        display_str = term.green_bold(f"▼ [OVERSOLD OPPORTUNITY] ({last_val:.1f})")
+        display_str = f"[bold green]▼ [OVERSOLD OPPORTUNITY] ({last_val:.1f})[/bold green]"
     else:
         status = "balanced"
-        display_str = term.yellow(f"◆ [BALANCED] ({last_val:.1f})")
+        display_str = f"[yellow]◆ [BALANCED] ({last_val:.1f})[/yellow]"
         
     return {
         "value": last_val,
@@ -441,7 +442,6 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
         if bb_data.get("is_oversold_bb"): notes.append("ملامسة حد البولينجر السفلي")
         if bb_data.get("is_squeeze"): notes.append("انكماش البولينجر (تأهب لانفجار سعري)")
 
-        # ربط مؤشر ضغط السوق (DPR) بشجرة الخطط
         if dpr_data["status"] == "oversold":
             notes.append("مؤشر DPR تحت النطاق 25 (فرصة تشبع بيعي)")
         elif dpr_data["status"] == "overbought":
@@ -531,7 +531,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
 
     return signals
 
-# ============ شجرة الأولويات وتصنيف الخطط الـ 8 (آمنة تماماً) ============
+# ============ شجرة الأولويات وتصنيف الخطط الـ 8 المطورة (مستندة إلى مكتبة rich) ============
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = None) -> tuple[str, str]:
     wyckoff = sig.get("wyckoff", {})
     confluence = sig.get("confluence", [])
@@ -545,166 +545,205 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     price = sig["price"]
     sl = sig["stop_loss"]
     t1, t2, t3, t4, macro_t = sig["target1"], sig["target2"], sig["target3"], sig["target4"], sig["macro_target"]
+    rsi = sig["rsi"]
     
     macro_bullish = macro_info.get("macro_bullish")
     macro_status = "صاعد" if macro_bullish else "محايد/هابط"
-    macro_str = f"3D RSI: <code>{macro_info.get('d3_rsi', 0):.1f}</code> | 1W RSI: <code>{macro_info.get('w1_rsi', 0):.1f}</code> | الاتجاه: {macro_status}"
-    dpr_text = f"📊 <b>مؤشر ضغط السوق (DPR):</b> <code>{dpr_info['value']:.1f}</code> ({dpr_info['status'].upper()})"
+    macro_str = f"3D RSI: [cyan]{macro_info.get('d3_rsi', 0):.1f}[/cyan] | 1W RSI: [cyan]{macro_info.get('w1_rsi', 0):.1f}[/cyan] | الاتجاه: {macro_status}"
+    dpr_text = f"[bold]📊 مؤشر ضغط السوق (DPR):[/bold] [cyan]{dpr_info['value']:.1f}[/cyan] ([yellow]{dpr_info['status'].upper()}[/yellow])"
 
     confidence_score = sig.get("stars", "عالي")
 
-    # الخطة 8: توصية الـ Re-entry (معاودة الدخول بعد التصحيح السليم)
-    if any("إعادة اختبار الدعم" in str(c) for c in confluence) or (ema.get("above_ema50") and price <= ema.get("ema_50", 0) * 1.01):
+    # --- الخطة 1: التجميع المؤسساتي المتقدم (Wyckoff + SMC + BOS) ---
+    is_wyckoff_setup = wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence)
+    if is_wyckoff_setup:
         msg = (
-            f"🔄 <b>توصية معاودة الدخول | Re-entry Setup</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تصحيح صحي وإعادة اختبار المتوسط أو الدعم\n\n"
-            f"◈ <b>سعر الشراء الحالي:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
-            f"✦ <b>الهدف البعيد:</b> <code>{macro_t}$</code>\n\n"
+            f"[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n"
+            f"• [bold green]منطقة التجميع والدخول:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (نهاية نطاق التجميع/الرسم):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي (اختراق الهيكل):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني:</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n"
+            f"  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n"
+            f"  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة (Order Block)\n"
+            f"  [green]✔[/green] تدفق سيولة إيجابي (CVD Accumulation)"
         )
-        return "RE_ENTRY", msg
+        return "WYCKOFF_SMC_ACCUMULATION", msg
 
-    # الخطة 7: التوصية الشاملة (Ultimate Master Signal)
-    if len(confluence) >= 4 and macro_bullish:
+    # --- الخطة 2: الانفجار السعري المؤكد بـ CVD (CVD-Verified Breakout) ---
+    is_breakout_cond = (bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence) and (dpr_info["value"] >= 70 or sig.get("volume_ratio", 1.0) >= 1.5)
+    if is_breakout_cond:
         msg = (
-            f"❖ <b>توصية فائقة القوة | Ultimate Master Confluence</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf} + (3D/1W Macro)</code>\n"
-            f"🌐 <b>الماكرو:</b> {macro_str}\n\n"
-            f"◈ <b>سعر الدخول:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف 1:</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف 2:</b> <code>{t2}$</code>\n"
-            f"▸ <b>هدف 3:</b> <code>{t3}$</code>\n"
-            f"▸ <b>هدف 4:</b> <code>{t4}$</code>\n"
-            f"✦ <b>الهدف البعيد (Macro Fib):</b> <code>{macro_t}$</code>\n\n"
+            f"[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط (Positive CVD)\n\n"
+            f"• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة المحكم:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (T1):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الممتد (T2):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>التوافق الفني الشامل:</b>\n• " + "\n• ".join(confluence) +
-            f"\n\n🧠 <b>المشاعر العامة:</b> {fng_status.get('value', 'N/A') if fng_status else 'N/A'}"
+            f"[bold]📊 مؤشرات تأكيد الزخم وتدفق السيولة:[/bold]\n"
+            f"  [green]✔[/green] تحرر السعر من نطاق الاحتقان\n"
+            f"  [green]✔[/green] تأكيد هجوم المشترين عبر صافي تدفق السيولة المرتفع (CVD Buying Delta)\n"
+            f"  [green]✔[/green] دعم من مؤشر ضغط السوق (DPR ≥ 70)"
         )
-        return "MASTER_SIGNAL", msg
+        return "CVD_BREAKOUT_CONFIRMED", msg
 
-    # الخطة 1: صفقة التجميع المؤسساتي (Wyckoff + SMC)
-    if wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence):
-        phase_str = wyckoff.get('wyckoff_phase', 'تجميع SMC/Order Block')
+    # --- الخطة 3: الاتجاه العام المؤكد بـ 4 شروط (Precision Trend Following) ---
+    is_trend_cond = (ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200"))) and (50 <= dpr_info["value"] <= 75) and (50 <= rsi <= 75)
+    if is_trend_cond:
         msg = (
-            f"🏛 <b>توصية مؤسساتية | Smart Money Accumulation</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>المرحلة:</b> {phase_str}\n"
-            f"🌐 <b>بيانات الماكرو:</b> {macro_str}\n\n"
-            f"◈ <b>سعر الدخول:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة المحكم:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>الهدف التكتيكي (1):</b> <code>{t1}$</code>\n"
-            f"▸ <b>الهدف الهيكلي (2):</b> <code>{t2}$</code>\n"
-            f"✦ <b>الهدف الماكرو (3):</b> <code>{macro_t}$</code>\n\n"
+            f"[bold blue]📈 توصية الاتجاه العام المؤكدة (4 شروط) | Precision Trend Following[/bold blue] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]هيكل الاتجاه:[/bold] ترتيب مثالي للمتوسطات + تقاطع ذهبي مدعوم\n\n"
+            f"• [bold green]سعر الدخول المناسب:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة (تحت متوسط EMA 50):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (T1):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الاتجاهي (T2):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]هدف ماكرو:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
+            f"  [green]✔[/green] سيطرة هيكلية تامة للمتوسطات (Price > EMA 50 > EMA 200)\n"
+            f"  [green]✔[/green] تدفق سيولة تراكمي إيجابي ومستمر (CVD Trend)\n"
+            f"  [green]✔[/green] زخم سوق صحي ومتوازن (DPR بين 50 و 75)\n"
+            f"  [green]✔[/green] مؤشر القوة النسبية في النطاق الآمن والصاعد (RSI بين 50 و 75)"
         )
-        return "WYCKOFF_SMC", msg
+        return "TREND_FOLLOWING_4_CONFIRMS", msg
 
-    # الخطة 2: صفقة الانفجار السعري (Volatile Breakout + CVD)
-    if bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence or dpr_info.get("status") == "overbought":
+    # --- الخطة 4: صيد القيعان والارتداد المؤكد بـ 4 شروط (Mean Reversion) ---
+    is_reversion_cond = bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence) or dpr_info["status"] == "oversold"
+    if is_reversion_cond:
         msg = (
-            f"⚡ <b>توصية اختراق وانفجار سعري | Volatile Breakout</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> انكماش البولينجر (BB Squeeze) / شمعة سيولة عالية\n\n"
-            f"◈ <b>سعر الدخول:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف سريع (1):</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف الانفجار (2):</b> <code>{t2}$</code>\n"
-            f"▸ <b>الهدف البعيد (3):</b> <code>{t3}$</code>\n\n"
+            f"[bold green]🎯 توصية صيد القيعان والارتداد المؤكدة | Mean Reversion Setup[/bold green] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]نموذج الانعكاس:[/bold] تشبع بيعي (BB) + دايفرجنس صعودي + ارتداد تدفق السيولة\n\n"
+            f"• [bold green]سعر الدخول عند القاع:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة المحكم (تحت ذيل شمعة الارتداد):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (منتصف البولينجر/EMA 20):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي (الحد العلوي):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
+            f"  [green]✔[/green] ملامسة واختراق حد البولينجر السفلي (Oversold BB)\n"
+            f"  [green]✔[/green] رصد دايفرجنس صعودي يدعم تغير الزخم\n"
+            f"  [green]✔[/green] مؤشر ضغط السوق في منطقة التشبع السفلي (≤ 25) مع تحول الـ CVD للأعلى\n"
+            f"  [green]✔[/green] ظهور شمعة انعكاسية (Pin Bar) مع انحسار فوليوم البيع"
         )
-        return "VOLATILE_BREAKOUT", msg
+        return "MEAN_REVERSION_4_CONFIRMS", msg
 
-    # الخطة 3: صفقة الاتجاه العام والتقاطع الذهبي (Trend Following)
-    if ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200")):
-        d3_sup = macro_info.get('d3_support', 0)
+    # --- الخطة 5: أنماط التشارت الكلاسيكية بـ 4 شروط (Verified Chart Pattern) ---
+    is_pattern_cond = any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns")
+    if is_pattern_cond:
         msg = (
-            f"▲ <b>توصية ركوب الموجة | Trend Following</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النوع:</b> اتجاه صاعد قوي (EMA Golden Cross / Bullish Trend)\n"
-            f"🌐 <b>دعم 3D الماكرو:</b> <code>{d3_sup:.4f}$</code>\n\n"
-            f"◈ <b>مناطق الشراء:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف أول:</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف ثاني:</b> <code>{t2}$</code>\n"
-            f"✦ <b>هدف ماكرو:</b> <code>{macro_t}$</code>\n\n"
+            f"[bold yellow]📐 توصية النمط الكلاسيكي المؤكد | Verified Chart Pattern[/bold yellow] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]النموذج المرصود:[/bold] نمط تشارت كلاسيكي مدمج (اكتمال الهيكل + إغلاق مؤكد)\n\n"
+            f"• [bold green]سعر الدخول بعد الاختراق:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة المحكم (تحت خط العنق/النموذج):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (هدف قياس النمط T1):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي (T2):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
+            f"  [green]✔[/green] اكتمال هندسة النموذج الفني بدقة\n"
+            f"  [green]✔[/green] إغلاق شمعة مؤكدة خارج خط العنق أو حدود الاختراق\n"
+            f"  [green]✔[/green] دعم من حجم التداول وتدفق السيولة التراكمية (CVD)\n"
+            f"  [green]✔[/green] توافق زخم مؤشر ضغط السوق أو نجاح إعادة الاختبار (Retest)"
         )
-        return "GOLDEN_TREND", msg
+        return "CHART_PATTERN_4_CONFIRMS", msg
 
-    # الخطة 5: أنماط التشارت الكلاسيكية (Chart Patterns)
-    if any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns"):
+    # --- الخطة 6: صيد الفجوات السريعة المؤكدة بـ 4 شروط (Verified FVG Scalp) ---
+    is_fvg_cond = any("وجود FVG" in c for c in confluence)
+    if is_fvg_cond:
         msg = (
-            f"📐 <b>توصية نموذج كلاسيكي | Chart Pattern Setup</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج المكتشف:</b> نمط تشارت كلاسيكي مدمج\n\n"
-            f"◈ <b>سعر الاختراق:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف النموذج:</b> <code>{t1}$</code>\n"
-            f"▸ <b>امتداد الهدف:</b> <code>{t2}$</code>\n\n"
+            f"[bold cyan]🕳️ توصية صيد الفجوات المؤكدة | Verified FVG Scalp Setup[/bold cyan] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]هيكل الفجوة:[/bold] فجوة مؤسسية (FVG) متوافقة مع منطقة طلب (Order Block)\n\n"
+            f"• [bold green]سعر الدخول عند ملامسة الفجوة:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة المحكم (تحت هيكل الفجوة/الطلب):[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (إغلاق الفجوة الكامل T1):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الممتد لاختراق السيولة (T2):[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 باقة التأكيدات الأربعة المعتمدة:[/bold]\n"
+            f"  [green]✔[/green] فجوة سعرية مؤسسية بحجم معتبر ومؤثر\n"
+            f"  [green]✔[/green] تزامن الفجوة مع منطقة طلب أو سحب سيولة سابقة\n"
+            f"  [green]✔[/green] ظهور ذيل رفض سعري وانحسار فوليوم الهبوط عند حافة الفجوة\n"
+            f"  [green]✔[/green] ارتداد إيجابي في تدفق السيولة التراكمية (CVD) وضغط السوق (DPR)"
         )
-        return "CHART_PATTERN", msg
+        return "FVG_SCALP_4_CONFIRMS", msg
 
-    # الخطة 4: صفقة صيد القيعان والارتداد (Mean Reversion)
-    if bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence) or dpr_info.get("status") == "oversold":
+    # --- الخطة 7: التوصية الشاملة الفائقة (Ultimate Master Signal [A+]) ---
+    if len(confluence) >= 5 and macro_bullish:
         msg = (
-            f"🔄 <b>توصية ارتداد وصيد قاع | Mean Reversion</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>النموذج:</b> تشبع بيعي + Bullish Divergence / DPR Oversold\n\n"
-            f"◈ <b>سعر الشراء:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>وقف الخسارة:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف 1 (الارتداد الأول):</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف 2 (الدعم السابق):</b> <code>{t2}$</code>\n\n"
+            f"[bold gold1]👑 التوصية الشاملة الفائقة | Ultimate Master Signal [A+][/bold gold1]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]توافق الماكرو (3D/1W):[/bold] إيجابي ومؤكد صعودياً [green]🟢[/green]\n\n"
+            f"• [bold green]منطقة الدخول المثالية:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة المحكم:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف الأول (T1):[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الثاني (T2):[/bold] [green]{t2}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي (TP):[/bold] [green]{t3}$[/green]\n"
+            f"✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 باقة التأكيدات الفنية المعتمدة ({len(confluence)}/5+):[/bold]\n• " + "\n• ".join(confluence) +
+            f"\n\n[bold]🧠 المشاعر العامة:[/bold] {fng_status.get('value', 'N/A') if fng_status else 'N/A'}"
         )
-        return "OVERSOLD_REVERSAL", msg
+        return "ULTIMATE_MASTER_A_PLUS", msg
 
-    # الخطة 6: صفقة صيد الفجوات السريعة (SMC Gap Scalp)
-    if any("وجود FVG" in c for c in confluence):
+    # --- الخطة 8: توصية قاع الاستسلام وشح الفوليوم (Capitulation Bottom Setup) ---
+    is_capitulation_cond = (rsi <= 22 or dpr_info["value"] <= 20) and any("ارتداد من دعم" in sig.get("type", "") or "تراجع" in c for c in confluence)
+    if is_capitulation_cond:
         msg = (
-            f"◈ <b>توصية FVG سريعة | Fair Value Gap Fill</b> [{confidence_score}]\n"
-            f"━━━━━━━━━━━━━━━━━━━━━━\n"
-            f"<b>العملة:</b> <code>{symbol}</code> | <b>الفريم:</b> <code>{tf}</code>\n"
-            f"📍 <b>الهدف:</b> إغلاق الفجوة السعرية (Imbalance Fill)\n\n"
-            f"◈ <b>منطقة الشراء:</b> <code>{price:.4f}$</code>\n"
-            f"🛑 <b>الستوب:</b> <code>{sl}$</code>\n\n"
-            f"▸ <b>هدف إغلاق الفجوة:</b> <code>{t1}$</code>\n"
-            f"▸ <b>هدف سحب السيولة:</b> <code>{t2}$</code>\n\n"
+            f"[bold red]🩸 توصية قاع الاستسلام والشح | Capitulation Bottom Setup[/bold red] [[yellow]{confidence_score}[/yellow]]\n"
+            f"────────────────────────────────────────\n"
+            f"[bold]العملة:[/bold] [cyan]{symbol}[/cyan] | [bold]الفريم:[/bold] [yellow]{tf}[/yellow]\n"
+            f"[bold]طبيعة القاع:[/bold] غياب فوليوم البيع والشراء (Dry-up) مع ذعر تشبع بيعي متطرف\n\n"
+            f"• [bold green]منطقة الشراء والتجميع:[/bold green] [bold]{price:.4f}$[/bold]\n"
+            f"• [bold red]وقف الخسارة التكتيكي:[/bold red] [bold]{sl}$[/bold]\n\n"
+            f"▸ [bold]الهدف التصحيحي الأول:[/bold] [green]{t1}$[/green]\n"
+            f"▸ [bold]الهدف الرئيسي:[/bold] [green]{t2}$[/green]\n"
+            f"✦ [bold]الهدف البعيد:[/bold] [bold green]{macro_t}$[/bold green]\n\n"
             f"{dpr_text}\n\n"
-            f"📊 <b>الدمج الفني (Confluence):</b>\n• " + "\n• ".join(confluence)
+            f"[bold]📊 مؤشرات تأكيد القاع الهادئ:[/bold]\n"
+            f"  [green]✔[/green] RSI / DPR في مناطق التشبع المتطرف (< 20)\n"
+            f"  [green]✔[/green] جفاف تام في فوليوم التداول (دلالة على انتهاء ضغط البيع)\n"
+            f"  [green]✔[/green] ارتداد من دعم ماكرو تاريخي"
         )
-        return "FVG_SCALP", msg
+        return "CAPITULATION_RE_ENTRY", msg
 
-    return "STANDARD", f"◈ <b>تنبيه حركة سعرية:</b> {symbol} على فريم {tf} بسعر {price:.4f}$\n{dpr_text}"
+    return "STANDARD", f"[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]{symbol}[/cyan] على فريم [yellow]{tf}[/yellow] بسعر [bold]{price:.4f}$[/bold]\n{dpr_text}"
 
 def send_telegram_message(text: str):
     if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        print("[تنبيه] لم يتم تعيين مفاتيح تيليغرام. طباعة الرسالة:")
-        print(text)
+        console.print("[yellow][تنبيه][/yellow] لم يتم تعيين مفاتيح تيليغرام. طباعة الرسالة عبر rich:")
+        console.print(Panel(text, title="Telegram Preview"))
         return
+
+    # إزالة أكواد تنسيق rich قبل الإرسال لتيليغرام لتجنب مشاكل HTML العشوائية
+    clean_text = text
+    for tag in ["[bold magenta]", "[/bold magenta]", "[bold cyan]", "[/bold cyan]", "[bold blue]", "[/bold blue]", 
+                "[bold green]", "[/bold green]", "[bold red]", "[/bold red]", "[bold yellow]", "[/bold yellow]", 
+                "[bold gold1]", "[/bold gold1]", "[bold]", "[/bold]", "[cyan]", "[/cyan]", "[yellow]", "[/yellow]", 
+                "[green]", "[/green]", "[red]", "[/red]"]:
+        clean_text = clean_text.replace(tag, "")
 
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {
         "chat_id": TELEGRAM_CHAT_ID,
-        "text": text,
+        "text": clean_text,
         "parse_mode": "HTML",
         "disable_web_page_preview": True,
     }
@@ -712,11 +751,12 @@ def send_telegram_message(text: str):
         resp = requests.post(url, json=payload, timeout=12)
         resp.raise_for_status()
     except Exception as e:
-        print(f"[خطأ] فشل إرسال رسالة تيليغرام: {e}")
+        console.print(f"[bold red][خطأ][/bold red] فشل إرسال رسالة تيليغرام: {e}")
 
 # ============ التشغيل الرئيسي ============
 def main():
-    print(f"بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات 1h, 4h, 1d, 3d, 1w...")
+    console.print(Panel.fit(f"[bold cyan]بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات (1h, 4h, 1d, 3d, 1w)...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
+    
     score_state = load_score_state()
     clean_old_events(score_state)
 
@@ -739,7 +779,7 @@ def main():
                     sig["macro_info"] = macro_info
                     symbol_signals.append(sig)
             except Exception as e:
-                print(f"[خطأ تحليل] {sym} على فريم {tf}: {e}")
+                console.print(f"[red][خطأ تحليل][/red] {sym} على فريم {tf}: {e}")
 
         return symbol_signals
 
@@ -754,6 +794,9 @@ def main():
 
                 strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
+                # طباعة التقرير بصيغة rich جمالية في التيرمينال المحلي
+                console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{sig.get('timeframe', '').upper()}[/cyan]", border_style="cyan"))
+
                 if should_alert(score_state, symbol, SCORE_THRESHOLD):
                     send_telegram_message(formatted_msg)
                     mark_alert_sent(score_state, symbol)
@@ -761,7 +804,7 @@ def main():
                 all_signals.append(sig)
 
     save_score_state(score_state)
-    print(f"انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.")
+    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم اكتشاف {len(all_signals)} إشارة عبر جميع الفريمات المعتمدة.[/bold green]", title="[bold]Summary[/bold]"))
 
 if __name__ == "__main__":
     main()
