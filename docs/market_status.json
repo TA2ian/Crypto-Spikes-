@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-07-29 13:06:36.159268+00:00",
+    "timestamp": "2026-07-29 15:57:16.194147+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 5,
-    "bearish_signals_count": 7,
+    "bearish_signals_count": 9,
     "bullish_signals": [
         {
             "type": "ارتداد من دعم",
@@ -516,6 +516,22 @@
         }
     ],
     "bearish_signals": [
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "BCH-USDT",
+            "price": 210.2,
+            "level": 210.3,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `BCH-USDT` كسرت دعم الأمان عند **210.3000$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "LTC-USDT",
+            "price": 44.97,
+            "level": 44.98,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `LTC-USDT` كسرت دعم الأمان عند **44.9800$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
         {
             "type": "كسر دعم خطير",
             "symbol": "SUI-USDT",
