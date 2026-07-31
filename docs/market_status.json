@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-07-31 20:35:28.575348+00:00",
+    "timestamp": "2026-07-31 22:13:53.852187+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 2,
-    "bearish_signals_count": 7,
+    "bullish_signals_count": 3,
+    "bearish_signals_count": 6,
     "bullish_signals": [
         {
             "type": "ارتداد من دعم",
@@ -205,6 +205,107 @@
                 "w1_resistance": 5.512,
                 "w1_rsi": 49.0387240178012
             }
+        },
+        {
+            "type": "ارتداد من دعم",
+            "stars": "⭐⭐⭐",
+            "symbol": "XTZ-USDT",
+            "price": 0.2008,
+            "level": 0.2,
+            "rsi": 34.65586453117085,
+            "ema": {
+                "ema_50": 0.20454790482248422,
+                "ema_200": 0.2052813254074359,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 0.20622286280117627,
+                "middle": 0.20328999999999997,
+                "lower": 0.20035713719882367,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "True",
+                "bandwidth": 0.028853980040103307
+            },
+            "dpr_data": {
+                "value": 35.85846192750081,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (35.9)[/yellow]"
+            },
+            "volume_ratio": 0.80882136472424,
+            "timeframe": "1h",
+            "stop_loss": 0.1986,
+            "target1": 0.203,
+            "target2": 0.206,
+            "target3": 0.2101,
+            "target4": 0.2154,
+            "macro_target": 0.2262,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "قرب Order Block",
+                "انكماش البولينجر (تأهب لانفجار سعري)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 0.2,
+                    "swing_high": 0.2075,
+                    "direction": "down",
+                    "retracement_levels": {
+                        "0.236": 0.20573,
+                        "0.382": 0.204635,
+                        "0.5": 0.20375,
+                        "0.618": 0.202865,
+                        "0.786": 0.201605
+                    },
+                    "extension_levels": {
+                        "1.272": 0.19796,
+                        "1.618": 0.195365,
+                        "2.0": 0.1925,
+                        "2.618": 0.187865
+                    },
+                    "time_zones": [
+                        10,
+                        11,
+                        12,
+                        14,
+                        17,
+                        22,
+                        30
+                    ],
+                    "near_retracement": [
+                        0.786,
+                        0.201605
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.5
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 0.1981,
+                "d3_resistance": 0.2714,
+                "d3_rsi": 31.01218786062846,
+                "w1_support": 0.1981,
+                "w1_resistance": 0.4025,
+                "w1_rsi": 32.27591967278546
+            }
         }
     ],
     "bearish_signals": [
@@ -239,14 +340,6 @@
             "level": 0.06453,
             "timeframe": "3d",
             "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ZAMA-USDT` وصلت لمنطقة تشبع مفرط (RSI: `80.8`) بالقرب من المقاومة **0.0645$**."
-        },
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "ORDI-USDT",
-            "price": 3.597,
-            "level": 3.592,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ORDI-USDT` وصلت لمنطقة تشبع مفرط (RSI: `84.0`) بالقرب من المقاومة **3.5920$**."
         },
         {
             "type": "كسر دعم خطير",
