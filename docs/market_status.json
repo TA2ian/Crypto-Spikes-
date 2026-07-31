@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-07-31 00:13:35.040982+00:00",
+    "timestamp": "2026-07-31 04:33:46.037796+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 6,
-    "bearish_signals_count": 4,
+    "bullish_signals_count": 7,
+    "bearish_signals_count": 7,
     "bullish_signals": [
         {
             "type": "اختراق مقاومة",
@@ -500,6 +500,105 @@
             }
         },
         {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "DCR-USDT",
+            "price": 14.3,
+            "level": 14.051,
+            "rsi": 83.04855321657499,
+            "ema": {
+                "ema_50": 12.016535708337631,
+                "ema_200": 12.050848047187065,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 13.581800454178882,
+                "middle": 11.904250000000001,
+                "lower": 10.22669954582112,
+                "is_oversold_bb": false,
+                "is_overbought_bb": true,
+                "is_squeeze": "False",
+                "bandwidth": 0.2818405954476563
+            },
+            "dpr_data": {
+                "value": 66.87061570704671,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (66.9)[/yellow]"
+            },
+            "volume_ratio": 2.176944326331109,
+            "timeframe": "4h",
+            "stop_loss": 13.3463,
+            "target1": 15.2537,
+            "target2": 16.5252,
+            "target3": 18.7505,
+            "target4": 21.6115,
+            "macro_target": 22.6921,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 11.099,
+                    "swing_high": 14.322,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 13.561372,
+                        "0.382": 13.090814,
+                        "0.5": 12.7105,
+                        "0.618": 12.330186,
+                        "0.786": 11.788722
+                    },
+                    "extension_levels": {
+                        "1.272": 15.198656,
+                        "1.618": 16.313814,
+                        "2.0": 17.545,
+                        "2.618": 19.536814
+                    },
+                    "time_zones": [
+                        12,
+                        13,
+                        14,
+                        16,
+                        19,
+                        24,
+                        32
+                    ],
+                    "near_retracement": null,
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.977
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 0,
+                "d3_resistance": 0,
+                "d3_rsi": 50,
+                "w1_support": 10.57,
+                "w1_resistance": 19.612,
+                "w1_rsi": 37.29203421325604
+            }
+        },
+        {
             "type": "ارتداد من دعم",
             "stars": "⭐⭐⭐⭐",
             "symbol": "ZEN-USDT",
@@ -603,6 +702,14 @@
         {
             "type": "كسر دعم خطير",
             "symbol": "ATOM-USDT",
+            "price": 1.254,
+            "level": 1.267,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ATOM-USDT` كسرت دعم الأمان عند **1.2670$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ATOM-USDT",
             "price": 1.275,
             "level": 1.371,
             "timeframe": "3d",
@@ -619,6 +726,14 @@
         {
             "type": "كسر دعم خطير",
             "symbol": "ATOM-USDT",
+            "price": 1.254,
+            "level": 1.267,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ATOM-USDT` كسرت دعم الأمان عند **1.2670$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ATOM-USDT",
             "price": 1.275,
             "level": 1.371,
             "timeframe": "3d",
@@ -627,10 +742,18 @@
         {
             "type": "تحذير تشبع شرائي",
             "symbol": "DCR-USDT",
-            "price": 13.606,
-            "level": 13.652,
+            "price": 14.3,
+            "level": 14.14,
+            "timeframe": "1h",
+            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `DCR-USDT` وصلت لمنطقة تشبع مفرط (RSI: `84.1`) بالقرب من المقاومة **14.1400$**."
+        },
+        {
+            "type": "تحذير تشبع شرائي",
+            "symbol": "DCR-USDT",
+            "price": 14.3,
+            "level": 14.051,
             "timeframe": "4h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `DCR-USDT` وصلت لمنطقة تشبع مفرط (RSI: `78.9`) بالقرب من المقاومة **13.6520$**."
+            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `DCR-USDT` وصلت لمنطقة تشبع مفرط (RSI: `83.0`) بالقرب من المقاومة **14.0510$**."
         }
     ]
 }
