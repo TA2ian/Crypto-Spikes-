@@ -1,10 +1,321 @@
 {
-    "timestamp": "2026-08-01 12:09:55.290530+00:00",
+    "timestamp": "2026-08-01 14:39:44.288150+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 0,
-    "bearish_signals_count": 6,
-    "bullish_signals": [],
+    "bullish_signals_count": 3,
+    "bearish_signals_count": 5,
+    "bullish_signals": [
+        {
+            "type": "ارتداد من دعم",
+            "stars": "⭐⭐⭐⭐",
+            "symbol": "BNB-USDT",
+            "price": 579.3,
+            "level": 578.2,
+            "rsi": 32.634948630995666,
+            "ema": {
+                "ema_50": 585.8542194030683,
+                "ema_200": 583.9657241434659,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": true
+            },
+            "bollinger": {
+                "upper": 595.2731400134137,
+                "middle": 586.9,
+                "lower": 578.5268599865863,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "True",
+                "bandwidth": 0.02853344697022906
+            },
+            "dpr_data": {
+                "value": 41.654202054535226,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (41.7)[/yellow]"
+            },
+            "volume_ratio": 1.66600324780903,
+            "timeframe": "1h",
+            "stop_loss": 575.6464,
+            "target1": 585.093,
+            "target2": 593.8694,
+            "target3": 605.7468,
+            "target4": 620.8905,
+            "macro_target": 651.935,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": "Phase C (Spring - تجميع وسحب سيولة)",
+                "is_wyckoff_setup": true
+            },
+            "confluence": [
+                "قرب Order Block",
+                "سحب سيولة (Liquidity Sweep)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "تقاطع ذهبي EMA 50/200"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": "bearish",
+                    "macd_volume_confirmed": "False"
+                },
+                "fibonacci": {
+                    "swing_low": 577.8,
+                    "swing_high": 595.6,
+                    "direction": "down",
+                    "retracement_levels": {
+                        "0.236": 591.3992,
+                        "0.382": 588.8004,
+                        "0.5": 586.7,
+                        "0.618": 584.5996,
+                        "0.786": 581.6092
+                    },
+                    "extension_levels": {
+                        "1.272": 572.9584,
+                        "1.618": 566.7996,
+                        "2.0": 560.0,
+                        "2.618": 548.9996
+                    },
+                    "time_zones": [
+                        6,
+                        7,
+                        8,
+                        10,
+                        13,
+                        18,
+                        26
+                    ],
+                    "near_retracement": [
+                        0.618,
+                        584.5996
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "بيع متزايد",
+                    "divergence": null,
+                    "last_clv": 0.652
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 537.2,
+                "d3_resistance": 593.4,
+                "d3_rsi": 43.01525699231754,
+                "w1_support": 537.2,
+                "w1_resistance": 745.8,
+                "w1_rsi": 40.07879816456495
+            }
+        },
+        {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐⭐",
+            "symbol": "ADA-USDT",
+            "price": 0.175,
+            "level": 0.1749,
+            "rsi": 69.19001221229249,
+            "ema": {
+                "ema_50": 0.16984516792274543,
+                "ema_200": 0.16875450713072365,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": true
+            },
+            "bollinger": {
+                "upper": 0.17501442484516375,
+                "middle": 0.17093,
+                "lower": 0.16684557515483625,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "True",
+                "bandwidth": 0.04779061422996253
+            },
+            "dpr_data": {
+                "value": 66.11096172050681,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (66.1)[/yellow]"
+            },
+            "volume_ratio": 2.6341388587736523,
+            "timeframe": "1h",
+            "stop_loss": 0.1726,
+            "target1": 0.1774,
+            "target2": 0.1807,
+            "target3": 0.1863,
+            "target4": 0.1936,
+            "macro_target": 0.2033,
+            "wyckoff": {
+                "is_bull_market": true,
+                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
+                "is_wyckoff_setup": true
+            },
+            "confluence": [
+                "قرب Order Block",
+                "وجود FVG (0.40%)",
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 0.1666,
+                    "swing_high": 0.1769,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 0.174469,
+                        "0.382": 0.172965,
+                        "0.5": 0.17175,
+                        "0.618": 0.170535,
+                        "0.786": 0.168804
+                    },
+                    "extension_levels": {
+                        "1.272": 0.179702,
+                        "1.618": 0.183265,
+                        "2.0": 0.1872,
+                        "2.618": 0.193565
+                    },
+                    "time_zones": [
+                        7,
+                        8,
+                        9,
+                        11,
+                        14,
+                        19,
+                        27
+                    ],
+                    "near_retracement": [
+                        0.236,
+                        0.174469
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.321
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 0.1412,
+                "d3_resistance": 0.2,
+                "d3_rsi": 39.170386282893084,
+                "w1_support": 0.1383,
+                "w1_resistance": 0.2886,
+                "w1_rsi": 32.64704680743134
+            }
+        },
+        {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "ZEN-USDT",
+            "price": 4.09,
+            "level": 4.074,
+            "rsi": 76.02537663196254,
+            "ema": {
+                "ema_50": 3.9242299523005033,
+                "ema_200": 3.9063298396638872,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": true
+            },
+            "bollinger": {
+                "upper": 4.083005744435259,
+                "middle": 3.9610999999999996,
+                "lower": 3.8391942555647396,
+                "is_oversold_bb": false,
+                "is_overbought_bb": true,
+                "is_squeeze": "True",
+                "bandwidth": 0.06155146016776139
+            },
+            "dpr_data": {
+                "value": 76.50378938451308,
+                "status": "overbought",
+                "display": "[bold red]▲ [OVERBOUGHT RISK] (76.5)[/bold red]"
+            },
+            "volume_ratio": 3.2192095594734247,
+            "timeframe": "1h",
+            "stop_loss": 4.0304,
+            "target1": 4.1496,
+            "target2": 4.229,
+            "target3": 4.368,
+            "target4": 4.5467,
+            "macro_target": 4.774,
+            "wyckoff": {
+                "is_bull_market": true,
+                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
+                "is_wyckoff_setup": true
+            },
+            "confluence": [
+                "نمط شمعة صعودي",
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "مؤشر DPR فوق النطاق 75 (هيمنة ضغط الشراء)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 3.798,
+                    "swing_high": 4.1,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 4.028728,
+                        "0.382": 3.984636,
+                        "0.5": 3.949,
+                        "0.618": 3.913364,
+                        "0.786": 3.862628
+                    },
+                    "extension_levels": {
+                        "1.272": 4.182144,
+                        "1.618": 4.286636,
+                        "2.0": 4.402,
+                        "2.618": 4.588636
+                    },
+                    "time_zones": [
+                        7,
+                        8,
+                        9,
+                        11,
+                        14,
+                        19,
+                        27
+                    ],
+                    "near_retracement": null,
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.848
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 3.915,
+                "d3_resistance": 4.531,
+                "d3_rsi": 34.913850922651335,
+                "w1_support": 3.833,
+                "w1_resistance": 7.421,
+                "w1_rsi": 32.900542726643096
+            }
+        }
+    ],
     "bearish_signals": [
         {
             "type": "كسر دعم خطير",
@@ -21,14 +332,6 @@
             "level": 1.371,
             "timeframe": "3d",
             "message": "🔴 **تنبيه انهيار دعم:** العملة `ATOM-USDT` كسرت دعم الأمان عند **1.3710$** على فريم `3D` مع فوليوم بيع مكثف!"
-        },
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "QNT-USDT",
-            "price": 62.96,
-            "level": 62.55,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `QNT-USDT` وصلت لمنطقة تشبع مفرط (RSI: `86.5`) بالقرب من المقاومة **62.5500$**."
         },
         {
             "type": "تحذير تشبع شرائي",
