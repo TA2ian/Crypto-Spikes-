@@ -1,8 +1,8 @@
 {
-    "timestamp": "2026-08-01 04:30:30.875801+00:00",
+    "timestamp": "2026-08-01 07:36:41.368642+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 2,
+    "bullish_signals_count": 3,
     "bearish_signals_count": 5,
     "bullish_signals": [
         {
@@ -107,6 +107,106 @@
                 "w1_support": 0.06535,
                 "w1_resistance": 0.10988,
                 "w1_rsi": 34.36484914243442
+            }
+        },
+        {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "ZAMA-USDT",
+            "price": 0.05656,
+            "level": 0.05639,
+            "rsi": 65.65941947431634,
+            "ema": {
+                "ema_50": 0.0545702998485959,
+                "ema_200": 0.05583690125566935,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 0.05674577184744896,
+                "middle": 0.052703,
+                "lower": 0.04866022815255104,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "False",
+                "bandwidth": 0.1534171431398197
+            },
+            "dpr_data": {
+                "value": 63.49837626138964,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (63.5)[/yellow]"
+            },
+            "volume_ratio": 1.6916819849525844,
+            "timeframe": "1h",
+            "stop_loss": 0.0546,
+            "target1": 0.0585,
+            "target2": 0.061,
+            "target3": 0.0655,
+            "target4": 0.0712,
+            "macro_target": 0.0748,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "قرب Order Block",
+                "كسر هيكل صعودي (BOS)",
+                "تغير اتجاه صعودي (CHoCH)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 0.05001,
+                    "swing_high": 0.05734,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 0.05561,
+                        "0.382": 0.05454,
+                        "0.5": 0.053675,
+                        "0.618": 0.05281,
+                        "0.786": 0.051579
+                    },
+                    "extension_levels": {
+                        "1.272": 0.059334,
+                        "1.618": 0.06187,
+                        "2.0": 0.06467,
+                        "2.618": 0.0692
+                    },
+                    "time_zones": [
+                        16,
+                        17,
+                        18,
+                        20,
+                        23,
+                        28,
+                        36
+                    ],
+                    "near_retracement": null,
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.644
+                }
+            },
+            "macro_info": {
+                "macro_bullish": true,
+                "d3_support": 0.03001,
+                "d3_resistance": 0.06453,
+                "d3_rsi": 80.80333488705207,
+                "w1_support": 0.02556,
+                "w1_resistance": 0.03921,
+                "w1_rsi": 75.79365720080193
             }
         },
         {
