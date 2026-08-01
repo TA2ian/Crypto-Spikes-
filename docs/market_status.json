@@ -1,8 +1,8 @@
 {
-    "timestamp": "2026-08-01 20:14:51.904913+00:00",
+    "timestamp": "2026-08-01 22:07:21.872605+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 5,
+    "bullish_signals_count": 6,
     "bearish_signals_count": 8,
     "bullish_signals": [
         {
@@ -410,6 +410,113 @@
             }
         },
         {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "ARB-USDT",
+            "price": 0.07945,
+            "level": 0.079,
+            "rsi": 69.95002571080201,
+            "ema": {
+                "ema_50": 0.0780450695207003,
+                "ema_200": 0.07800409017199561,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": true
+            },
+            "bollinger": {
+                "upper": 0.07904185906165484,
+                "middle": 0.0783345,
+                "lower": 0.07762714093834516,
+                "is_oversold_bb": false,
+                "is_overbought_bb": true,
+                "is_squeeze": "True",
+                "bandwidth": 0.01805996238323698
+            },
+            "dpr_data": {
+                "value": 59.853374253662324,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (59.9)[/yellow]"
+            },
+            "volume_ratio": 2.65131983253475,
+            "timeframe": "1h",
+            "stop_loss": 0.0786,
+            "target1": 0.0803,
+            "target2": 0.0815,
+            "target3": 0.0834,
+            "target4": 0.086,
+            "macro_target": 0.0903,
+            "wyckoff": {
+                "is_bull_market": true,
+                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
+                "is_wyckoff_setup": true
+            },
+            "confluence": [
+                "كسر هيكل صعودي (BOS)",
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": "bearish",
+                    "rsi_volume_confirmed": "False",
+                    "macd_signal": "bearish",
+                    "macd_volume_confirmed": "False"
+                },
+                "fibonacci": {
+                    "swing_low": 0.07694,
+                    "swing_high": 0.07954,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 0.078926,
+                        "0.382": 0.078547,
+                        "0.5": 0.07824,
+                        "0.618": 0.077933,
+                        "0.786": 0.077496
+                    },
+                    "extension_levels": {
+                        "1.272": 0.080247,
+                        "1.618": 0.081147,
+                        "2.0": 0.08214,
+                        "2.618": 0.083747
+                    },
+                    "time_zones": [
+                        4,
+                        5,
+                        6,
+                        8,
+                        11,
+                        16,
+                        24
+                    ],
+                    "near_retracement": [
+                        0.236,
+                        0.078926
+                    ],
+                    "near_extension": [
+                        1.272,
+                        0.080247
+                    ]
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.919
+                }
+            },
+            "macro_info": {
+                "macro_bullish": false,
+                "d3_support": 0.07355,
+                "d3_resistance": 0.10135,
+                "d3_rsi": 40.44605701702119,
+                "w1_support": 0.07045,
+                "w1_resistance": 0.14615,
+                "w1_rsi": 36.89503470946261
+            }
+        },
+        {
             "type": "ارتداد من دعم",
             "stars": "⭐⭐⭐⭐",
             "symbol": "ATOM-USDT",
@@ -553,10 +660,10 @@
         {
             "type": "تحذير تشبع شرائي",
             "symbol": "AKE-USDT",
-            "price": 0.0054619,
+            "price": 0.0057032,
             "level": 0.00636,
             "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `AKE-USDT` وصلت لمنطقة تشبع مفرط (RSI: `79.3`) بالقرب من المقاومة **0.0064$**."
+            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `AKE-USDT` وصلت لمنطقة تشبع مفرط (RSI: `81.9`) بالقرب من المقاومة **0.0064$**."
         },
         {
             "type": "كسر دعم خطير",
