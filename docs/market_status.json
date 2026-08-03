@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-08-03 21:17:03.828548+00:00",
+    "timestamp": "2026-08-03 23:16:13.354324+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 9,
-    "bearish_signals_count": 2,
+    "bearish_signals_count": 0,
     "bullish_signals": [
         {
             "type": "اختراق مقاومة",
@@ -907,24 +907,7 @@
             }
         }
     ],
-    "bearish_signals": [
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "ATOM-USDT",
-            "price": 1.372,
-            "level": 1.392,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ATOM-USDT` وصلت لمنطقة تشبع مفرط (RSI: `81.0`) بالقرب من المقاومة **1.3920$**."
-        },
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "ATOM-USDT",
-            "price": 1.372,
-            "level": 1.392,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ATOM-USDT` وصلت لمنطقة تشبع مفرط (RSI: `81.0`) بالقرب من المقاومة **1.3920$**."
-        }
-    ],
+    "bearish_signals": [],
     "signals": [
         {
             "type": "اختراق مقاومة",
@@ -1826,22 +1809,6 @@
                 "w1_resistance": 2.299,
                 "w1_rsi": 31.93480469183457
             }
-        },
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "ATOM-USDT",
-            "price": 1.372,
-            "level": 1.392,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ATOM-USDT` وصلت لمنطقة تشبع مفرط (RSI: `81.0`) بالقرب من المقاومة **1.3920$**."
-        },
-        {
-            "type": "تحذير تشبع شرائي",
-            "symbol": "ATOM-USDT",
-            "price": 1.372,
-            "level": 1.392,
-            "timeframe": "1h",
-            "message": "⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `ATOM-USDT` وصلت لمنطقة تشبع مفرط (RSI: `81.0`) بالقرب من المقاومة **1.3920$**."
         }
     ]
 }
