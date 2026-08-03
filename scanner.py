@@ -514,6 +514,9 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
     elif timeframe == "3d": tf_weight_multiplier = 2.2
     elif timeframe == "1w": tf_weight_multiplier = 2.8
 
+    # مفتاح التتبع المدمج مع الفريم الزمني لمنع التداخل
+    tracking_key = f"{symbol}_{timeframe}"
+
     # 1. اختراق مقاومة
     if last_close > resistance and last_volume > avg_vol * VOLUME_MULTIPLIER:
         notes = confluence_note()
@@ -540,7 +543,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "extra": extra_analysis,
         })
         if score_state is not None: 
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"اختراق مقاومة ({timeframe})")
+            add_points(score_state, tracking_key, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"اختراق مقاومة ({timeframe})")
 
     # 2. ارتداد من دعم
     is_bullish_candle = last_close > float(last_row["open"])
@@ -571,7 +574,7 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
             "extra": extra_analysis,
         })
         if score_state is not None: 
-            add_points(score_state, symbol, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"ارتداد من دعم ({timeframe})")
+            add_points(score_state, tracking_key, "bullish", WEIGHTS.get("base_signal", 1.0) * tf_weight_multiplier, f"ارتداد من دعم ({timeframe})")
 
     return signals
 
@@ -809,14 +812,17 @@ def main():
             
             for sig in signals:
                 symbol = sig["symbol"]
+                tf = sig.get("timeframe", "1h")
+                tracking_key = f"{symbol}_{tf}"  # مفتاح مركب للتحقق الفردي لكل فريم
                 macro_info = sig.get("macro_info", {})
                 strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
-                console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{sig.get('timeframe', '').upper()}[/cyan]", border_style="cyan"))
+                console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
-                if should_alert(score_state, symbol, SCORE_THRESHOLD):
+                # التحقق وإرسال التنبيه بناءً على المفتاح المركب للفريم
+                if should_alert(score_state, tracking_key, SCORE_THRESHOLD):
                     send_telegram_message(formatted_msg)
-                    mark_alert_sent(score_state, symbol)
+                    mark_alert_sent(score_state, tracking_key)
 
                 all_signals.append(sig)
 
