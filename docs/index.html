@@ -159,7 +159,8 @@
 
         async function loadMarketData() {
             try {
-                const response = await fetch('market_status.json?' + new Date().getTime());
+                // جلب البيانات من الملف الموجود في نفس المجلد
+                const response = await fetch('./market_status.json?' + new Date().getTime());
                 if (!response.ok) throw new Error('فشل في جلب ملف البيانات');
                 marketData = await response.json();
                 
@@ -167,12 +168,17 @@
                 document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || 0;
                 document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || 0;
                 
-                const dateObj = new Date(marketData.timestamp);
-                document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
+                if (marketData.timestamp) {
+                    const dateObj = new Date(marketData.timestamp);
+                    document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
+                } else {
+                    document.getElementById('update-time').textContent = 'آخر تحديث: متوفر';
+                }
 
                 renderSignals('all');
             } catch (error) {
-                document.getElementById('signals-container').innerHTML = '<p style="text-align: center; color: var(--accent-red);">لا توجد بيانات متاحة حالياً، يرجى تشغيل السكربت لتوليد التقرير.</p>';
+                console.error(error);
+                document.getElementById('signals-container').innerHTML = '<p style="text-align: center; color: var(--accent-red);">لا توجد بيانات متاحة حالياً، يرجى التأكد من مسار الملف أو تشغيل السكربت لتوليد التقرير.</p>';
             }
         }
 
@@ -204,24 +210,24 @@
                 if (item.isBearish) {
                     card.innerHTML = `
                         <div class="card-header">
-                            <span class="symbol">${item.symbol}</span>
+                            <span class="symbol">${item.symbol || ''}</span>
                             <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red);">${item.timeframe ? item.timeframe.toUpperCase() : ''}</span>
                         </div>
                         <div class="card-body">
-                            <p><strong>النوع:</strong> ${item.type}</p>
-                            <p><strong>السعر الحالي:</strong> ${item.price}$</p>
-                            <p style="color: var(--accent-red); margin-top: 5px;">${item.message}</p>
+                            <p><strong>النوع:</strong> ${item.type || ''}</p>
+                            <p><strong>السعر الحالي:</strong> ${item.price || 0}$</p>
+                            <p style="color: var(--accent-red); margin-top: 5px;">${item.message || ''}</p>
                         </div>
                     `;
                 } else {
                     card.innerHTML = `
                         <div class="card-header">
-                            <span class="symbol">${item.symbol}</span>
+                            <span class="symbol">${item.symbol || ''}</span>
                             <span class="badge">${item.timeframe ? item.timeframe.toUpperCase() : '1H'}</span>
                         </div>
                         <div class="card-body">
-                            <p><strong>النوع:</strong> ${item.type} | <strong>التقييم:</strong> ${item.stars || 'عالي'}</p>
-                            <p><strong>السعر:</strong> ${item.price} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${item.stop_loss || 0} $</span></p>
+                            <p><strong>النوع:</strong> ${item.type || ''} | <strong>التقييم:</strong> ${item.stars || 'عالي'}</p>
+                            <p><strong>السعر:</strong> ${item.price || 0} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${item.stop_loss || 0} $</span></p>
                             <div class="targets">
                                 <span>T1: <strong>${item.target1 || 0}</strong></span>
                                 <span>T2: <strong>${item.target2 || 0}</strong></span>
