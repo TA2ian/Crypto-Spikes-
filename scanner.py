@@ -514,7 +514,6 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
     elif timeframe == "3d": tf_weight_multiplier = 2.2
     elif timeframe == "1w": tf_weight_multiplier = 2.8
 
-    # مفتاح التتبع المدمج مع الفريم الزمني لمنع التداخل
     tracking_key = f"{symbol}_{timeframe}"
 
     # 1. اختراق مقاومة
@@ -597,7 +596,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
     macro_bullish = macro_info.get("macro_bullish")
     confidence_score = sig.get("stars", "عالي")
 
-    # --- الخطة 1: التجميع المؤسساتي المتقدم (Wyckoff + SMC + BOS) ---
     is_wyckoff_setup = wyckoff.get("is_wyckoff_setup") or ("سحب سيولة (Liquidity Sweep)" in confluence and "قرب Order Block" in confluence)
     if is_wyckoff_setup:
         msg = (
@@ -614,7 +612,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "WYCKOFF_SMC_ACCUMULATION", msg
 
-    # --- الخطة 2: الانفجار السعري المؤكد بـ CVD (CVD-Verified Breakout) ---
     is_breakout_cond = (bb.get("is_squeeze") or "شمعة جهد وسيولة عالية (Volume Spike)" in confluence) and (dpr_info["value"] >= 70 or sig.get("volume_ratio", 1.0) >= 1.5)
     if is_breakout_cond:
         msg = (
@@ -630,7 +627,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "CVD_BREAKOUT_CONFIRMED", msg
 
-    # --- الخطة 3: الاتجاه العام المؤكد بـ 4 شروط (Precision Trend Following) ---
     is_trend_cond = (ema.get("golden_cross") or (ema.get("above_ema50") and ema.get("above_ema200"))) and (50 <= dpr_info["value"] <= 75) and (50 <= rsi <= 75)
     if is_trend_cond:
         msg = (
@@ -646,7 +642,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "TREND_FOLLOWING_4_CONFIRMS", msg
 
-    # --- الخطة 4: صيد القيعان والارتداد المؤكد بـ 4 شروط (Mean Reversion) ---
     is_reversion_cond = bb.get("is_oversold_bb") or any("دايفرجنس" in c for c in confluence) or dpr_info["status"] == "oversold"
     if is_reversion_cond:
         msg = (
@@ -662,7 +657,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "MEAN_REVERSION_4_CONFIRMS", msg
 
-    # --- الخطة 5: أنماط التشارت الكلاسيكية بـ 4 شروط (Verified Chart Pattern) ---
     is_pattern_cond = any("نمط تشارت" in c for c in confluence) or extra.get("chart_patterns")
     if is_pattern_cond:
         msg = (
@@ -678,7 +672,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "CHART_PATTERN_4_CONFIRMS", msg
 
-    # --- الخطة 6: صيد الفجوات السريعة المؤكدة بـ 4 شروط (Verified FVG Scalp) ---
     is_fvg_cond = any("وجود FVG" in c for c in confluence)
     if is_fvg_cond:
         msg = (
@@ -694,7 +687,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "FVG_SCALP_4_CONFIRMS", msg
 
-    # --- الخطة 7: التوصية الشاملة الفائقة (Ultimate Master Signal [A+]) ---
     if len(confluence) >= 5 and macro_bullish:
         msg = (
             f"[bold gold1]👑 التوصية الشاملة الفائقة | Ultimate Master Signal [A+][/bold gold1]\n"
@@ -711,7 +703,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: dict = N
         )
         return "ULTIMATE_MASTER_A_PLUS", msg
 
-    # --- الخطة 8: توصية قاع الاستسلام وشح الفوليوم (Capitulation Bottom Setup) ---
     is_capitulation_cond = (rsi <= 22 or dpr_info["value"] <= 20) and any("ارتداد من دعم" in sig.get("type", "") or "تراجع" in c for c in confluence)
     if is_capitulation_cond:
         msg = (
@@ -786,13 +777,11 @@ def main():
             if df is None:
                 continue
             try:
-                # صفقات الشراء
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
                 for sig in sigs:
                     sig["macro_info"] = macro_info
                     symbol_signals.append(sig)
                 
-                # تحذيرات الهبوط والمخاطر
                 bearish_alerts = analyze_bearish_signals(sym, df, timeframe=tf)
                 for b_alert in bearish_alerts:
                     symbol_bearish.append(b_alert)
@@ -813,13 +802,12 @@ def main():
             for sig in signals:
                 symbol = sig["symbol"]
                 tf = sig.get("timeframe", "1h")
-                tracking_key = f"{symbol}_{tf}"  # مفتاح مركب للتحقق الفردي لكل فريم
+                tracking_key = f"{symbol}_{tf}"
                 macro_info = sig.get("macro_info", {})
                 strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
 
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
-                # التحقق وإرسال التنبيه بناءً على المفتاح المركب للفريم
                 if should_alert(score_state, tracking_key, SCORE_THRESHOLD):
                     send_telegram_message(formatted_msg)
                     mark_alert_sent(score_state, tracking_key)
@@ -833,7 +821,7 @@ def main():
 
     save_score_state(score_state)
 
-    # حفظ النتائج تلقائياً في مجلد docs للـ Mini App مع دعم التشفير التلقائي للأنواع غير المدعومة عبر default=str
+    # حفظ النتائج التلقائي لمجلد docs (متوافق مع Netlify أو GitHub Pages)
     os.makedirs("docs", exist_ok=True)
     market_macro_data = {
         "timestamp": str(datetime.now(timezone.utc)),
@@ -842,10 +830,15 @@ def main():
         "bullish_signals_count": len(all_signals),
         "bearish_signals_count": len(all_bearish_alerts),
         "bullish_signals": all_signals,
-        "bearish_signals": all_bearish_alerts
+        "bearish_signals": all_bearish_alerts,
+        "signals": all_signals + all_bearish_alerts  # دعم للتوافق المباشر مع واجهة التطبيق المصغر
     }
 
     with open("docs/market_status.json", "w", encoding="utf-8") as f:
+        json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
+
+    # نسخة احتياطية إضافية باسم signals.json لضمان القراءة الفورية من الواجهة
+    with open("docs/signals.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
     console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير في مجلد docs.[/bold green]", title="[bold]Summary[/bold]"))
