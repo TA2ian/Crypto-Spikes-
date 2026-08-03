@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تتبع العملات الرقمية</title>
-    <!-- استيراد خط عربي جميل وتصميم حديث -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -139,7 +138,6 @@
         </div>
     </div>
 
-    <!-- أزرار الفلترة حسب الفريم أو الحالة -->
     <div class="filters">
         <button class="filter-btn active" onclick="filterSignals('all', this)">الكل</button>
         <button class="filter-btn" onclick="filterSignals('1h', this)">1h</button>
@@ -149,22 +147,36 @@
         <button class="filter-btn" onclick="filterSignals('bearish', this)">التحذيرات الهابطة</button>
     </div>
 
-    <!-- حاوية عرض البطاقات -->
-    <div id="signals-container">
-        <!-- يتم تعبئتها ديناميكياً عبر الجافاسكريبت -->
-    </div>
+    <div id="signals-container"></div>
 
     <script>
         let marketData = {};
 
         async function loadMarketData() {
             try {
-                // جلب البيانات من الملف الموجود في نفس المجلد
-                const response = await fetch('./market_status.json?' + new Date().getTime());
-                if (!response.ok) throw new Error('فشل في جلب ملف البيانات');
+                let response = null;
+                const possiblePaths = [
+                    './market_status.json',
+                    'market_status.json',
+                    '/market_status.json'
+                ];
+
+                for (let path of possiblePaths) {
+                    try {
+                        const res = await fetch(path + '?' + new Date().getTime());
+                        if (res.ok) {
+                            response = res;
+                            break;
+                        }
+                    } catch (e) {}
+                }
+
+                if (!response || !response.ok) {
+                    throw new Error('فشل جلب الملف');
+                }
+
                 marketData = await response.json();
                 
-                // تحديث العدادات والوقت
                 document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || 0;
                 document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || 0;
                 
@@ -177,8 +189,13 @@
 
                 renderSignals('all');
             } catch (error) {
-                console.error(error);
-                document.getElementById('signals-container').innerHTML = '<p style="text-align: center; color: var(--accent-red);">لا توجد بيانات متاحة حالياً، يرجى التأكد من مسار الملف أو تشغيل السكربت لتوليد التقرير.</p>';
+                console.error('خطأ التحميل:', error);
+                document.getElementById('update-time').textContent = 'فشل الاتصال بالملف';
+                document.getElementById('signals-container').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--accent-red);">
+                        <p>تعذر العثور على ملف البيانات (market_status.json).</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من وجود الملف داخل مجلد docs.</p>
+                    </div>`;
             }
         }
 
@@ -246,58 +263,7 @@
             renderSignals(type);
         }
 
-        // تحميل البيانات عند فتح الصفحة
-                async function loadMarketData() {
-            try {
-                // محاولة الجلب بعدة طرق لتجنب مشاكل المسارات في GitHub Pages
-                let response = null;
-                const possiblePaths = [
-                    './market_status.json',
-                    'market_status.json',
-                    window.location.pathname.includes('/docs/') ? './market_status.json' : './docs/market_status.json'
-                ];
-
-                // تجربة المسارات بالترتيب
-                for (let path of possiblePaths) {
-                    try {
-                        const res = await fetch(path + '?' + new Date().getTime());
-                        if (res.ok) {
-                            response = res;
-                            break;
-                        }
-                    } catch (e) {
-                        // متابعة التجربة للمسار التالي
-                    }
-                }
-
-                if (!response || !response.ok) {
-                    throw new Error('فشل جلب الملف من جميع المسارات المحتملة');
-                }
-
-                marketData = await response.json();
-                
-                // تحديث العدادات والوقت
-                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || 0;
-                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || 0;
-                
-                if (marketData.timestamp) {
-                    const dateObj = new Date(marketData.timestamp);
-                    document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
-                } else {
-                    document.getElementById('update-time').textContent = 'آخر تحديث: متوفر';
-                }
-
-                renderSignals('all');
-            } catch (error) {
-                console.error('خطأ التحميل:', error);
-                document.getElementById('update-time').textContent = 'فشل الاتصال بالملف';
-                document.getElementById('signals-container').innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: var(--accent-red);">
-                        <p>تعذر العثور على ملف البيانات (market_status.json).</p>
-                        <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من أن السكربت قام برفع الملف إلى نفس المجلد مع index.html.</p>
-                    </div>`;
-            }
-                }
+        loadMarketData();
     </script>
 </body>
 </html>
