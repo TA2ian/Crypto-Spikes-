@@ -1,4 +1,20 @@
-{
-  "last_scan": "2026-07-25 19:07 UTC",
-  "signals": []
-}
+import json
+import os
+from datetime import datetime
+
+def export_signals_for_webapp(signals_list, bearish_list=[]):
+    # التأكد من وجود مجلد docs
+    os.makedirs("docs", exist_ok=True)
+    
+    data = {
+        "last_scan": datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "bullish_signals_count": len(signals_list),
+        "bearish_signals_count": len(bearish_list),
+        "signals": signals_list + bearish_list
+    }
+    
+    file_path = os.path.join("docs", "signals.json")
+    with open(file_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    
+    print(f"✅ تم تحديث ملف التطبيق المصغر بنجاح في: {file_path}")
