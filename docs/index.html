@@ -247,7 +247,57 @@
         }
 
         // تحميل البيانات عند فتح الصفحة
-        loadMarketData();
+                async function loadMarketData() {
+            try {
+                // محاولة الجلب بعدة طرق لتجنب مشاكل المسارات في GitHub Pages
+                let response = null;
+                const possiblePaths = [
+                    './market_status.json',
+                    'market_status.json',
+                    window.location.pathname.includes('/docs/') ? './market_status.json' : './docs/market_status.json'
+                ];
+
+                // تجربة المسارات بالترتيب
+                for (let path of possiblePaths) {
+                    try {
+                        const res = await fetch(path + '?' + new Date().getTime());
+                        if (res.ok) {
+                            response = res;
+                            break;
+                        }
+                    } catch (e) {
+                        // متابعة التجربة للمسار التالي
+                    }
+                }
+
+                if (!response || !response.ok) {
+                    throw new Error('فشل جلب الملف من جميع المسارات المحتملة');
+                }
+
+                marketData = await response.json();
+                
+                // تحديث العدادات والوقت
+                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || 0;
+                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || 0;
+                
+                if (marketData.timestamp) {
+                    const dateObj = new Date(marketData.timestamp);
+                    document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
+                } else {
+                    document.getElementById('update-time').textContent = 'آخر تحديث: متوفر';
+                }
+
+                renderSignals('all');
+            } catch (error) {
+                console.error('خطأ التحميل:', error);
+                document.getElementById('update-time').textContent = 'فشل الاتصال بالملف';
+                document.getElementById('signals-container').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--accent-red);">
+                        <p>تعذر العثور على ملف البيانات (market_status.json).</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من أن السكربت قام برفع الملف إلى نفس المجلد مع index.html.</p>
+                    </div>`;
+            }
+                }
     </script>
 </body>
 </html>
