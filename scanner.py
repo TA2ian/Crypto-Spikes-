@@ -1,5 +1,5 @@
 """
-ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
+ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 15m, 1h, 4h, 1d, 3d, 1w)
 مدعوم بمكتبة rich لتنسيق واجهات الطرفية والرسائل بتصميم احترافي.
 مدمج مع وحدات التنبيهات وإدارة الصفقات والستوب المتحرك + لوحة التنبيهات المجمعة للخطط الـ 8.
 """
@@ -92,8 +92,8 @@ except ImportError:
     from sentiment import get_fear_and_greed_index
     from dynamic_risk import calculate_atr, rate_signal_confidence
 
-# ============ الإعدادات ============
-ACTIVE_TIMEFRAMES = ["1h", "4h", "1d", "3d", "1w"]
+# ============ الإعدادات (تمت إضافة 15m) ============
+ACTIVE_TIMEFRAMES = ["15m", "1h", "4h", "1d", "3d", "1w"]
 CANDLE_LIMIT = 80
 
 RESISTANCE_LOOKBACK = 20
@@ -131,7 +131,7 @@ def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
     if not clean_symbol.endswith("-USDT"):
         clean_symbol = f"{clean_symbol}-USDT"
 
-    tf_map = {"1h": "1H", "4h": "4H", "1d": "1D", "3d": "3D", "1w": "1W"}
+    tf_map = {"15m": "15m", "1h": "1H", "4h": "4H", "1d": "1D", "3d": "3D", "1w": "1W"}
     okx_tf = tf_map.get(timeframe, "1H")
 
     url = "https://www.okx.com/api/v5/market/candles"
@@ -154,7 +154,7 @@ def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
 
 def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60", "4h": "240", "1d": "D", "3d": "3D", "1w": "W"}
+    tf_map = {"15m": "15", "1h": "60", "4h": "240", "1d": "D", "3d": "3D", "1w": "W"}
     bybit_tf = tf_map.get(timeframe, "60")
 
     url = "https://api.bybit.com/v5/market/kline"
@@ -177,7 +177,7 @@ def fetch_from_bybit(symbol: str, timeframe: str) -> pd.DataFrame | None:
 
 def fetch_from_mexc(symbol: str, timeframe: str) -> pd.DataFrame | None:
     clean_symbol = symbol.replace("-", "").replace("/", "").upper()
-    tf_map = {"1h": "60m", "4h": "4h", "1d": "1D", "3d": "3D", "1w": "1W"}
+    tf_map = {"15m": "15m", "1h": "60m", "4h": "4h", "1d": "1D", "3d": "3D", "1w": "1W"}
     mexc_tf = tf_map.get(timeframe, "60m")
 
     url = "https://api.mexc.com/api/v3/klines"
@@ -534,7 +534,8 @@ def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_s
         return notes
 
     tf_weight_multiplier = 1.0
-    if timeframe == "4h": tf_weight_multiplier = 1.3
+    if timeframe == "15m": tf_weight_multiplier = 0.8
+    elif timeframe == "4h": tf_weight_multiplier = 1.3
     elif timeframe == "1d": tf_weight_multiplier = 1.8
     elif timeframe == "3d": tf_weight_multiplier = 2.2
     elif timeframe == "1w": tf_weight_multiplier = 2.8
@@ -850,7 +851,7 @@ def render_grouped_alert_dashboard(grouped_signals: dict, all_bearish_alerts: li
 
 # ============ التشغيل الرئيسي ============
 def main():
-    console.print(Panel.fit(f"[bold cyan]بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات (1h, 4h, 1d, 3d, 1w)...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
+    console.print(Panel.fit(f"[bold cyan]بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات (15m, 1h, 4h, 1d, 3d, 1w)...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
     
     score_state = load_score_state()
     clean_old_events(score_state)
@@ -878,7 +879,8 @@ def main():
         macro_info = analyze_macro_trends(sym)
         local_prices = {}
 
-        for tf in ["1h", "4h", "1d", "3d"]:
+        # تم إدراج فريم 15m للتحليل والفحص الفعلي
+        for tf in ["15m", "1h", "4h", "1d", "3d"]:
             df = fetch_klines(sym, timeframe=tf)
             if df is None:
                 continue
@@ -980,8 +982,9 @@ def main():
 
     save_score_state(score_state)
 
-    # حفظ النتائج التلقائي لمجلد docs (متوافق مع Netlify / GitHub Pages)
-    os.makedirs("docs", exist_ok=True)
+    # 4. حفظ البيانات المحدثة لتغذي الواجهة الرئيسية مباشرة وبشكل تلقائي
+    open_trades_list = getattr(trade_manager, "open_trades", []) if hasattr(trade_manager, "open_trades") else []
+
     market_macro_data = {
         "timestamp": str(datetime.now(timezone.utc)),
         "dominance_status": dominance_report.get("status", "NEUTRAL"),
@@ -991,16 +994,22 @@ def main():
         "grouped_signals_summary": {k: len(v) for k, v in grouped_signals.items()},
         "bullish_signals": all_signals,
         "bearish_signals": all_bearish_alerts,
+        "open_trades": open_trades_list,
         "signals": all_signals + all_bearish_alerts
     }
 
+    # كتابة وحفظ البيانات في المجلد الرئيسي وفي مجلد docs لدعم GitHub Pages / Netlify
+    with open("market_status.json", "w", encoding="utf-8") as f:
+        json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
+
+    os.makedirs("docs", exist_ok=True)
     with open("docs/market_status.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
     with open("docs/signals.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
-    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير المجمع في docs/.[/bold green]", title="[bold]Summary[/bold]"))
+    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير المجمع في market_status.json و docs/.[/bold green]", title="[bold]Summary[/bold]"))
 
 if __name__ == "__main__":
     main()
