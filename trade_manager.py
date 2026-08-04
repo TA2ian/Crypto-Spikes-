@@ -62,7 +62,7 @@ class TradeManager:
             with open(self.status_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, default=self._default_converter)
 
-        def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float, side: str = "BUY"):
+    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float, side: str = "BUY"):
         """فتح صفقة جديدة وحساب حجم اللوت بناءً على المخاطرة"""
         # تجنب تكرار فتح صفقة لنفس العملة على نفس الفريم
         for trade in self.open_trades:
