@@ -1,9 +1,9 @@
 {
-    "timestamp": "2026-08-04 06:02:41.410827+00:00",
+    "timestamp": "2026-08-04 07:57:12.174812+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 7,
-    "bearish_signals_count": 0,
+    "bearish_signals_count": 1,
     "bullish_signals": [
         {
             "type": "اختراق مقاومة",
@@ -706,7 +706,16 @@
             }
         }
     ],
-    "bearish_signals": [],
+    "bearish_signals": [
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ZAMA-USDT",
+            "price": 0.04883,
+            "level": 0.0491,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ZAMA-USDT` كسرت دعم الأمان عند **0.0491$** على فريم `1H` مع فوليوم بيع مكثف!"
+        }
+    ],
     "signals": [
         {
             "type": "اختراق مقاومة",
@@ -1407,6 +1416,14 @@
                 "w1_resistance": 9.606,
                 "w1_rsi": 32.97855859980463
             }
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ZAMA-USDT",
+            "price": 0.04883,
+            "level": 0.0491,
+            "timeframe": "1h",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ZAMA-USDT` كسرت دعم الأمان عند **0.0491$** على فريم `1H` مع فوليوم بيع مكثف!"
         }
     ]
 }
