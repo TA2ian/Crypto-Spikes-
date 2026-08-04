@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
 مدعوم بمكتبة rich لتنسيق واجهات الطرفية والرسائل بتصميم احترافي.
-مدمج مع وحدات التنبيهات وإدارة الصفقات والستوب المتحرك.
+مدمج مع وحدات التنبيهات وإدارة الصفقات والستوب المتحرك + لوحة التنبيهات المجمعة للخطط الـ 8.
 """
 import os
 import time
@@ -14,6 +14,7 @@ import pandas as pd
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+from rich.text import Text
 
 console = Console()
 
@@ -109,6 +110,20 @@ SHOW_CVD = True
 
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
+# ============ تعريف أسماء الخطط الـ 8 لتجميع التنبيهات ============
+STRATEGY_NAMES = {
+    "WYCKOFF_SMC_ACCUMULATION": "🏛️ التجميع المؤسساتي (Wyckoff + SMC)",
+    "CVD_BREAKOUT_CONFIRMED": "🚀 اختراق مدعوم بـ CVD & Squeeze",
+    "TREND_FOLLOWING_4_CONFIRMS": "📈 تتبع الاتجاه المؤكد (4 شروط)",
+    "MEAN_REVERSION_4_CONFIRMS": "🎯 صيد القيعان والارتداد (Mean Reversion)",
+    "CHART_PATTERN_4_CONFIRMS": "📐 النمط الكلاسيكي المؤكد",
+    "FVG_SCALP_4_CONFIRMS": "🕳️ صيد الفجوات المؤسساتية (FVG)",
+    "ULTIMATE_MASTER_A_PLUS": "👑 التوصية الشاملة الفائقة (A+)",
+    "CAPITULATION_RE_ENTRY": "🩸 قاع الاستسلام والرعب (Capitulation)",
+    "BEARISH_RISK": "🚨 تحذيرات الهبوط وكسر الدعوم",
+    "STANDARD": "◈ حركات سعرية اعتيادية"
+}
 
 # ============ جلب البيانات من المنصات ============
 def fetch_from_okx(symbol: str, timeframe: str) -> pd.DataFrame | None:
@@ -238,7 +253,6 @@ def calculate_ema_indicators(df: pd.DataFrame) -> dict:
         "golden_cross": ema50 > ema200
     }
 
-# ============ حساب مؤشر ضغط السوق (DPR) ============
 def calculate_market_pressure(df: pd.DataFrame, length: int = 13) -> dict:
     if len(df) < length + 5:
         return {"value": 50.0, "status": "balanced", "display": "N/A"}
@@ -356,6 +370,7 @@ def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> li
             "price": last_close,
             "level": support,
             "timeframe": timeframe,
+            "strategy": "BEARISH_RISK",
             "message": f"🔴 **تنبيه انهيار دعم:** العملة `{symbol}` كسرت دعم الأمان عند **{support:.4f}$** على فريم `{timeframe.upper()}` مع فوليوم بيع مكثف!"
         })
     elif is_overbought_warning:
@@ -365,6 +380,7 @@ def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> li
             "price": last_close,
             "level": resistance,
             "timeframe": timeframe,
+            "strategy": "BEARISH_RISK",
             "message": f"⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `{symbol}` وصلت لمنطقة تشبع مفرط (RSI: `{last_rsi:.1f}`) بالقرب من المقاومة **{resistance:.4f}$**."
         })
 
@@ -755,6 +771,83 @@ def send_telegram_message(text: str):
     except Exception as e:
         console.print(f"[bold red][خطأ][/bold red] فشل إرسال رسالة تيليغرام: {e}")
 
+# ============ بناء واجهة لوحة التنبيهات المجمعة (Grouped Alert Dashboard) ============
+def render_grouped_alert_dashboard(grouped_signals: dict, all_bearish_alerts: list):
+    console.print("\n")
+    console.print(Panel.fit("[bold white on blue] 📊 لوحة التنبيهات المجمعة وحصيلة الصفقات والخطط الـ 8 [/bold white on blue]", style="bold cyan"))
+
+    # 1. جدول ملخص إحصائيات الخطط الـ 8 الصعودية
+    summary_table = Table(title="📈 ملخص إشارات الصفقات حسب الخطة الفنية", header_style="bold yellow", border_style="cyan")
+    summary_table.add_column("رمز الخطة", style="dim", width=25)
+    summary_table.add_column("اسم الخطة الفنية", style="bold white")
+    summary_table.add_column("عدد التوصيات", justify="center", style="bold green")
+    summary_table.add_column("العملات المرصودة", style="cyan")
+
+    total_bullish = 0
+    for strat_key, strat_name in STRATEGY_NAMES.items():
+        if strat_key in ["BEARISH_RISK", "STANDARD"]:
+            continue
+        sigs = grouped_signals.get(strat_key, [])
+        count = len(sigs)
+        total_bullish += count
+        coins_str = ", ".join(set([s["symbol"] for s in sigs])) if count > 0 else "-"
+        
+        summary_table.add_row(
+            strat_key,
+            strat_name,
+            str(count) if count > 0 else "[dim]0[/dim]",
+            coins_str
+        )
+
+    console.print(summary_table)
+
+    # 2. جدول تحذيرات الهبوط المخاطر
+    if all_bearish_alerts:
+        bearish_table = Table(title="🚨 لوحة تحذيرات الهبوط وكسر الدعوم", header_style="bold white on red", border_style="red")
+        bearish_table.add_column("العملة", style="bold yellow")
+        bearish_table.add_column("الفريم", justify="center", style="cyan")
+        bearish_table.add_column("نوع التحذير", style="bold red")
+        bearish_table.add_column("السعر الحالي", justify="right")
+        bearish_table.add_column("مستوى الدعم/المقاومة", justify="right")
+
+        for b in all_bearish_alerts:
+            bearish_table.add_row(
+                b["symbol"],
+                b["timeframe"].upper(),
+                b["type"],
+                f"{b['price']:.4f}$",
+                f"{b['level']:.4f}$"
+            )
+        console.print(bearish_table)
+    else:
+        console.print(Panel("[bold green]✔ لا توجد تحذيرات هبوط خطيرة أو كسر دعوم في هذه الجلسة.[/bold green]", border_style="green"))
+
+    # 3. جدول العرض التفصيلي الشامل لكافة الصفقات المرصودة
+    if total_bullish > 0:
+        detail_table = Table(title="💎 تفاصيل كل الصفقات المرصودة في الجلسة", header_style="bold blue", border_style="yellow")
+        detail_table.add_column("العملة", style="bold cyan")
+        detail_table.add_column("الفريم", justify="center", style="yellow")
+        detail_table.add_column("الخطة المعتمدة", style="magenta")
+        detail_table.add_column("سعر الدخول", justify="right", style="green")
+        detail_table.add_column("الستوب (SL)", justify="right", style="red")
+        detail_table.add_column("الهدف (TP1)", justify="right", style="green")
+        detail_table.add_column("الهدف الممتد", justify="right", style="bold green")
+
+        for strat_key, sigs in grouped_signals.items():
+            if strat_key in ["BEARISH_RISK", "STANDARD"]:
+                continue
+            for s in sigs:
+                detail_table.add_row(
+                    s["symbol"],
+                    s.get("timeframe", "1H").upper(),
+                    STRATEGY_NAMES.get(strat_key, strat_key),
+                    f"{s['price']:.4f}$",
+                    f"{s['stop_loss']:.4f}$",
+                    f"{s['target1']:.4f}$",
+                    f"{s['macro_target']:.4f}$"
+                )
+        console.print(detail_table)
+
 # ============ التشغيل الرئيسي ============
 def main():
     console.print(Panel.fit(f"[bold cyan]بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات (1h, 4h, 1d, 3d, 1w)...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
@@ -774,7 +867,6 @@ def main():
 
     if dominance_report["status"] != "NEUTRAL":
         console.print(Panel(dominance_report["message"], title="[bold yellow]Macro Dominance Alert[/bold yellow]", border_style="yellow"))
-        # إرسال التنبيه عبر وحدة AlertManager
         alert_manager.send_alert("MACRO_DOMINANCE", "MARKET", "1D", dominance_report["message"], ignore_cooldown=True)
         send_telegram_message(dominance_report["message"])
 
@@ -784,15 +876,15 @@ def main():
         symbol_signals = []
         symbol_bearish = []
         macro_info = analyze_macro_trends(sym)
+        local_prices = {}
 
         for tf in ["1h", "4h", "1d", "3d"]:
             df = fetch_klines(sym, timeframe=tf)
             if df is None:
                 continue
             
-            # حفظ آخر سعر متاح لمتابعة الستوب المتحرك
             latest_price = float(df['close'].iloc[-1])
-            current_market_prices[sym] = latest_price
+            local_prices[sym] = latest_price
 
             try:
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
@@ -807,15 +899,19 @@ def main():
             except Exception as e:
                 console.print(f"[red][خطأ تحليل][/red] {sym} على فريم {tf}: {e}")
 
-        return symbol_signals, symbol_bearish
+        return symbol_signals, symbol_bearish, local_prices
 
     all_signals = []
     all_bearish_alerts = []
+    
+    # هيكل تجميع الإشارات حسب الخطة الفنية (Grouped Signals Structure)
+    grouped_signals = {k: [] for k in STRATEGY_NAMES.keys()}
 
     with ThreadPoolExecutor(max_workers=5) as executor:
         futures = [executor.submit(process_worker, sym) for sym in WATCHLIST]
         for future in futures:
-            signals, bearish_list = future.result()
+            signals, bearish_list, local_prices = future.result()
+            current_market_prices.update(local_prices)
             
             for sig in signals:
                 symbol = sig["symbol"]
@@ -823,10 +919,13 @@ def main():
                 tracking_key = f"{symbol}_{tf}"
                 macro_info = sig.get("macro_info", {})
                 strategy_type, formatted_msg = classify_and_format_signal(sig, macro_info, fng_status)
+                
+                sig["strategy_type"] = strategy_type
+                sig["formatted_message"] = formatted_msg
 
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
-                # توجيه التنبيه عبر وحدة AlertManager لحفظ السجلات
+                # توجيه التنبيه عبر وحدة AlertManager
                 alert_manager.send_alert(
                     alert_type=strategy_type,
                     symbol=symbol,
@@ -853,6 +952,12 @@ def main():
                     )
 
                 all_signals.append(sig)
+                
+                # تجميع الصفقات حسب الخطة الفنية
+                if strategy_type in grouped_signals:
+                    grouped_signals[strategy_type].append(sig)
+                else:
+                    grouped_signals["STANDARD"].append(sig)
 
             for b_alert in bearish_list:
                 console.print(Panel(b_alert["message"], title="[bold red]Bearish Risk Alert[/bold red]", border_style="red"))
@@ -864,14 +969,18 @@ def main():
                 )
                 send_telegram_message(b_alert["message"])
                 all_bearish_alerts.append(b_alert)
+                grouped_signals["BEARISH_RISK"].append(b_alert)
 
-    # 2. تحديث الستوب المتحرك وإغلاق الصفقات المفتوحة تلقائياً بناءً على أسعار السوق الحالية
+    # 2. عرض لوحة التنبيهات المجمعة للخطط الـ 8 وتحذيرات الهبوط
+    render_grouped_alert_dashboard(grouped_signals, all_bearish_alerts)
+
+    # 3. تحديث الستوب المتحرك وإغلاق الصفقات المفتوحة
     if current_market_prices:
         trade_manager.update_and_check_trades(current_market_prices)
 
     save_score_state(score_state)
 
-    # حفظ النتائج التلقائي لمجلد docs (متوافق مع Netlify أو GitHub Pages)
+    # حفظ النتائج التلقائي لمجلد docs (متوافق مع Netlify / GitHub Pages)
     os.makedirs("docs", exist_ok=True)
     market_macro_data = {
         "timestamp": str(datetime.now(timezone.utc)),
@@ -879,6 +988,7 @@ def main():
         "dominance_summary": dominance_report.get("message", ""),
         "bullish_signals_count": len(all_signals),
         "bearish_signals_count": len(all_bearish_alerts),
+        "grouped_signals_summary": {k: len(v) for k, v in grouped_signals.items()},
         "bullish_signals": all_signals,
         "bearish_signals": all_bearish_alerts,
         "signals": all_signals + all_bearish_alerts
@@ -890,7 +1000,7 @@ def main():
     with open("docs/signals.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
-    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير في مجلد docs.[/bold green]", title="[bold]Summary[/bold]"))
+    console.print(Panel.fit(f"[bold green]انتهى الفحص بنجاح. تم رصد {len(all_signals)} إشارة صعود و {len(all_bearish_alerts)} تحذير هبوط وحفظ التقرير المجمع في docs/.[/bold green]", title="[bold]Summary[/bold]"))
 
 if __name__ == "__main__":
     main()
