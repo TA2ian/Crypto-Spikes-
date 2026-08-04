@@ -1,6 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد (Multi-Timeframe Edition: 1h, 4h, 1d, 3d, 1w)
 مدعوم بمكتبة rich لتنسيق واجهات الطرفية والرسائل بتصميم احترافي.
+مدمج مع وحدات التنبيهات وإدارة الصفقات والستوب المتحرك.
 """
 import os
 import time
@@ -15,6 +16,14 @@ from rich.panel import Panel
 from rich.table import Table
 
 console = Console()
+
+# ============ استدعاء وحدات إدارة التنبيهات والصفقات ============
+from alert_manager import AlertManager
+from trade_manager import TradeManager
+
+# تهيئة مدير التنبيهات وإدارة الصفقات
+alert_manager = AlertManager(max_active_alerts=10)
+trade_manager = TradeManager(alert_manager=alert_manager, account_balance=1000.0, risk_per_trade_pct=1.0)
 
 # استدعاء الملفات الأساسية
 from coins import WATCHLIST
@@ -765,7 +774,11 @@ def main():
 
     if dominance_report["status"] != "NEUTRAL":
         console.print(Panel(dominance_report["message"], title="[bold yellow]Macro Dominance Alert[/bold yellow]", border_style="yellow"))
+        # إرسال التنبيه عبر وحدة AlertManager
+        alert_manager.send_alert("MACRO_DOMINANCE", "MARKET", "1D", dominance_report["message"], ignore_cooldown=True)
         send_telegram_message(dominance_report["message"])
+
+    current_market_prices = {}
 
     def process_worker(sym):
         symbol_signals = []
@@ -776,6 +789,11 @@ def main():
             df = fetch_klines(sym, timeframe=tf)
             if df is None:
                 continue
+            
+            # حفظ آخر سعر متاح لمتابعة الستوب المتحرك
+            latest_price = float(df['close'].iloc[-1])
+            current_market_prices[sym] = latest_price
+
             try:
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
                 for sig in sigs:
@@ -808,16 +826,48 @@ def main():
 
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
+                # توجيه التنبيه عبر وحدة AlertManager لحفظ السجلات
+                alert_manager.send_alert(
+                    alert_type=strategy_type,
+                    symbol=symbol,
+                    timeframe=tf,
+                    message=formatted_msg,
+                    extra_data=sig
+                )
+
                 if should_alert(score_state, tracking_key, SCORE_THRESHOLD):
                     send_telegram_message(formatted_msg)
                     mark_alert_sent(score_state, tracking_key)
+
+                # فتح صفقة تلقائية عبر TradeManager للتوصيات المتقدمة القوية
+                if strategy_type in ["WYCKOFF_SMC_ACCUMULATION", "CVD_BREAKOUT_CONFIRMED", "ULTIMATE_MASTER_A_PLUS"]:
+                    trade_manager.open_trade(
+                        symbol=symbol,
+                        side="BUY",
+                        entry_price=sig["price"],
+                        tp_price=sig["target2"],
+                        sl_price=sig["stop_loss"],
+                        use_trailing=True,
+                        trailing_activation_pct=1.5,
+                        trailing_callback_pct=1.0
+                    )
 
                 all_signals.append(sig)
 
             for b_alert in bearish_list:
                 console.print(Panel(b_alert["message"], title="[bold red]Bearish Risk Alert[/bold red]", border_style="red"))
+                alert_manager.send_alert(
+                    alert_type=b_alert["type"],
+                    symbol=b_alert["symbol"],
+                    timeframe=b_alert["timeframe"],
+                    message=b_alert["message"]
+                )
                 send_telegram_message(b_alert["message"])
                 all_bearish_alerts.append(b_alert)
+
+    # 2. تحديث الستوب المتحرك وإغلاق الصفقات المفتوحة تلقائياً بناءً على أسعار السوق الحالية
+    if current_market_prices:
+        trade_manager.update_and_check_trades(current_market_prices)
 
     save_score_state(score_state)
 
@@ -831,13 +881,12 @@ def main():
         "bearish_signals_count": len(all_bearish_alerts),
         "bullish_signals": all_signals,
         "bearish_signals": all_bearish_alerts,
-        "signals": all_signals + all_bearish_alerts  # دعم للتوافق المباشر مع واجهة التطبيق المصغر
+        "signals": all_signals + all_bearish_alerts
     }
 
     with open("docs/market_status.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
-    # نسخة احتياطية إضافية باسم signals.json لضمان القراءة الفورية من الواجهة
     with open("docs/signals.json", "w", encoding="utf-8") as f:
         json.dump(market_macro_data, f, ensure_ascii=False, indent=4, default=str)
 
