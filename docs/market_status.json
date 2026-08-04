@@ -1,11 +1,11 @@
 {
-    "timestamp": "2026-08-04 09:36:02.498065+00:00",
+    "timestamp": "2026-08-04 09:46:42.403669+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 8,
+    "bullish_signals_count": 7,
     "bearish_signals_count": 0,
     "grouped_signals_summary": {
-        "WYCKOFF_SMC_ACCUMULATION": 4,
+        "WYCKOFF_SMC_ACCUMULATION": 3,
         "CVD_BREAKOUT_CONFIRMED": 1,
         "TREND_FOLLOWING_4_CONFIRMS": 1,
         "MEAN_REVERSION_4_CONFIRMS": 0,
@@ -529,112 +529,6 @@
             },
             "strategy_type": "FVG_SCALP_4_CONFIRMS",
             "formatted_message": "[bold cyan]🕳️ توصية صيد الفجوات المؤكدة | Verified FVG Scalp Setup[/bold cyan] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]AIO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]هيكل الفجوة:[/bold] فجوة مؤسسية (FVG) متوافقة مع منطقة طلب\n\n• [bold green]سعر الدخول عند الفجوة:[/bold green] [bold]0.0396$[/bold]\n• [bold red]وقف الخسارة:[/bold red] [bold]0.0379$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0414$[/green]\n▸ [bold]الهدف الممتد:[/bold] [green]0.0437$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.0558$[/bold green]"
-        },
-        {
-            "type": "ارتداد من دعم",
-            "stars": "⭐⭐⭐⭐",
-            "symbol": "KITE-USDT",
-            "price": 0.09366,
-            "level": 0.09353,
-            "rsi": 33.40184865895161,
-            "ema": {
-                "ema_50": 0.09514021477475379,
-                "ema_200": 0.09492079685777063,
-                "above_ema50": false,
-                "above_ema200": false,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 0.09792458392353,
-                "middle": 0.095166,
-                "lower": 0.09240741607647,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "True",
-                "bandwidth": 0.057974148824790316
-            },
-            "dpr_data": {
-                "value": 24.645337467176276,
-                "status": "oversold",
-                "display": "[bold green]▼ [OVERSOLD OPPORTUNITY] (24.6)[/bold green]"
-            },
-            "volume_ratio": 0.9336070748174752,
-            "timeframe": "15m",
-            "stop_loss": 0.093,
-            "target1": 0.0946,
-            "target2": 0.096,
-            "target3": 0.0979,
-            "target4": 0.1003,
-            "macro_target": 0.1053,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": "Phase C (Spring - تجميع وسحب سيولة)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "سحب سيولة (Liquidity Sweep)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "مؤشر DPR تحت النطاق 25 (فرصة تشبع بيعي)",
-                "تقاطع ذهبي EMA 50/200"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.09334,
-                    "swing_high": 0.09746,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 0.096488,
-                        "0.382": 0.095886,
-                        "0.5": 0.0954,
-                        "0.618": 0.094914,
-                        "0.786": 0.094222
-                    },
-                    "extension_levels": {
-                        "1.272": 0.092219,
-                        "1.618": 0.090794,
-                        "2.0": 0.08922,
-                        "2.618": 0.086674
-                    },
-                    "time_zones": [
-                        5,
-                        6,
-                        7,
-                        9,
-                        12,
-                        17,
-                        25
-                    ],
-                    "near_retracement": [
-                        0.786,
-                        0.094222
-                    ],
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "بيع متزايد",
-                    "divergence": null,
-                    "last_clv": 0.653
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0.0905,
-                "d3_resistance": 0.14252,
-                "d3_rsi": 32.780131204706564,
-                "w1_support": 0.10031,
-                "w1_resistance": 0.25017,
-                "w1_rsi": 37.514754925613964
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0937$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.093$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0946$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.096$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.1053$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "ارتداد من دعم",
@@ -1395,112 +1289,6 @@
             },
             "strategy_type": "FVG_SCALP_4_CONFIRMS",
             "formatted_message": "[bold cyan]🕳️ توصية صيد الفجوات المؤكدة | Verified FVG Scalp Setup[/bold cyan] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]AIO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]هيكل الفجوة:[/bold] فجوة مؤسسية (FVG) متوافقة مع منطقة طلب\n\n• [bold green]سعر الدخول عند الفجوة:[/bold green] [bold]0.0396$[/bold]\n• [bold red]وقف الخسارة:[/bold red] [bold]0.0379$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0414$[/green]\n▸ [bold]الهدف الممتد:[/bold] [green]0.0437$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.0558$[/bold green]"
-        },
-        {
-            "type": "ارتداد من دعم",
-            "stars": "⭐⭐⭐⭐",
-            "symbol": "KITE-USDT",
-            "price": 0.09366,
-            "level": 0.09353,
-            "rsi": 33.40184865895161,
-            "ema": {
-                "ema_50": 0.09514021477475379,
-                "ema_200": 0.09492079685777063,
-                "above_ema50": false,
-                "above_ema200": false,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 0.09792458392353,
-                "middle": 0.095166,
-                "lower": 0.09240741607647,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "True",
-                "bandwidth": 0.057974148824790316
-            },
-            "dpr_data": {
-                "value": 24.645337467176276,
-                "status": "oversold",
-                "display": "[bold green]▼ [OVERSOLD OPPORTUNITY] (24.6)[/bold green]"
-            },
-            "volume_ratio": 0.9336070748174752,
-            "timeframe": "15m",
-            "stop_loss": 0.093,
-            "target1": 0.0946,
-            "target2": 0.096,
-            "target3": 0.0979,
-            "target4": 0.1003,
-            "macro_target": 0.1053,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": "Phase C (Spring - تجميع وسحب سيولة)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "سحب سيولة (Liquidity Sweep)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "مؤشر DPR تحت النطاق 25 (فرصة تشبع بيعي)",
-                "تقاطع ذهبي EMA 50/200"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.09334,
-                    "swing_high": 0.09746,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 0.096488,
-                        "0.382": 0.095886,
-                        "0.5": 0.0954,
-                        "0.618": 0.094914,
-                        "0.786": 0.094222
-                    },
-                    "extension_levels": {
-                        "1.272": 0.092219,
-                        "1.618": 0.090794,
-                        "2.0": 0.08922,
-                        "2.618": 0.086674
-                    },
-                    "time_zones": [
-                        5,
-                        6,
-                        7,
-                        9,
-                        12,
-                        17,
-                        25
-                    ],
-                    "near_retracement": [
-                        0.786,
-                        0.094222
-                    ],
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "بيع متزايد",
-                    "divergence": null,
-                    "last_clv": 0.653
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0.0905,
-                "d3_resistance": 0.14252,
-                "d3_rsi": 32.780131204706564,
-                "w1_support": 0.10031,
-                "w1_resistance": 0.25017,
-                "w1_rsi": 37.514754925613964
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0937$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.093$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0946$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.096$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.1053$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "ارتداد من دعم",
