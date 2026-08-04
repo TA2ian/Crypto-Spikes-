@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تتبع العملات الرقمية</title>
+    <title>لوحة تتبع العملات الرقمية والصفقات</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,6 +15,7 @@
             --accent-red: #ef4444;
             --accent-yellow: #eab308;
             --accent-cyan: #06b6d4;
+            --accent-purple: #a855f7;
         }
         body {
             font-family: 'Cairo', sans-serif;
@@ -53,6 +54,13 @@
             font-size: 1.2rem;
             font-weight: bold;
         }
+        .section-title {
+            font-size: 1.1rem;
+            margin: 20px 0 10px 0;
+            color: var(--text-color);
+            border-bottom: 2px solid var(--card-bg);
+            padding-bottom: 5px;
+        }
         .filters {
             display: flex;
             gap: 5px;
@@ -86,6 +94,9 @@
         }
         .signal-card.bearish {
             border-right-color: var(--accent-red);
+        }
+        .signal-card.trade {
+            border-right-color: var(--accent-purple);
         }
         .card-header {
             display: flex;
@@ -136,14 +147,28 @@
             تحذيرات الهبوط
             <span id="bearish-count" style="color: var(--accent-red);">0</span>
         </div>
+        <div class="stat-box">
+            الصفقات النشطة
+            <span id="trades-count" style="color: var(--accent-purple);">0</span>
+        </div>
     </div>
 
+    <!-- قسم الصفقات المفتوحة مسبقاً إذا توفرت -->
+    <div id="trades-section" style="display: none;">
+        <div class="section-title">⚡ الصفقات النشطة والتتبع الحي</div>
+        <div id="trades-container"></div>
+    </div>
+
+    <div class="section-title">📊 الإشارات المرصودة</div>
+
+    <!-- فلاتر الفريمات بما فيها فريم الأسبوع 1w -->
     <div class="filters">
         <button class="filter-btn active" onclick="filterSignals('all', this)">الكل</button>
         <button class="filter-btn" onclick="filterSignals('1h', this)">1h</button>
         <button class="filter-btn" onclick="filterSignals('4h', this)">4h</button>
         <button class="filter-btn" onclick="filterSignals('1d', this)">1d</button>
         <button class="filter-btn" onclick="filterSignals('3d', this)">3d</button>
+        <button class="filter-btn" onclick="filterSignals('1w', this)">1w</button> <!-- فريم الأسبوع المضاف -->
         <button class="filter-btn" onclick="filterSignals('bearish', this)">التحذيرات الهابطة</button>
     </div>
 
@@ -177,9 +202,12 @@
 
                 marketData = await response.json();
                 
-                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || 0;
-                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || 0;
+                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || (marketData.bullish_signals ? marketData.bullish_signals.length : 0);
+                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || (marketData.bearish_signals ? marketData.bearish_signals.length : 0);
                 
+                const openTrades = marketData.open_trades || [];
+                document.getElementById('trades-count').textContent = openTrades.length;
+
                 if (marketData.timestamp) {
                     const dateObj = new Date(marketData.timestamp);
                     document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
@@ -187,6 +215,7 @@
                     document.getElementById('update-time').textContent = 'آخر تحديث: متوفر';
                 }
 
+                renderOpenTrades(openTrades);
                 renderSignals('all');
             } catch (error) {
                 console.error('خطأ التحميل:', error);
@@ -197,6 +226,35 @@
                         <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من وجود الملف داخل مجلد docs.</p>
                     </div>`;
             }
+        }
+
+        function renderOpenTrades(trades) {
+            const section = document.getElementById('trades-section');
+            const container = document.getElementById('trades-container');
+            container.innerHTML = '';
+
+            if (!trades || trades.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            trades.forEach(trade => {
+                const card = document.createElement('div');
+                card.className = 'signal-card trade';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="symbol" style="color: var(--accent-purple);">${trade.symbol || ''} (${trade.side || 'BUY'})</span>
+                        <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">${trade.timeframe ? trade.timeframe.toUpperCase() : 'LIVE'}</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>الدخول:</strong> $${trade.entry_price || 0} | <strong>الستوب الحالي:</strong> <span style="color: var(--accent-red);">$${trade.stop_loss || 0}</span></p>
+                        <p><strong>الهدف الأول:</strong> $${trade.target_1 || trade.target1 || 0} | <strong>الهدف الثاني:</strong> $${trade.target_2 || trade.target2 || 0}</p>
+                        <p style="font-size:0.8rem; color: var(--accent-yellow);">تتبع الستوب المتحرك: ${trade.use_trailing ? 'مفعل 🟢' : 'غير مفعل ⚪'}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
         function renderSignals(filter) {
@@ -210,13 +268,13 @@
             } else {
                 let bullish = (marketData.bullish_signals || []).map(s => ({ ...s, isBearish: false }));
                 if (filter !== 'all') {
-                    bullish = bullish.filter(s => s.timeframe && s.timeframe.toLowerCase() === filter);
+                    bullish = bullish.filter(s => s.timeframe && s.timeframe.toLowerCase() === filter.toLowerCase());
                 }
                 items = bullish;
             }
 
             if (items.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">لا توجد إشارات مطابقة لهذا الفلتر.</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 15px;">لا توجد إشارات مطابقة لهذا الفلتر.</p>';
                 return;
             }
 
@@ -237,18 +295,22 @@
                         </div>
                     `;
                 } else {
+                    const t1 = item.target1 || item.target_1 || 0;
+                    const t2 = item.target2 || item.target_2 || 0;
+                    const macro = item.macro_target || item.macroTarget || 0;
+
                     card.innerHTML = `
                         <div class="card-header">
                             <span class="symbol">${item.symbol || ''}</span>
                             <span class="badge">${item.timeframe ? item.timeframe.toUpperCase() : '1H'}</span>
                         </div>
                         <div class="card-body">
-                            <p><strong>النوع:</strong> ${item.type || ''} | <strong>التقييم:</strong> ${item.stars || 'عالي'}</p>
-                            <p><strong>السعر:</strong> ${item.price || 0} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${item.stop_loss || 0} $</span></p>
+                            <p><strong>النوع:</strong> ${item.type || item.strategy || 'إشارة صعود'} | <strong>التقييم:</strong> ${item.stars || 'عالي'}</p>
+                            <p><strong>السعر:</strong> ${item.price || item.entry_price || 0} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${item.stop_loss || item.sl_price || 0} $</span></p>
                             <div class="targets">
-                                <span>T1: <strong>${item.target1 || 0}</strong></span>
-                                <span>T2: <strong>${item.target2 || 0}</strong></span>
-                                <span>البعيد: <strong style="color: var(--accent-green);">${item.macro_target || 0}</strong></span>
+                                <span>T1: <strong>${t1}</strong></span>
+                                <span>T2: <strong>${t2}</strong></span>
+                                <span>البعيد: <strong style="color: var(--accent-green);">${macro}</strong></span>
                             </div>
                         </div>
                     `;
