@@ -8,13 +8,22 @@ import os
 
 class AlertManager:
     def __init__(self, status_file="docs/market_status.json", log_file="alerts.log", max_active_alerts=10, alert_cooldown_minutes=15):
-        # توحيد اسم المتغير للمسار
+        # توحيد مسار الملف والتأكد من توافقه
         self.file_path = status_file
         self.status_file = status_file
         self.log_file = log_file
         self.max_active_alerts = max_active_alerts
         self.alert_cooldown_minutes = alert_cooldown_minutes
         self.last_alerts_time = {}
+
+        # تهيئة الـ Logger لتجنب AttributeError
+        self.logger = logging.getLogger("AlertManager")
+        if not self.logger.handlers:
+            self.logger.setLevel(logging.INFO)
+            handler = RotatingFileHandler(self.log_file, maxBytes=2*1024*1024, backupCount=2, encoding="utf-8")
+            formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
 
     # دالة تحويل أنواع NumPy لتفادي خطأ JSON Serialization
     def _default_converter(self, o):
@@ -28,15 +37,15 @@ class AlertManager:
             return o.tolist()
         return str(o)
 
-    # دالة كتابة حالة السوق إلى الملف (تأكد إن كانت موجودة باسم _write_status_file أو اكتبها هنا)
+    # دالة كتابة حالة السوق إلى الملف بأمان مع إنشاء المجلد تلقائياً
     def _write_status_file(self, status_data):
-        # إنشاء مجلد docs تلقائياً إن لم يكن موجوداً
         dir_name = os.path.dirname(self.file_path)
         if dir_name:
             os.makedirs(dir_name, exist_ok=True)
             
         with open(self.file_path, "w", encoding="utf-8") as f:
             json.dump(status_data, f, ensure_ascii=False, indent=4, default=self._default_converter)
+
     def is_alert_allowed(self, alert_type: str, symbol: str, timeframe: str) -> bool:
         alert_key = f"{symbol}_{alert_type}_{timeframe}"
         now = datetime.now(timezone.utc)
@@ -95,24 +104,6 @@ class AlertManager:
             except Exception:
                 pass
         return default_data
-
-        # دالة تحويل أنواع البيانات الخاصة بـ NumPy إلى أنواع Python قياسية
-    def _default_converter(self, o):
-        if isinstance(o, (np.bool_, bool)):
-            return bool(o)
-        if isinstance(o, (np.integer, np.int64, np.int32)):
-            return int(o)
-        if isinstance(o, (np.floating, np.float64, np.float32)):
-            return float(o)
-        if isinstance(o, np.ndarray):
-            return o.tolist()
-        return str(o)
-
-    def _write_status_file(self, status_data):
-        with open(self.file_path, "w", encoding="utf-8") as f:
-            # تم إضافة default=self._default_converter لمنع خطأ TypeError
-            json.dump(status_data, f, ensure_ascii=False, indent=4, default=self._default_converter)
-
 
     def _update_market_status(self, new_alert: dict):
         status_data = self._read_status_file()
