@@ -87,9 +87,23 @@ class AlertManager:
                 pass
         return default_data
 
-    def _write_status_file(self, status_data: dict):
-        with open(self.status_file, "w", encoding="utf-8") as f:
-            json.dump(status_data, f, ensure_ascii=False, indent=4)
+        # دالة تحويل أنواع البيانات الخاصة بـ NumPy إلى أنواع Python قياسية
+    def _default_converter(self, o):
+        if isinstance(o, (np.bool_, bool)):
+            return bool(o)
+        if isinstance(o, (np.integer, np.int64, np.int32)):
+            return int(o)
+        if isinstance(o, (np.floating, np.float64, np.float32)):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return str(o)
+
+    def _write_status_file(self, status_data):
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            # تم إضافة default=self._default_converter لمنع خطأ TypeError
+            json.dump(status_data, f, ensure_ascii=False, indent=4, default=self._default_converter)
+
 
     def _update_market_status(self, new_alert: dict):
         status_data = self._read_status_file()
