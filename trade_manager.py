@@ -62,12 +62,16 @@ class TradeManager:
             with open(self.status_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, default=self._default_converter)
 
-    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float, side: str = "BUY"):
-        """فتح صفقة جديدة وحساب حجم اللوت بناءً على المخاطرة"""
+    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float = 0.0, target_2: float = 0.0, side: str = "BUY", **kwargs):
+        """فتح صفقة جديدة مرنة وقابلة لاستقبال أي معاملات مسماة من scanner.py"""
         # تجنب تكرار فتح صفقة لنفس العملة على نفس الفريم
         for trade in self.open_trades:
             if trade['symbol'] == symbol and trade['timeframe'] == timeframe:
                 return False
+
+        # قراءة الهدف الأول والثاني حتى لو تم تمريرهما باسم tp_price أو target_price
+        t1 = target_1 or kwargs.get("tp_price", entry_price * 1.02)
+        t2 = target_2 or kwargs.get("tp_2", entry_price * 1.05)
 
         risk_amount = self.account_balance * (self.risk_per_trade_pct / 100.0)
         price_risk = abs(entry_price - stop_loss)
@@ -76,14 +80,14 @@ class TradeManager:
         trade_payload = {
             "id": f"{symbol}_{timeframe}_{int(datetime.now(timezone.utc).timestamp())}",
             "symbol": symbol,
-            "side": side,  # 👈 إضافة اتجاه الصفقة (BUY/SELL)
+            "side": side,
             "timeframe": timeframe,
             "strategy": strategy_name,
             "entry_price": float(entry_price),
             "stop_loss": float(stop_loss),
             "initial_stop_loss": float(stop_loss),
-            "target_1": float(target_1),
-            "target_2": float(target_2),
+            "target_1": float(t1),
+            "target_2": float(t2),
             "position_size": float(position_size),
             "status": "OPEN",
             "opened_at": datetime.now(timezone.utc).isoformat(),
@@ -98,6 +102,7 @@ class TradeManager:
             self.alert_manager.send_alert("TRADE_OPEN", symbol, timeframe, msg, extra_data=trade_payload, ignore_cooldown=True)
 
         return True
+
 
 
     def update_and_check_trades(self, current_prices: dict):
