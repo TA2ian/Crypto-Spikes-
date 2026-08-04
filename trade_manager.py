@@ -1,174 +1,155 @@
+import os
+import json
+import numpy as np
 from datetime import datetime, timezone
-from alert_manager import AlertManager
-
 
 class TradeManager:
-    def __init__(self, alert_manager: AlertManager, account_balance: float = 1000.0, risk_per_trade_pct: float = 1.0):
+    def __init__(self, alert_manager=None, status_file="docs/market_status.json", account_balance=1000.0, risk_per_trade_pct=1.0):
         self.alert_manager = alert_manager
+        self.status_file = status_file
         self.account_balance = account_balance
         self.risk_per_trade_pct = risk_per_trade_pct
         self.open_trades = []
-        self.closed_trades = []
+        self.closed_trades_history = []
+        self.load_state()
 
-    def calculate_position_size(self, entry_price: float, sl_price: float) -> dict:
-        if entry_price <= 0 or sl_price <= 0 or entry_price == sl_price:
-            return {"position_size_usd": 0, "token_amount": 0, "risk_amount_usd": 0}
+    # دالة تحويل أنواع NumPy لتفادي خطأ JSON Serialization
+    def _default_converter(self, o):
+        if isinstance(o, (np.bool_, bool)):
+            return bool(o)
+        if isinstance(o, (np.integer, np.int64, np.int32)):
+            return int(o)
+        if isinstance(o, (np.floating, np.float64, np.float32)):
+            return float(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        return str(o)
 
-        risk_amount_usd = self.account_balance * (self.risk_per_trade_pct / 100.0)
-        sl_distance_pct = abs(entry_price - sl_price) / entry_price
-        position_size_usd = risk_amount_usd / sl_distance_pct
-        token_amount = position_size_usd / entry_price
+    def load_state(self):
+        """تحميل الصفقات المفتوحة والسابقة من ملف الحالة"""
+        if os.path.exists(self.status_file):
+            try:
+                with open(self.status_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    self.open_trades = data.get("open_trades", [])
+                    self.closed_trades_history = data.get("recent_closed_trades", [])
+            except Exception:
+                self.open_trades = []
+                self.closed_trades_history = []
 
-        return {
-            "position_size_usd": round(position_size_usd, 2),
-            "token_amount": round(token_amount, 4),
-            "risk_amount_usd": round(risk_amount_usd, 2),
-            "sl_distance_pct": round(sl_distance_pct * 100, 2)
-        }
+    def save_state(self):
+        """تحديث الصفقات داخل AlertManager أو حفظها في ملف market_status.json مباشرة"""
+        if self.alert_manager:
+            self.alert_manager.update_trades_in_status(self.open_trades, self.closed_trades_history)
+        else:
+            dir_name = os.path.dirname(self.status_file)
+            if dir_name:
+                os.makedirs(dir_name, exist_ok=True)
+            
+            data = {}
+            if os.path.exists(self.status_file):
+                try:
+                    with open(self.status_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception:
+                    data = {}
 
-    def has_open_trade(self, symbol: str, side: str = None) -> bool:
+            data["open_trades"] = self.open_trades
+            data["open_trades_count"] = len(self.open_trades)
+            data["recent_closed_trades"] = self.closed_trades_history[-5:]
+            data["last_updated"] = datetime.now(timezone.utc).isoformat()
+
+            with open(self.status_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=4, default=self._default_converter)
+
+    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float):
+        """فتح صفقة جديدة وحساب حجم اللوت بناءً على المخاطرة"""
+        # تجنب تكرار فتح صفقة لنفس العملة على نفس الفريم
         for trade in self.open_trades:
-            if trade["symbol"] == symbol:
-                if side is None or trade["side"] == side:
-                    return True
-        return False
+            if trade['symbol'] == symbol and trade['timeframe'] == timeframe:
+                return False
 
-    def open_trade(self, symbol: str, side: str, entry_price: float, tp_price: float, sl_price: float, 
-                   use_trailing: bool = True, trailing_activation_pct: float = 1.5, trailing_callback_pct: float = 1.0):
-        if self.has_open_trade(symbol, side):
-            print(f"⚠️ [BLOCKED] توجد صفقة مفتوحة بالفعل لـ {symbol} ({side}).")
-            return None
+        risk_amount = self.account_balance * (self.risk_per_trade_pct / 100.0)
+        price_risk = abs(entry_price - stop_loss)
+        position_size = risk_amount / price_risk if price_risk > 0 else 0
 
-        risk_calc = self.calculate_position_size(entry_price, sl_price)
-        position_usd = risk_calc["position_size_usd"]
-        token_qty = position_usd / entry_price
-
-        trade_id = f"{symbol}_{side}_{int(datetime.now().timestamp())}"
-        
-        trade = {
-            "trade_id": trade_id,
+        trade_payload = {
+            "id": f"{symbol}_{timeframe}_{int(datetime.now(timezone.utc).timestamp())}",
             "symbol": symbol,
-            "side": side,
-            "entry_price": entry_price,
-            "take_profit": tp_price,
-            "stop_loss": sl_price,
-            "position_size_usd": position_usd,
-            "token_amount": round(token_qty, 4),
-            "risk_usd": risk_calc["risk_amount_usd"],
-            "use_trailing": use_trailing,
-            "trailing_active": False,
-            "trailing_activation_pct": trailing_activation_pct,
-            "trailing_callback_pct": trailing_callback_pct,
-            "peak_price": entry_price,
+            "timeframe": timeframe,
+            "strategy": strategy_name,
+            "entry_price": float(entry_price),
+            "stop_loss": float(stop_loss),
+            "initial_stop_loss": float(stop_loss),
+            "target_1": float(target_1),
+            "target_2": float(target_2),
+            "position_size": float(position_size),
             "status": "OPEN",
-            "opened_at": datetime.now(timezone.utc).isoformat()
+            "opened_at": datetime.now(timezone.utc).isoformat(),
+            "t1_hit": False
         }
-        
-        self.open_trades.append(trade)
-        
-        msg = (f"🚀 فتح صفقة [{side}]: {symbol} | الدخول: {entry_price}$ | "
-               f"حجم: ${position_usd} | SL الأصلي: {sl_price}$ | Trailing: {'مفعل' if use_trailing else 'غير مفعل'}")
-        
-        self.alert_manager.send_alert("TRADE_OPENED", symbol, "EXECUTION", msg, trade, ignore_cooldown=True)
-        self.alert_manager.update_trades_in_status(self.open_trades, self.closed_trades)
-        return trade
+
+        self.open_trades.append(trade_payload)
+        self.save_state()
+
+        if self.alert_manager:
+            msg = f"🚀 دخول صفقة جديدة ({strategy_name}) | سعر الدخول: ${entry_price:.4f} | الستوب: ${stop_loss:.4f}"
+            self.alert_manager.send_alert("TRADE_OPEN", symbol, timeframe, msg, extra_data=trade_payload, ignore_cooldown=True)
+
+        return True
 
     def update_and_check_trades(self, current_prices: dict):
-        for trade in self.open_trades[:]:
-            symbol = trade["symbol"]
+        """متابعة الصفقات المفتوحة وتحديث الستوب المتحرك أو إغلاقها عند الأهداف"""
+        updated = False
+        remaining_trades = []
+
+        for trade in self.open_trades:
+            symbol = trade['symbol']
             if symbol not in current_prices:
+                remaining_trades.append(trade)
                 continue
 
             current_price = current_prices[symbol]
-            side = trade["side"]
+            timeframe = trade['timeframe']
 
-            # 1. تحديث منطق الستوب المتحرك Trailing Stop
-            if trade.get("use_trailing", False):
-                self._update_trailing_stop(trade, current_price)
+            # 1. التحقق من ضرب وقف الخسارة (Stop Loss)
+            if current_price <= trade['stop_loss']:
+                trade['status'] = "CLOSED_SL"
+                trade['closed_at'] = datetime.now(timezone.utc).isoformat()
+                trade['exit_price'] = float(current_price)
+                self.closed_trades_history.append(trade)
+                updated = True
 
-            # 2. فحص الأهداف والتصفيات
-            hit_tp = (side == "BUY" and current_price >= trade["take_profit"]) or \
-                     (side == "SELL" and current_price <= trade["take_profit"])
+                if self.alert_manager:
+                    msg = f"❌ تم ضرب وقف الخسارة عند ${current_price:.4f}"
+                    self.alert_manager.send_alert("TRADE_SL", symbol, timeframe, msg, extra_data=trade, ignore_cooldown=True)
+                continue
 
-            hit_sl = (side == "BUY" and current_price <= trade["stop_loss"]) or \
-                     (side == "SELL" and current_price >= trade["stop_loss"])
+            # 2. التحقق من الهدف الأول (T1) تحريك الستوب إلى سعر الدخول (Break Even)
+            if not trade['t1_hit'] and current_price >= trade['target_1']:
+                trade['t1_hit'] = True
+                trade['stop_loss'] = trade['entry_price']  # تحريك الستوب للدخول
+                updated = True
 
-            if hit_tp:
-                self._close_trade(trade, current_price, reason="TAKE_PROFIT")
-            elif hit_sl:
-                reason = "TRAILING_STOP" if trade.get("trailing_active") else "STOP_LOSS"
-                self._close_trade(trade, current_price, reason=reason)
+                if self.alert_manager:
+                    msg = f"🎯 تم تحقيق الهدف الأول (T1) عند ${current_price:.4f} | رفع الستوب ونقل نقطة التعادل"
+                    self.alert_manager.send_alert("TRADE_T1", symbol, timeframe, msg, extra_data=trade, ignore_cooldown=True)
 
-    def _update_trailing_stop(self, trade: dict, current_price: float):
-        side = trade["side"]
-        entry = trade["entry_price"]
-        activation_pct = trade["trailing_activation_pct"]
-        callback_pct = trade["trailing_callback_pct"]
+            # 3. التحقق من الهدف الثاني (T2) وإغلاق الصفقة بنجاح
+            if current_price >= trade['target_2']:
+                trade['status'] = "CLOSED_TP2"
+                trade['closed_at'] = datetime.now(timezone.utc).isoformat()
+                trade['exit_price'] = float(current_price)
+                self.closed_trades_history.append(trade)
+                updated = True
 
-        if side == "BUY":
-            pnl_pct = ((current_price - entry) / entry) * 100
-            
-            # تفعيل Trailing Stop لأول مرة عند تحقق الشرط
-            if not trade["trailing_active"] and pnl_pct >= activation_pct:
-                trade["trailing_active"] = True
-                trade["peak_price"] = current_price
-                new_sl = round(current_price * (1 - (callback_pct / 100.0)), 4)
-                if new_sl > trade["stop_loss"]:
-                    trade["stop_loss"] = new_sl
-                    msg = f"⚡ تفعيل Trailing Stop لـ {trade['symbol']}! رفع SL إلى: {new_sl}$ (حجز أرباح)"
-                    self.alert_manager.send_alert("TRAILING_ACTIVATED", trade['symbol'], "EXECUTION", msg, trade, ignore_cooldown=True)
+                if self.alert_manager:
+                    msg = f"🏆 تم تحقيق الهدف الثاني بالكامل (T2) عند ${current_price:.4f}!"
+                    self.alert_manager.send_alert("TRADE_TP2", symbol, timeframe, msg, extra_data=trade, ignore_cooldown=True)
+                continue
 
-            # رفع الستوب عند صعود السعر لأرقام قياسية جديدة
-            elif trade["trailing_active"]:
-                if current_price > trade["peak_price"]:
-                    trade["peak_price"] = current_price
-                    new_sl = round(current_price * (1 - (callback_pct / 100.0)), 4)
-                    if new_sl > trade["stop_loss"]:
-                        trade["stop_loss"] = new_sl
-                        msg = f"📈 تحديث الستوب المتحرك لـ {trade['symbol']}: رفع SL إلى {new_sl}$"
-                        self.alert_manager.send_alert("TRAILING_UPDATED", trade['symbol'], "EXECUTION", msg, trade, ignore_cooldown=True)
+            remaining_trades.append(trade)
 
-        elif side == "SELL":
-            pnl_pct = ((entry - current_price) / entry) * 100
-            
-            if not trade["trailing_active"] and pnl_pct >= activation_pct:
-                trade["trailing_active"] = True
-                trade["peak_price"] = current_price
-                new_sl = round(current_price * (1 + (callback_pct / 100.0)), 4)
-                if new_sl < trade["stop_loss"]:
-                    trade["stop_loss"] = new_sl
-                    msg = f"⚡ تفعيل Trailing Stop لـ {trade['symbol']}! تعديل SL إلى: {new_sl}$"
-                    self.alert_manager.send_alert("TRAILING_ACTIVATED", trade['symbol'], "EXECUTION", msg, trade, ignore_cooldown=True)
-
-            elif trade["trailing_active"]:
-                if current_price < trade["peak_price"]:
-                    trade["peak_price"] = current_price
-                    new_sl = round(current_price * (1 + (callback_pct / 100.0)), 4)
-                    if new_sl < trade["stop_loss"]:
-                        trade["stop_loss"] = new_sl
-                        msg = f"📉 تحديث الستوب المتحرك لـ {trade['symbol']}: تعديل SL إلى {new_sl}$"
-                        self.alert_manager.send_alert("TRAILING_UPDATED", trade['symbol'], "EXECUTION", msg, trade, ignore_cooldown=True)
-
-    def _close_trade(self, trade: dict, exit_price: float, reason: str):
-        trade["exit_price"] = exit_price
-        trade["closed_at"] = datetime.now(timezone.utc).isoformat()
-        trade["status"] = f"CLOSED_{reason}"
-
-        if trade["side"] == "BUY":
-            pnl_pct = ((exit_price - trade["entry_price"]) / trade["entry_price"]) * 100
-        else:
-            pnl_pct = ((trade["entry_price"] - exit_price) / trade["entry_price"]) * 100
-
-        pnl_usd = trade["position_size_usd"] * (pnl_pct / 100.0)
-
-        trade["pnl_pct"] = round(pnl_pct, 2)
-        trade["pnl_usd"] = round(pnl_usd, 2)
-
-        self.open_trades.remove(trade)
-        self.closed_trades.append(trade)
-
-        icon = "🎯" if reason == "TAKE_PROFIT" else ("🛡️" if reason == "TRAILING_STOP" else "🛑")
-        msg = f"{icon} إغلاق صفقة {trade['symbol']} | السبب: {reason} | النتيجة: {trade['pnl_pct']}% (${trade['pnl_usd']})"
-        
-        self.alert_manager.send_alert("TRADE_CLOSED", trade['symbol'], "EXECUTION", msg, trade, ignore_cooldown=True)
-        self.alert_manager.update_trades_in_status(self.open_trades, self.closed_trades)
+        if updated:
+            self.open_trades = remaining_trades
+            self.save_state()
