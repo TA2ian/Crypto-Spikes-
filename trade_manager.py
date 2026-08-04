@@ -62,7 +62,7 @@ class TradeManager:
             with open(self.status_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, default=self._default_converter)
 
-    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float):
+        def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float, target_2: float, side: str = "BUY"):
         """فتح صفقة جديدة وحساب حجم اللوت بناءً على المخاطرة"""
         # تجنب تكرار فتح صفقة لنفس العملة على نفس الفريم
         for trade in self.open_trades:
@@ -76,6 +76,7 @@ class TradeManager:
         trade_payload = {
             "id": f"{symbol}_{timeframe}_{int(datetime.now(timezone.utc).timestamp())}",
             "symbol": symbol,
+            "side": side,  # 👈 إضافة اتجاه الصفقة (BUY/SELL)
             "timeframe": timeframe,
             "strategy": strategy_name,
             "entry_price": float(entry_price),
@@ -93,10 +94,11 @@ class TradeManager:
         self.save_state()
 
         if self.alert_manager:
-            msg = f"🚀 دخول صفقة جديدة ({strategy_name}) | سعر الدخول: ${entry_price:.4f} | الستوب: ${stop_loss:.4f}"
+            msg = f"🚀 دخول صفقة جديدة ({side} - {strategy_name}) | سعر الدخول: ${entry_price:.4f} | الستوب: ${stop_loss:.4f}"
             self.alert_manager.send_alert("TRADE_OPEN", symbol, timeframe, msg, extra_data=trade_payload, ignore_cooldown=True)
 
         return True
+
 
     def update_and_check_trades(self, current_prices: dict):
         """متابعة الصفقات المفتوحة وتحديث الستوب المتحرك أو إغلاقها عند الأهداف"""
