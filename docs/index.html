@@ -153,7 +153,7 @@
         </div>
     </div>
 
-    <!-- قسم الصفقات المفتوحة مسبقاً إذا توفرت -->
+    <!-- قسم الصفقات المفتوحة -->
     <div id="trades-section" style="display: none;">
         <div class="section-title">⚡ الصفقات النشطة والتتبع الحي</div>
         <div id="trades-container"></div>
@@ -161,14 +161,14 @@
 
     <div class="section-title">📊 الإشارات المرصودة</div>
 
-    <!-- فلاتر الفريمات بما فيها فريم الأسبوع 1w -->
+    <!-- فلاتر الفريمات -->
     <div class="filters">
         <button class="filter-btn active" onclick="filterSignals('all', this)">الكل</button>
         <button class="filter-btn" onclick="filterSignals('1h', this)">1h</button>
         <button class="filter-btn" onclick="filterSignals('4h', this)">4h</button>
         <button class="filter-btn" onclick="filterSignals('1d', this)">1d</button>
         <button class="filter-btn" onclick="filterSignals('3d', this)">3d</button>
-        <button class="filter-btn" onclick="filterSignals('1w', this)">1w</button> <!-- فريم الأسبوع المضاف -->
+        <button class="filter-btn" onclick="filterSignals('1w', this)">1w</button>
         <button class="filter-btn" onclick="filterSignals('bearish', this)">التحذيرات الهابطة</button>
     </div>
 
@@ -177,18 +177,25 @@
     <script>
         let marketData = {};
 
+        // دالة مساعدة لتشذيب الأسعار المتروكة بدون تنسيق
+        function formatPrice(val) {
+            if (val === undefined || val === null || isNaN(val)) return '0';
+            return val;
+        }
+
         async function loadMarketData() {
             try {
                 let response = null;
+                const cacheBuster = `?t=${Date.now()}`;
                 const possiblePaths = [
-                    './market_status.json',
-                    'market_status.json',
-                    '/market_status.json'
+                    './market_status.json' + cacheBuster,
+                    'market_status.json' + cacheBuster,
+                    '/market_status.json' + cacheBuster
                 ];
 
                 for (let path of possiblePaths) {
                     try {
-                        const res = await fetch(path + '?' + new Date().getTime());
+                        const res = await fetch(path);
                         if (res.ok) {
                             response = res;
                             break;
@@ -202,15 +209,29 @@
 
                 marketData = await response.json();
                 
-                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count || (marketData.bullish_signals ? marketData.bullish_signals.length : 0);
-                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count || (marketData.bearish_signals ? marketData.bearish_signals.length : 0);
-                
-                const openTrades = marketData.open_trades || [];
+                const bullishList = marketData.bullish_signals || marketData.bullishSignals || [];
+                const bearishList = marketData.bearish_signals || marketData.bearishSignals || [];
+                const openTrades = marketData.open_trades || marketData.openTrades || [];
+
+                // إسناد البيانات المرنة للخريطة الرئيسية
+                marketData.bullish_signals = bullishList;
+                marketData.bearish_signals = bearishList;
+                marketData.open_trades = openTrades;
+
+                document.getElementById('bullish-count').textContent = marketData.bullish_signals_count ?? bullishList.length;
+                document.getElementById('bearish-count').textContent = marketData.bearish_signals_count ?? bearishList.length;
                 document.getElementById('trades-count').textContent = openTrades.length;
 
-                if (marketData.timestamp) {
-                    const dateObj = new Date(marketData.timestamp);
-                    document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
+                // تحسين معالجة التاريخ والوقت
+                if (marketData.timestamp || marketData.updated_at) {
+                    const rawTime = marketData.timestamp || marketData.updated_at;
+                    const dateObj = new Date(rawTime);
+                    
+                    if (!isNaN(dateObj.getTime())) {
+                        document.getElementById('update-time').textContent = `آخر تحديث: ${dateObj.toLocaleString('ar-AE')}`;
+                    } else {
+                        document.getElementById('update-time').textContent = `آخر تحديث: ${rawTime}`;
+                    }
                 } else {
                     document.getElementById('update-time').textContent = 'آخر تحديث: متوفر';
                 }
@@ -223,7 +244,7 @@
                 document.getElementById('signals-container').innerHTML = `
                     <div style="text-align: center; padding: 20px; color: var(--accent-red);">
                         <p>تعذر العثور على ملف البيانات (market_status.json).</p>
-                        <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من وجود الملف داخل مجلد docs.</p>
+                        <p style="font-size: 0.8rem; color: var(--text-muted);">تأكد من وجود الملف وتحديثه بشكل صحيح داخل المجلد.</p>
                     </div>`;
             }
         }
@@ -242,14 +263,18 @@
             trades.forEach(trade => {
                 const card = document.createElement('div');
                 card.className = 'signal-card trade';
+                
+                const side = trade.side ? trade.side.toUpperCase() : 'BUY';
+                const sideColor = side === 'SELL' || side === 'SHORT' ? 'var(--accent-red)' : 'var(--accent-purple)';
+
                 card.innerHTML = `
                     <div class="card-header">
-                        <span class="symbol" style="color: var(--accent-purple);">${trade.symbol || ''} (${trade.side || 'BUY'})</span>
+                        <span class="symbol" style="color: ${sideColor};">${trade.symbol || ''} (${side})</span>
                         <span class="badge" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">${trade.timeframe ? trade.timeframe.toUpperCase() : 'LIVE'}</span>
                     </div>
                     <div class="card-body">
-                        <p><strong>الدخول:</strong> $${trade.entry_price || 0} | <strong>الستوب الحالي:</strong> <span style="color: var(--accent-red);">$${trade.stop_loss || 0}</span></p>
-                        <p><strong>الهدف الأول:</strong> $${trade.target_1 || trade.target1 || 0} | <strong>الهدف الثاني:</strong> $${trade.target_2 || trade.target2 || 0}</p>
+                        <p><strong>الدخول:</strong> $${formatPrice(trade.entry_price || trade.entry)} | <strong>الستوب الحالي:</strong> <span style="color: var(--accent-red);">$${formatPrice(trade.stop_loss || trade.sl)}</span></p>
+                        <p><strong>الهدف الأول:</strong> $${formatPrice(trade.target_1 || trade.target1)} | <strong>الهدف الثاني:</strong> $${formatPrice(trade.target_2 || trade.target2)}</p>
                         <p style="font-size:0.8rem; color: var(--accent-yellow);">تتبع الستوب المتحرك: ${trade.use_trailing ? 'مفعل 🟢' : 'غير مفعل ⚪'}</p>
                     </div>
                 `;
@@ -283,21 +308,26 @@
                 card.className = `signal-card ${item.isBearish ? 'bearish' : ''}`;
                 
                 if (item.isBearish) {
+                    const stopLossHtml = (item.stop_loss || item.sl_price) 
+                        ? `<p><strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${formatPrice(item.stop_loss || item.sl_price)} $</span></p>` 
+                        : '';
+
                     card.innerHTML = `
                         <div class="card-header">
-                            <span class="symbol">${item.symbol || ''}</span>
-                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red);">${item.timeframe ? item.timeframe.toUpperCase() : ''}</span>
+                            <span class="symbol" style="color: var(--accent-red);">${item.symbol || ''}</span>
+                            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: var(--accent-red);">${item.timeframe ? item.timeframe.toUpperCase() : 'ALERT'}</span>
                         </div>
                         <div class="card-body">
-                            <p><strong>النوع:</strong> ${item.type || ''}</p>
-                            <p><strong>السعر الحالي:</strong> ${item.price || 0}$</p>
-                            <p style="color: var(--accent-red); margin-top: 5px;">${item.message || ''}</p>
+                            <p><strong>النوع:</strong> ${item.type || item.strategy || 'تحذير هبوط'}</p>
+                            <p><strong>السعر الحالي:</strong> ${formatPrice(item.price || item.entry_price)} $</p>
+                            ${stopLossHtml}
+                            <p style="color: var(--accent-red); margin-top: 5px;">${item.message || item.note || ''}</p>
                         </div>
                     `;
                 } else {
-                    const t1 = item.target1 || item.target_1 || 0;
-                    const t2 = item.target2 || item.target_2 || 0;
-                    const macro = item.macro_target || item.macroTarget || 0;
+                    const t1 = formatPrice(item.target1 || item.target_1);
+                    const t2 = formatPrice(item.target2 || item.target_2);
+                    const macro = formatPrice(item.macro_target || item.macroTarget || item.target3);
 
                     card.innerHTML = `
                         <div class="card-header">
@@ -306,7 +336,7 @@
                         </div>
                         <div class="card-body">
                             <p><strong>النوع:</strong> ${item.type || item.strategy || 'إشارة صعود'} | <strong>التقييم:</strong> ${item.stars || 'عالي'}</p>
-                            <p><strong>السعر:</strong> ${item.price || item.entry_price || 0} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${item.stop_loss || item.sl_price || 0} $</span></p>
+                            <p><strong>السعر:</strong> ${formatPrice(item.price || item.entry_price)} $ | <strong>وقف الخسارة:</strong> <span style="color: var(--accent-red);">${formatPrice(item.stop_loss || item.sl_price)} $</span></p>
                             <div class="targets">
                                 <span>T1: <strong>${t1}</strong></span>
                                 <span>T2: <strong>${t2}</strong></span>
