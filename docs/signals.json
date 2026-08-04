@@ -1,9 +1,21 @@
 {
-    "timestamp": "2026-08-04 08:26:16.504402+00:00",
+    "timestamp": "2026-08-04 08:42:27.734068+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 8,
     "bearish_signals_count": 1,
+    "grouped_signals_summary": {
+        "WYCKOFF_SMC_ACCUMULATION": 5,
+        "CVD_BREAKOUT_CONFIRMED": 1,
+        "TREND_FOLLOWING_4_CONFIRMS": 1,
+        "MEAN_REVERSION_4_CONFIRMS": 0,
+        "CHART_PATTERN_4_CONFIRMS": 0,
+        "FVG_SCALP_4_CONFIRMS": 0,
+        "ULTIMATE_MASTER_A_PLUS": 0,
+        "CAPITULATION_RE_ENTRY": 0,
+        "BEARISH_RISK": 1,
+        "STANDARD": 1
+    },
     "bullish_signals": [
         {
             "type": "اختراق مقاومة",
@@ -110,7 +122,9 @@
                 "w1_support": 0.31061,
                 "w1_resistance": 0.37719,
                 "w1_rsi": 51.99797966175927
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TRX-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.3296$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.3289$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.3329$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.3379$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.371$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -215,7 +229,9 @@
                 "w1_support": 292.03,
                 "w1_resistance": 427.22,
                 "w1_rsi": 52.00539800883907
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XMR-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]365.1700$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]362.2943$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]368.8217$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]374.354$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]410.9565$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -314,7 +330,9 @@
                 "w1_support": 0.1383,
                 "w1_resistance": 0.2561,
                 "w1_rsi": 38.38706602481778
-            }
+            },
+            "strategy_type": "TREND_FOLLOWING_4_CONFIRMS",
+            "formatted_message": "[bold blue]📈 توصية الاتجاه العام المؤكدة (4 شروط) | Precision Trend Following[/bold blue] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ADA-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1D[/yellow]\n[bold]هيكل الاتجاه:[/bold] ترتيب مثالي للمتوسطات + تقاطع ذهبي مدعوم\n\n• [bold green]سعر الدخول المناسب:[/bold green] [bold]0.1961$[/bold]\n• [bold red]وقف الخسارة:[/bold red] [bold]0.1809$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.2113$[/green]\n▸ [bold]الهدف الاتجاهي (T2):[/bold] [green]0.2315$[/green]\n✦ [bold]هدف ماكرو:[/bold] [bold green]0.328$[/bold green]"
         },
         {
             "type": "ارتداد من دعم",
@@ -415,7 +433,9 @@
                 "w1_support": 0.7871,
                 "w1_resistance": 1.346,
                 "w1_rsi": 28.153498106941854
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]DOT-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]3D[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.7771$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.6726$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.8816$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]1.0208$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]1.839$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -522,7 +542,9 @@
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 35.56349103921697
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]POL-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0743$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0736$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.075$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.0761$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.0835$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -621,7 +643,9 @@
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 35.56349103921697
-            }
+            },
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]POL-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.0743$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.0731$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.0755$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.077$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.0875$[/bold green]"
         },
         {
             "type": "ارتداد من دعم",
@@ -718,7 +742,9 @@
                 "w1_support": 0.10031,
                 "w1_resistance": 0.25017,
                 "w1_rsi": 37.514754925613964
-            }
+            },
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]KITE-USDT[/cyan] على فريم [yellow]1D[/yellow] بسعر [bold]0.0945$[/bold]"
         },
         {
             "type": "ارتداد من دعم",
@@ -821,7 +847,9 @@
                 "w1_support": 0.10031,
                 "w1_resistance": 0.25017,
                 "w1_rsi": 37.514754925613964
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]3D[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0950$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0663$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.1237$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.162$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.3531$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         }
     ],
     "bearish_signals": [
@@ -831,6 +859,7 @@
             "price": 0.0041345,
             "level": 0.0041554,
             "timeframe": "1h",
+            "strategy": "BEARISH_RISK",
             "message": "🔴 **تنبيه انهيار دعم:** العملة `AKE-USDT` كسرت دعم الأمان عند **0.0042$** على فريم `1H` مع فوليوم بيع مكثف!"
         }
     ],
@@ -940,7 +969,9 @@
                 "w1_support": 0.31061,
                 "w1_resistance": 0.37719,
                 "w1_rsi": 51.99797966175927
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TRX-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.3296$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.3289$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.3329$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.3379$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.371$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -1045,7 +1076,9 @@
                 "w1_support": 292.03,
                 "w1_resistance": 427.22,
                 "w1_rsi": 52.00539800883907
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XMR-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]365.1700$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]362.2943$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]368.8217$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]374.354$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]410.9565$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -1144,7 +1177,9 @@
                 "w1_support": 0.1383,
                 "w1_resistance": 0.2561,
                 "w1_rsi": 38.38706602481778
-            }
+            },
+            "strategy_type": "TREND_FOLLOWING_4_CONFIRMS",
+            "formatted_message": "[bold blue]📈 توصية الاتجاه العام المؤكدة (4 شروط) | Precision Trend Following[/bold blue] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ADA-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1D[/yellow]\n[bold]هيكل الاتجاه:[/bold] ترتيب مثالي للمتوسطات + تقاطع ذهبي مدعوم\n\n• [bold green]سعر الدخول المناسب:[/bold green] [bold]0.1961$[/bold]\n• [bold red]وقف الخسارة:[/bold red] [bold]0.1809$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.2113$[/green]\n▸ [bold]الهدف الاتجاهي (T2):[/bold] [green]0.2315$[/green]\n✦ [bold]هدف ماكرو:[/bold] [bold green]0.328$[/bold green]"
         },
         {
             "type": "ارتداد من دعم",
@@ -1245,7 +1280,9 @@
                 "w1_support": 0.7871,
                 "w1_resistance": 1.346,
                 "w1_rsi": 28.153498106941854
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]DOT-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]3D[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.7771$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.6726$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.8816$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]1.0208$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]1.839$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -1352,7 +1389,9 @@
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 35.56349103921697
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]POL-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0743$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0736$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.075$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.0761$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.0835$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "اختراق مقاومة",
@@ -1451,7 +1490,9 @@
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 35.56349103921697
-            }
+            },
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]POL-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.0743$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.0731$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.0755$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.077$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.0875$[/bold green]"
         },
         {
             "type": "ارتداد من دعم",
@@ -1548,7 +1589,9 @@
                 "w1_support": 0.10031,
                 "w1_resistance": 0.25017,
                 "w1_rsi": 37.514754925613964
-            }
+            },
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]KITE-USDT[/cyan] على فريم [yellow]1D[/yellow] بسعر [bold]0.0945$[/bold]"
         },
         {
             "type": "ارتداد من دعم",
@@ -1651,7 +1694,9 @@
                 "w1_support": 0.10031,
                 "w1_resistance": 0.25017,
                 "w1_rsi": 37.514754925613964
-            }
+            },
+            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
+            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]3D[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0950$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0663$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.1237$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.162$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.3531$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
         },
         {
             "type": "كسر دعم خطير",
@@ -1659,6 +1704,7 @@
             "price": 0.0041345,
             "level": 0.0041554,
             "timeframe": "1h",
+            "strategy": "BEARISH_RISK",
             "message": "🔴 **تنبيه انهيار دعم:** العملة `AKE-USDT` كسرت دعم الأمان عند **0.0042$** على فريم `1H` مع فوليوم بيع مكثف!"
         }
     ]
