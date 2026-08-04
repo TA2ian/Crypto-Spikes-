@@ -1,94 +1,90 @@
 {
-    "timestamp": "2026-08-04 19:52:34.308051+00:00",
+    "timestamp": "2026-08-04 21:23:52.055446+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
-    "bullish_signals_count": 8,
-    "bearish_signals_count": 2,
+    "bullish_signals_count": 5,
+    "bearish_signals_count": 3,
     "grouped_signals_summary": {
-        "WYCKOFF_SMC_ACCUMULATION": 7,
-        "CVD_BREAKOUT_CONFIRMED": 1,
+        "WYCKOFF_SMC_ACCUMULATION": 0,
+        "CVD_BREAKOUT_CONFIRMED": 3,
         "TREND_FOLLOWING_4_CONFIRMS": 0,
         "MEAN_REVERSION_4_CONFIRMS": 0,
         "CHART_PATTERN_4_CONFIRMS": 0,
         "FVG_SCALP_4_CONFIRMS": 0,
         "ULTIMATE_MASTER_A_PLUS": 0,
         "CAPITULATION_RE_ENTRY": 0,
-        "BEARISH_RISK": 2,
-        "STANDARD": 0
+        "BEARISH_RISK": 3,
+        "STANDARD": 2
     },
     "bullish_signals": [
         {
-            "type": "اختراق مقاومة",
+            "type": "ارتداد من دعم",
             "stars": "⭐⭐⭐",
-            "symbol": "XRP-USDT",
-            "price": 1.0804,
-            "level": 1.0803,
-            "rsi": 58.996912376442275,
+            "symbol": "TRX-USDT",
+            "price": 0.32778,
+            "level": 0.3276,
+            "rsi": 31.86952359997194,
             "ema": {
-                "ema_50": 1.076213405039826,
-                "ema_200": 1.0760299251629848,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
+                "ema_50": 0.3292195987729665,
+                "ema_200": 0.329290561702003,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 1.080046310991542,
-                "middle": 1.076575,
-                "lower": 1.0731036890084582,
+                "upper": 0.3310393605637857,
+                "middle": 0.32919200000000004,
+                "lower": 0.3273446394362144,
                 "is_oversold_bb": false,
-                "is_overbought_bb": true,
+                "is_overbought_bb": false,
                 "is_squeeze": "True",
-                "bandwidth": 0.006448804758687233
+                "bandwidth": 0.011223605456910552
             },
             "dpr_data": {
-                "value": 53.69599632886123,
+                "value": 25.934478867027373,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (53.7)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (25.9)[/yellow]"
             },
-            "volume_ratio": 2.929257497315152,
+            "volume_ratio": 0.5891695736148392,
             "timeframe": "15m",
-            "stop_loss": 1.0764,
-            "target1": 1.0912,
-            "target2": 1.1076,
-            "target3": 1.1298,
-            "target4": 1.158,
-            "macro_target": 1.2159,
+            "stop_loss": 0.3273,
+            "target1": 0.3311,
+            "target2": 0.3361,
+            "target3": 0.3428,
+            "target4": 0.3514,
+            "macro_target": 0.369,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
                 "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+                "انكماش البولينجر (تأهب لانفجار سعري)"
             ],
             "extra": {
                 "divergence": {
                     "rsi_signal": null,
                     "rsi_volume_confirmed": false,
-                    "macd_signal": "bullish",
-                    "macd_volume_confirmed": "False"
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 1.071,
-                    "swing_high": 1.0816,
+                    "swing_low": 0.32737,
+                    "swing_high": 0.3313,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 1.079098,
-                        "0.382": 1.077551,
-                        "0.5": 1.0763,
-                        "0.618": 1.075049,
-                        "0.786": 1.073268
+                        "0.236": 0.330373,
+                        "0.382": 0.329799,
+                        "0.5": 0.329335,
+                        "0.618": 0.328871,
+                        "0.786": 0.328211
                     },
                     "extension_levels": {
-                        "1.272": 1.084483,
-                        "1.618": 1.088151,
-                        "2.0": 1.0922,
-                        "2.618": 1.098751
+                        "1.272": 0.332369,
+                        "1.618": 0.333729,
+                        "2.0": 0.33523,
+                        "2.618": 0.337659
                     },
                     "time_zones": [
                         9,
@@ -101,124 +97,117 @@
                     ],
                     "near_retracement": [
                         0.236,
-                        1.079098
+                        0.330373
                     ],
-                    "near_extension": [
-                        1.272,
-                        1.084483
-                    ]
+                    "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
-                    "trend": "شراء متزايد",
+                    "trend": "بيع متزايد",
                     "divergence": null,
-                    "last_clv": 0.75
+                    "last_clv": 0.143
                 }
             },
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 1.0453,
-                "d3_resistance": 1.1841,
-                "d3_rsi": 40.02087096339952,
-                "w1_support": 1.0092,
-                "w1_resistance": 1.4263,
-                "w1_rsi": 31.710947661759718
+                "macro_bullish": true,
+                "d3_support": 0.31706,
+                "d3_resistance": 0.33365,
+                "d3_rsi": 50.68512277760668,
+                "w1_support": 0.31061,
+                "w1_resistance": 0.37719,
+                "w1_rsi": 51.99797966175927
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XRP-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]1.0804$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]1.0764$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]1.0912$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]1.1076$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]1.2159$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]TRX-USDT[/cyan] على فريم [yellow]15M[/yellow] بسعر [bold]0.3278$[/bold]"
         },
         {
             "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
+            "stars": "⭐⭐⭐⭐",
             "symbol": "ZEC-USDT",
-            "price": 505.65,
-            "level": 503.12,
-            "rsi": 70.71584080101037,
+            "price": 507.3,
+            "level": 500.0,
+            "rsi": 69.25935159294848,
             "ema": {
-                "ema_50": 485.23726635540197,
-                "ema_200": 481.4350183728243,
+                "ema_50": 480.0982135200622,
+                "ema_200": 483.14029293774666,
                 "above_ema50": true,
                 "above_ema200": true,
-                "golden_cross": true
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 501.6468564998581,
-                "middle": 489.0475,
-                "lower": 476.44814350014195,
+                "upper": 503.81779170620916,
+                "middle": 480.63,
+                "lower": 457.4422082937908,
                 "is_oversold_bb": false,
                 "is_overbought_bb": true,
                 "is_squeeze": "True",
-                "bandwidth": 0.051526105336835624
+                "bandwidth": 0.09648915675762715
             },
             "dpr_data": {
-                "value": 62.74650596772504,
+                "value": 63.604652024962796,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (62.7)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (63.6)[/yellow]"
             },
-            "volume_ratio": 3.2828760957581795,
-            "timeframe": "1h",
-            "stop_loss": 497.3754,
-            "target1": 513.9246,
-            "target2": 524.9575,
-            "target3": 544.265,
-            "target4": 569.0889,
-            "macro_target": 597.5433,
+            "volume_ratio": 1.920638676582845,
+            "timeframe": "4h",
+            "stop_loss": 491.3079,
+            "target1": 523.2921,
+            "target2": 544.615,
+            "target3": 581.93,
+            "target4": 629.9064,
+            "macro_target": 661.4017,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "نمط شمعة صعودي",
+                "وجود FVG (0.69%)",
                 "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
             ],
             "extra": {
                 "divergence": {
-                    "rsi_signal": "bearish",
-                    "rsi_volume_confirmed": "False",
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
                     "macd_signal": null,
                     "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 478.19,
-                    "swing_high": 509.0,
+                    "swing_low": 452.47,
+                    "swing_high": 509.06,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 501.72884,
-                        "0.382": 497.23058,
-                        "0.5": 493.595,
-                        "0.618": 489.95942,
-                        "0.786": 484.78334
+                        "0.236": 495.70476,
+                        "0.382": 487.44262,
+                        "0.5": 480.765,
+                        "0.618": 474.08738,
+                        "0.786": 464.58026
                     },
                     "extension_levels": {
-                        "1.272": 517.38032,
-                        "1.618": 528.04058,
-                        "2.0": 539.81,
-                        "2.618": 558.85058
+                        "1.272": 524.45248,
+                        "1.618": 544.03262,
+                        "2.0": 565.65,
+                        "2.618": 600.62262
                     },
                     "time_zones": [
-                        13,
-                        14,
-                        15,
+                        5,
+                        6,
+                        7,
+                        9,
+                        12,
                         17,
-                        20,
-                        25,
-                        33
+                        25
                     ],
-                    "near_retracement": [
-                        0.236,
-                        501.72884
-                    ],
+                    "near_retracement": null,
                     "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.631
+                    "last_clv": 0.888
                 }
             },
             "macro_info": {
@@ -230,54 +219,154 @@
                 "w1_resistance": 694.24,
                 "w1_rsi": 51.52564397064547
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]505.6500$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]497.3754$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]513.9246$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]524.9575$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]597.5433$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]507.3000$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]491.3079$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]523.2921$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]544.615$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]661.4017$[/bold green]"
+        },
+        {
+            "type": "ارتداد من دعم",
+            "stars": "⭐⭐⭐",
+            "symbol": "XMR-USDT",
+            "price": 356.01,
+            "level": 354.0,
+            "rsi": 33.544549870993606,
+            "ema": {
+                "ema_50": 360.64146508917247,
+                "ema_200": 361.47993774764427,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 366.19519738979443,
+                "middle": 359.719,
+                "lower": 353.24280261020556,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "True",
+                "bandwidth": 0.036006979835896555
+            },
+            "dpr_data": {
+                "value": 32.05331137377829,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (32.1)[/yellow]"
+            },
+            "volume_ratio": 0.3520742585737188,
+            "timeframe": "15m",
+            "stop_loss": 353.4643,
+            "target1": 359.5701,
+            "target2": 364.9637,
+            "target3": 372.263,
+            "target4": 381.5696,
+            "macro_target": 400.6481,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "قرب Order Block",
+                "انكماش البولينجر (تأهب لانفجار سعري)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 354.0,
+                    "swing_high": 363.86,
+                    "direction": "down",
+                    "retracement_levels": {
+                        "0.236": 361.53304,
+                        "0.382": 360.09348,
+                        "0.5": 358.93,
+                        "0.618": 357.76652,
+                        "0.786": 356.11004
+                    },
+                    "extension_levels": {
+                        "1.272": 351.31808,
+                        "1.618": 347.90652,
+                        "2.0": 344.14,
+                        "2.618": 338.04652
+                    },
+                    "time_zones": [
+                        19,
+                        20,
+                        21,
+                        23,
+                        26,
+                        31,
+                        39
+                    ],
+                    "near_retracement": [
+                        0.5,
+                        358.93
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "بيع متزايد",
+                    "divergence": null,
+                    "last_clv": 0.878
+                }
+            },
+            "macro_info": {
+                "macro_bullish": true,
+                "d3_support": 0,
+                "d3_resistance": 0,
+                "d3_rsi": 50,
+                "w1_support": 292.03,
+                "w1_resistance": 427.22,
+                "w1_rsi": 52.00539800883907
+            },
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]XMR-USDT[/cyan] على فريم [yellow]15M[/yellow] بسعر [bold]356.0100$[/bold]"
         },
         {
             "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐⭐",
+            "stars": "⭐⭐⭐",
             "symbol": "TAO-USDT",
-            "price": 196.8,
-            "level": 194.2,
-            "rsi": 71.40075757011006,
+            "price": 199.7,
+            "level": 196.4,
+            "rsi": 67.81942045411432,
             "ema": {
-                "ema_50": 191.65661462965969,
-                "ema_200": 191.93286824437405,
+                "ema_50": 192.8246267840854,
+                "ema_200": 193.27316395116836,
                 "above_ema50": true,
                 "above_ema200": true,
                 "golden_cross": false
             },
             "bollinger": {
-                "upper": 194.54074400619467,
-                "middle": 191.64,
-                "lower": 188.7392559938053,
+                "upper": 196.75378841285286,
+                "middle": 191.97,
+                "lower": 187.18621158714714,
                 "is_oversold_bb": false,
                 "is_overbought_bb": true,
                 "is_squeeze": "True",
-                "bandwidth": 0.030272844982202937
+                "bandwidth": 0.04983891663127423
             },
             "dpr_data": {
-                "value": 55.96480546046976,
+                "value": 46.77188894443522,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (56.0)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (46.8)[/yellow]"
             },
-            "volume_ratio": 4.960382073379622,
-            "timeframe": "1h",
-            "stop_loss": 194.1964,
-            "target1": 199.4036,
-            "target2": 202.875,
-            "target3": 208.95,
-            "target4": 216.7607,
-            "macro_target": 227.5987,
+            "volume_ratio": 2.3012255916091346,
+            "timeframe": "4h",
+            "stop_loss": 195.5429,
+            "target1": 203.8571,
+            "target2": 209.4,
+            "target3": 219.1,
+            "target4": 231.5714,
+            "macro_target": 243.15,
             "wyckoff": {
                 "is_bull_market": false,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "وجود FVG (0.42%)",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
                 "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
@@ -291,41 +380,38 @@
                 },
                 "fibonacci": {
                     "swing_low": 187.6,
-                    "swing_high": 198.6,
-                    "direction": "up",
+                    "swing_high": 199.9,
+                    "direction": "down",
                     "retracement_levels": {
-                        "0.236": 196.004,
-                        "0.382": 194.398,
-                        "0.5": 193.1,
-                        "0.618": 191.802,
-                        "0.786": 189.954
+                        "0.236": 196.9972,
+                        "0.382": 195.2014,
+                        "0.5": 193.75,
+                        "0.618": 192.2986,
+                        "0.786": 190.2322
                     },
                     "extension_levels": {
-                        "1.272": 201.592,
-                        "1.618": 205.398,
-                        "2.0": 209.6,
-                        "2.618": 216.398
+                        "1.272": 184.2544,
+                        "1.618": 179.9986,
+                        "2.0": 175.3,
+                        "2.618": 167.6986
                     },
                     "time_zones": [
-                        1,
-                        2,
-                        3,
-                        5,
-                        8,
+                        9,
+                        10,
+                        11,
                         13,
-                        21
+                        16,
+                        21,
+                        29
                     ],
-                    "near_retracement": [
-                        0.236,
-                        196.004
-                    ],
+                    "near_retracement": null,
                     "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.66
+                    "last_clv": 0.977
                 }
             },
             "macro_info": {
@@ -337,325 +423,8 @@
                 "w1_resistance": 0,
                 "w1_rsi": 50
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TAO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]196.8000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]194.1964$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]199.4036$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]202.875$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]227.5987$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "AIO-USDT",
-            "price": 0.04328,
-            "level": 0.04266,
-            "rsi": 73.826480226591,
-            "ema": {
-                "ema_50": 0.03946658310380923,
-                "ema_200": 0.038656155657866696,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 0.04343210243895247,
-                "middle": 0.040084999999999996,
-                "lower": 0.03673789756104752,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "False",
-                "bandwidth": 0.16700024642397288
-            },
-            "dpr_data": {
-                "value": 72.50446387254352,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (72.5)[/yellow]"
-            },
-            "volume_ratio": 3.6213789610520943,
-            "timeframe": "15m",
-            "stop_loss": 0.0421,
-            "target1": 0.0445,
-            "target2": 0.0461,
-            "target3": 0.0488,
-            "target4": 0.0524,
-            "macro_target": 0.055,
-            "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.03704,
-                    "swing_high": 0.04353,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 0.041998,
-                        "0.382": 0.041051,
-                        "0.5": 0.040285,
-                        "0.618": 0.039519,
-                        "0.786": 0.038429
-                    },
-                    "extension_levels": {
-                        "1.272": 0.045295,
-                        "1.618": 0.047541,
-                        "2.0": 0.05002,
-                        "2.618": 0.054031
-                    },
-                    "time_zones": [
-                        7,
-                        8,
-                        9,
-                        11,
-                        14,
-                        19,
-                        27
-                    ],
-                    "near_retracement": null,
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.806
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
-                "w1_support": 0.085,
-                "w1_resistance": 0.23696,
-                "w1_rsi": 38.09960674127683
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]AIO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0433$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0421$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0445$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.0461$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.055$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "XAUT-USDT",
-            "price": 4074.3,
-            "level": 4071.4,
-            "rsi": 60.73316522647307,
-            "ema": {
-                "ema_50": 4055.791413985466,
-                "ema_200": 4066.0362607704615,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 4067.8202700597462,
-                "middle": 4048.475,
-                "lower": 4029.1297299402536,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.009556818337643842
-            },
-            "dpr_data": {
-                "value": 53.24506171818314,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (53.2)[/yellow]"
-            },
-            "volume_ratio": 2.631062783227855,
-            "timeframe": "4h",
-            "stop_loss": 4046.5821,
-            "target1": 4115.043,
-            "target2": 4176.7686,
-            "target3": 4260.304,
-            "target4": 4366.8116,
-            "macro_target": 4585.1522,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 4011.4,
-                    "swing_high": 4108.2,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 4085.3552,
-                        "0.382": 4071.2224,
-                        "0.5": 4059.8,
-                        "0.618": 4048.3776,
-                        "0.786": 4032.1152
-                    },
-                    "extension_levels": {
-                        "1.272": 3985.0704,
-                        "1.618": 3951.5776,
-                        "2.0": 3914.6,
-                        "2.618": 3854.7776
-                    },
-                    "time_zones": [
-                        2,
-                        3,
-                        4,
-                        6,
-                        9,
-                        14,
-                        22
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        4085.3552
-                    ],
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.743
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 3963.4,
-                "d3_resistance": 4191.4,
-                "d3_rsi": 42.046322848178754,
-                "w1_support": 3943.1,
-                "w1_resistance": 4580.4,
-                "w1_rsi": 39.00283299890512
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XAUT-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]4074.3000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]4046.5821$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]4115.043$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]4176.7686$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]4585.1522$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "KITE-USDT",
-            "price": 0.09509,
-            "level": 0.09473,
-            "rsi": 65.1813886471069,
-            "ema": {
-                "ema_50": 0.09402359958265148,
-                "ema_200": 0.09427713713919163,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 0.09526629993841718,
-                "middle": 0.09351,
-                "lower": 0.09175370006158282,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "True",
-                "bandwidth": 0.03756389559228276
-            },
-            "dpr_data": {
-                "value": 59.28639062405402,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (59.3)[/yellow]"
-            },
-            "volume_ratio": 1.9434530548779698,
-            "timeframe": "15m",
-            "stop_loss": 0.0944,
-            "target1": 0.096,
-            "target2": 0.0974,
-            "target3": 0.0993,
-            "target4": 0.1018,
-            "macro_target": 0.1069,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": null,
-                "is_wyckoff_setup": false
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.09224,
-                    "swing_high": 0.09509,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 0.094417,
-                        "0.382": 0.094001,
-                        "0.5": 0.093665,
-                        "0.618": 0.093329,
-                        "0.786": 0.09285
-                    },
-                    "extension_levels": {
-                        "1.272": 0.095865,
-                        "1.618": 0.096851,
-                        "2.0": 0.09794,
-                        "2.618": 0.099701
-                    },
-                    "time_zones": [
-                        16,
-                        17,
-                        18,
-                        20,
-                        23,
-                        28,
-                        36
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        0.094417
-                    ],
-                    "near_extension": [
-                        1.272,
-                        0.095865
-                    ]
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 1.0
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0.09,
-                "d3_resistance": 0.14252,
-                "d3_rsi": 32.17672339711095,
-                "w1_support": 0.10031,
-                "w1_resistance": 0.25017,
-                "w1_rsi": 37.514754925613964
-            },
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
-            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.0951$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.0944$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.096$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.0974$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.1069$[/bold green]"
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TAO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]199.7000$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]195.5429$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]203.8571$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]209.4$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]243.15$[/bold green]"
         },
         {
             "type": "اختراق مقاومة",
@@ -663,45 +432,43 @@
             "symbol": "FET-USDT",
             "price": 0.1477,
             "level": 0.1467,
-            "rsi": 65.51200761116613,
+            "rsi": 63.84462327503561,
             "ema": {
-                "ema_50": 0.14377251532958513,
-                "ema_200": 0.14310918618149307,
+                "ema_50": 0.14415175354050122,
+                "ema_200": 0.14580497592129824,
                 "above_ema50": true,
                 "above_ema200": true,
-                "golden_cross": true
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 0.14688954473794627,
-                "middle": 0.14540999999999998,
-                "lower": 0.1439304552620537,
+                "upper": 0.1482372149049873,
+                "middle": 0.142665,
+                "lower": 0.13709278509501266,
                 "is_oversold_bb": false,
-                "is_overbought_bb": true,
+                "is_overbought_bb": false,
                 "is_squeeze": "True",
-                "bandwidth": 0.02034997232578622
+                "bandwidth": 0.0781160747904157
             },
             "dpr_data": {
-                "value": 54.904043393622,
+                "value": 61.34978113015755,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (54.9)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (61.3)[/yellow]"
             },
-            "volume_ratio": 4.6441106530201,
-            "timeframe": "1h",
-            "stop_loss": 0.1457,
-            "target1": 0.1497,
-            "target2": 0.1525,
-            "target3": 0.1573,
-            "target4": 0.1634,
-            "macro_target": 0.1716,
+            "volume_ratio": 1.7815302570135219,
+            "timeframe": "4h",
+            "stop_loss": 0.1443,
+            "target1": 0.1511,
+            "target2": 0.1556,
+            "target3": 0.1636,
+            "target4": 0.1737,
+            "macro_target": 0.1824,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "كسر هيكل صعودي (BOS)",
                 "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
             ],
@@ -713,30 +480,30 @@
                     "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 0.1401,
-                    "swing_high": 0.1481,
+                    "swing_low": 0.1369,
+                    "swing_high": 0.1482,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 0.146212,
-                        "0.382": 0.145044,
-                        "0.5": 0.1441,
-                        "0.618": 0.143156,
-                        "0.786": 0.141812
+                        "0.236": 0.145533,
+                        "0.382": 0.143883,
+                        "0.5": 0.14255,
+                        "0.618": 0.141217,
+                        "0.786": 0.139318
                     },
                     "extension_levels": {
-                        "1.272": 0.150276,
-                        "1.618": 0.153044,
-                        "2.0": 0.1561,
-                        "2.618": 0.161044
+                        "1.272": 0.151274,
+                        "1.618": 0.155183,
+                        "2.0": 0.1595,
+                        "2.618": 0.166483
                     },
                     "time_zones": [
-                        1,
-                        2,
-                        3,
-                        5,
-                        8,
+                        12,
                         13,
-                        21
+                        14,
+                        16,
+                        19,
+                        24,
+                        32
                     ],
                     "near_retracement": null,
                     "near_extension": null
@@ -745,7 +512,7 @@
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.862
+                    "last_clv": 0.875
                 }
             },
             "macro_info": {
@@ -757,129 +524,28 @@
                 "w1_resistance": 0.2891,
                 "w1_rsi": 36.134824353792744
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]FET-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.1477$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.1457$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.1497$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.1525$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.1716$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "ZEN-USDT",
-            "price": 4.2,
-            "level": 4.168,
-            "rsi": 73.5114077319217,
-            "ema": {
-                "ema_50": 4.118166283694435,
-                "ema_200": 4.111455004174313,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 4.192452612866106,
-                "middle": 4.132499999999999,
-                "lower": 4.072547387133893,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.02901517864058382
-            },
-            "dpr_data": {
-                "value": 67.843025616346,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (67.8)[/yellow]"
-            },
-            "volume_ratio": 4.066401826844002,
-            "timeframe": "15m",
-            "stop_loss": 4.1785,
-            "target1": 4.242,
-            "target2": 4.3056,
-            "target3": 4.3917,
-            "target4": 4.5015,
-            "macro_target": 4.7266,
-            "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 4.084,
-                    "swing_high": 4.2,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 4.172624,
-                        "0.382": 4.155688,
-                        "0.5": 4.142,
-                        "0.618": 4.128312,
-                        "0.786": 4.108824
-                    },
-                    "extension_levels": {
-                        "1.272": 4.231552,
-                        "1.618": 4.271688,
-                        "2.0": 4.316,
-                        "2.618": 4.387688
-                    },
-                    "time_zones": [
-                        8,
-                        9,
-                        10,
-                        12,
-                        15,
-                        20,
-                        28
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        4.172624
-                    ],
-                    "near_extension": [
-                        1.272,
-                        4.231552
-                    ]
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 1.0
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 3.735,
-                "d3_resistance": 4.531,
-                "d3_rsi": 41.01530107955005,
-                "w1_support": 3.833,
-                "w1_resistance": 6.977,
-                "w1_rsi": 32.78504429178618
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEN-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]4.2000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]4.1785$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]4.242$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]4.3056$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]4.7266$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]FET-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.1477$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.1443$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.1511$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.1556$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.1824$[/bold green]"
         }
     ],
     "bearish_signals": [
         {
             "type": "كسر دعم خطير",
-            "symbol": "XMR-USDT",
-            "price": 357.77,
-            "level": 358.1,
+            "symbol": "UB-USDT",
+            "price": 0.12857,
+            "level": 0.12998,
+            "timeframe": "1h",
+            "strategy": "BEARISH_RISK",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `UB-USDT` كسرت دعم الأمان عند **0.1300$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ZAMA-USDT",
+            "price": 0.04802,
+            "level": 0.0483,
             "timeframe": "15m",
             "strategy": "BEARISH_RISK",
-            "message": "🔴 **تنبيه انهيار دعم:** العملة `XMR-USDT` كسرت دعم الأمان عند **358.1000$** على فريم `15M` مع فوليوم بيع مكثف!"
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ZAMA-USDT` كسرت دعم الأمان عند **0.0483$** على فريم `15M` مع فوليوم بيع مكثف!"
         },
         {
             "type": "كسر دعم خطير",
@@ -1007,44 +673,6 @@
             "t1_hit": false
         },
         {
-            "id": "AIO-USDT_1h_1785873142",
-            "symbol": "AIO-USDT",
-            "side": "BUY",
-            "timeframe": "1h",
-            "strategy": "Automated Signal",
-            "entry_price": 0.04328,
-            "stop_loss": 0.0421,
-            "initial_stop_loss": 0.0421,
-            "target_1": 0.0461,
-            "target_2": 0.045444,
-            "position_size": 8474.576271186437,
-            "use_trailing": true,
-            "trailing_activation_pct": 1.5,
-            "trailing_callback_pct": 1.0,
-            "status": "OPEN",
-            "opened_at": "2026-08-04T19:52:22.793583+00:00",
-            "t1_hit": false
-        },
-        {
-            "id": "KITE-USDT_1h_1785873148",
-            "symbol": "KITE-USDT",
-            "side": "BUY",
-            "timeframe": "1h",
-            "strategy": "Automated Signal",
-            "entry_price": 0.09509,
-            "stop_loss": 0.0944,
-            "initial_stop_loss": 0.0944,
-            "target_1": 0.0974,
-            "target_2": 0.0998445,
-            "position_size": 14492.753623188486,
-            "use_trailing": true,
-            "trailing_activation_pct": 1.5,
-            "trailing_callback_pct": 1.0,
-            "status": "OPEN",
-            "opened_at": "2026-08-04T19:52:28.247309+00:00",
-            "t1_hit": false
-        },
-        {
             "id": "FET-USDT_1h_1785873150",
             "symbol": "FET-USDT",
             "side": "BUY",
@@ -1066,77 +694,73 @@
     ],
     "signals": [
         {
-            "type": "اختراق مقاومة",
+            "type": "ارتداد من دعم",
             "stars": "⭐⭐⭐",
-            "symbol": "XRP-USDT",
-            "price": 1.0804,
-            "level": 1.0803,
-            "rsi": 58.996912376442275,
+            "symbol": "TRX-USDT",
+            "price": 0.32778,
+            "level": 0.3276,
+            "rsi": 31.86952359997194,
             "ema": {
-                "ema_50": 1.076213405039826,
-                "ema_200": 1.0760299251629848,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
+                "ema_50": 0.3292195987729665,
+                "ema_200": 0.329290561702003,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 1.080046310991542,
-                "middle": 1.076575,
-                "lower": 1.0731036890084582,
+                "upper": 0.3310393605637857,
+                "middle": 0.32919200000000004,
+                "lower": 0.3273446394362144,
                 "is_oversold_bb": false,
-                "is_overbought_bb": true,
+                "is_overbought_bb": false,
                 "is_squeeze": "True",
-                "bandwidth": 0.006448804758687233
+                "bandwidth": 0.011223605456910552
             },
             "dpr_data": {
-                "value": 53.69599632886123,
+                "value": 25.934478867027373,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (53.7)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (25.9)[/yellow]"
             },
-            "volume_ratio": 2.929257497315152,
+            "volume_ratio": 0.5891695736148392,
             "timeframe": "15m",
-            "stop_loss": 1.0764,
-            "target1": 1.0912,
-            "target2": 1.1076,
-            "target3": 1.1298,
-            "target4": 1.158,
-            "macro_target": 1.2159,
+            "stop_loss": 0.3273,
+            "target1": 0.3311,
+            "target2": 0.3361,
+            "target3": 0.3428,
+            "target4": 0.3514,
+            "macro_target": 0.369,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
                 "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+                "انكماش البولينجر (تأهب لانفجار سعري)"
             ],
             "extra": {
                 "divergence": {
                     "rsi_signal": null,
                     "rsi_volume_confirmed": false,
-                    "macd_signal": "bullish",
-                    "macd_volume_confirmed": "False"
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 1.071,
-                    "swing_high": 1.0816,
+                    "swing_low": 0.32737,
+                    "swing_high": 0.3313,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 1.079098,
-                        "0.382": 1.077551,
-                        "0.5": 1.0763,
-                        "0.618": 1.075049,
-                        "0.786": 1.073268
+                        "0.236": 0.330373,
+                        "0.382": 0.329799,
+                        "0.5": 0.329335,
+                        "0.618": 0.328871,
+                        "0.786": 0.328211
                     },
                     "extension_levels": {
-                        "1.272": 1.084483,
-                        "1.618": 1.088151,
-                        "2.0": 1.0922,
-                        "2.618": 1.098751
+                        "1.272": 0.332369,
+                        "1.618": 0.333729,
+                        "2.0": 0.33523,
+                        "2.618": 0.337659
                     },
                     "time_zones": [
                         9,
@@ -1149,124 +773,117 @@
                     ],
                     "near_retracement": [
                         0.236,
-                        1.079098
+                        0.330373
                     ],
-                    "near_extension": [
-                        1.272,
-                        1.084483
-                    ]
+                    "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
-                    "trend": "شراء متزايد",
+                    "trend": "بيع متزايد",
                     "divergence": null,
-                    "last_clv": 0.75
+                    "last_clv": 0.143
                 }
             },
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 1.0453,
-                "d3_resistance": 1.1841,
-                "d3_rsi": 40.02087096339952,
-                "w1_support": 1.0092,
-                "w1_resistance": 1.4263,
-                "w1_rsi": 31.710947661759718
+                "macro_bullish": true,
+                "d3_support": 0.31706,
+                "d3_resistance": 0.33365,
+                "d3_rsi": 50.68512277760668,
+                "w1_support": 0.31061,
+                "w1_resistance": 0.37719,
+                "w1_rsi": 51.99797966175927
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XRP-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]1.0804$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]1.0764$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]1.0912$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]1.1076$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]1.2159$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]TRX-USDT[/cyan] على فريم [yellow]15M[/yellow] بسعر [bold]0.3278$[/bold]"
         },
         {
             "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
+            "stars": "⭐⭐⭐⭐",
             "symbol": "ZEC-USDT",
-            "price": 505.65,
-            "level": 503.12,
-            "rsi": 70.71584080101037,
+            "price": 507.3,
+            "level": 500.0,
+            "rsi": 69.25935159294848,
             "ema": {
-                "ema_50": 485.23726635540197,
-                "ema_200": 481.4350183728243,
+                "ema_50": 480.0982135200622,
+                "ema_200": 483.14029293774666,
                 "above_ema50": true,
                 "above_ema200": true,
-                "golden_cross": true
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 501.6468564998581,
-                "middle": 489.0475,
-                "lower": 476.44814350014195,
+                "upper": 503.81779170620916,
+                "middle": 480.63,
+                "lower": 457.4422082937908,
                 "is_oversold_bb": false,
                 "is_overbought_bb": true,
                 "is_squeeze": "True",
-                "bandwidth": 0.051526105336835624
+                "bandwidth": 0.09648915675762715
             },
             "dpr_data": {
-                "value": 62.74650596772504,
+                "value": 63.604652024962796,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (62.7)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (63.6)[/yellow]"
             },
-            "volume_ratio": 3.2828760957581795,
-            "timeframe": "1h",
-            "stop_loss": 497.3754,
-            "target1": 513.9246,
-            "target2": 524.9575,
-            "target3": 544.265,
-            "target4": 569.0889,
-            "macro_target": 597.5433,
+            "volume_ratio": 1.920638676582845,
+            "timeframe": "4h",
+            "stop_loss": 491.3079,
+            "target1": 523.2921,
+            "target2": 544.615,
+            "target3": 581.93,
+            "target4": 629.9064,
+            "macro_target": 661.4017,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "نمط شمعة صعودي",
+                "وجود FVG (0.69%)",
                 "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
             ],
             "extra": {
                 "divergence": {
-                    "rsi_signal": "bearish",
-                    "rsi_volume_confirmed": "False",
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
                     "macd_signal": null,
                     "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 478.19,
-                    "swing_high": 509.0,
+                    "swing_low": 452.47,
+                    "swing_high": 509.06,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 501.72884,
-                        "0.382": 497.23058,
-                        "0.5": 493.595,
-                        "0.618": 489.95942,
-                        "0.786": 484.78334
+                        "0.236": 495.70476,
+                        "0.382": 487.44262,
+                        "0.5": 480.765,
+                        "0.618": 474.08738,
+                        "0.786": 464.58026
                     },
                     "extension_levels": {
-                        "1.272": 517.38032,
-                        "1.618": 528.04058,
-                        "2.0": 539.81,
-                        "2.618": 558.85058
+                        "1.272": 524.45248,
+                        "1.618": 544.03262,
+                        "2.0": 565.65,
+                        "2.618": 600.62262
                     },
                     "time_zones": [
-                        13,
-                        14,
-                        15,
+                        5,
+                        6,
+                        7,
+                        9,
+                        12,
                         17,
-                        20,
-                        25,
-                        33
+                        25
                     ],
-                    "near_retracement": [
-                        0.236,
-                        501.72884
-                    ],
+                    "near_retracement": null,
                     "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.631
+                    "last_clv": 0.888
                 }
             },
             "macro_info": {
@@ -1278,54 +895,154 @@
                 "w1_resistance": 694.24,
                 "w1_rsi": 51.52564397064547
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]505.6500$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]497.3754$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]513.9246$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]524.9575$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]597.5433$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]507.3000$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]491.3079$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]523.2921$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]544.615$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]661.4017$[/bold green]"
+        },
+        {
+            "type": "ارتداد من دعم",
+            "stars": "⭐⭐⭐",
+            "symbol": "XMR-USDT",
+            "price": 356.01,
+            "level": 354.0,
+            "rsi": 33.544549870993606,
+            "ema": {
+                "ema_50": 360.64146508917247,
+                "ema_200": 361.47993774764427,
+                "above_ema50": false,
+                "above_ema200": false,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 366.19519738979443,
+                "middle": 359.719,
+                "lower": 353.24280261020556,
+                "is_oversold_bb": false,
+                "is_overbought_bb": false,
+                "is_squeeze": "True",
+                "bandwidth": 0.036006979835896555
+            },
+            "dpr_data": {
+                "value": 32.05331137377829,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (32.1)[/yellow]"
+            },
+            "volume_ratio": 0.3520742585737188,
+            "timeframe": "15m",
+            "stop_loss": 353.4643,
+            "target1": 359.5701,
+            "target2": 364.9637,
+            "target3": 372.263,
+            "target4": 381.5696,
+            "macro_target": 400.6481,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "قرب Order Block",
+                "انكماش البولينجر (تأهب لانفجار سعري)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 354.0,
+                    "swing_high": 363.86,
+                    "direction": "down",
+                    "retracement_levels": {
+                        "0.236": 361.53304,
+                        "0.382": 360.09348,
+                        "0.5": 358.93,
+                        "0.618": 357.76652,
+                        "0.786": 356.11004
+                    },
+                    "extension_levels": {
+                        "1.272": 351.31808,
+                        "1.618": 347.90652,
+                        "2.0": 344.14,
+                        "2.618": 338.04652
+                    },
+                    "time_zones": [
+                        19,
+                        20,
+                        21,
+                        23,
+                        26,
+                        31,
+                        39
+                    ],
+                    "near_retracement": [
+                        0.5,
+                        358.93
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "بيع متزايد",
+                    "divergence": null,
+                    "last_clv": 0.878
+                }
+            },
+            "macro_info": {
+                "macro_bullish": true,
+                "d3_support": 0,
+                "d3_resistance": 0,
+                "d3_rsi": 50,
+                "w1_support": 292.03,
+                "w1_resistance": 427.22,
+                "w1_rsi": 52.00539800883907
+            },
+            "strategy_type": "STANDARD",
+            "formatted_message": "[bold]◈ تنبيه حركة سعرية:[/bold] [cyan]XMR-USDT[/cyan] على فريم [yellow]15M[/yellow] بسعر [bold]356.0100$[/bold]"
         },
         {
             "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐⭐",
+            "stars": "⭐⭐⭐",
             "symbol": "TAO-USDT",
-            "price": 196.8,
-            "level": 194.2,
-            "rsi": 71.40075757011006,
+            "price": 199.7,
+            "level": 196.4,
+            "rsi": 67.81942045411432,
             "ema": {
-                "ema_50": 191.65661462965969,
-                "ema_200": 191.93286824437405,
+                "ema_50": 192.8246267840854,
+                "ema_200": 193.27316395116836,
                 "above_ema50": true,
                 "above_ema200": true,
                 "golden_cross": false
             },
             "bollinger": {
-                "upper": 194.54074400619467,
-                "middle": 191.64,
-                "lower": 188.7392559938053,
+                "upper": 196.75378841285286,
+                "middle": 191.97,
+                "lower": 187.18621158714714,
                 "is_oversold_bb": false,
                 "is_overbought_bb": true,
                 "is_squeeze": "True",
-                "bandwidth": 0.030272844982202937
+                "bandwidth": 0.04983891663127423
             },
             "dpr_data": {
-                "value": 55.96480546046976,
+                "value": 46.77188894443522,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (56.0)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (46.8)[/yellow]"
             },
-            "volume_ratio": 4.960382073379622,
-            "timeframe": "1h",
-            "stop_loss": 194.1964,
-            "target1": 199.4036,
-            "target2": 202.875,
-            "target3": 208.95,
-            "target4": 216.7607,
-            "macro_target": 227.5987,
+            "volume_ratio": 2.3012255916091346,
+            "timeframe": "4h",
+            "stop_loss": 195.5429,
+            "target1": 203.8571,
+            "target2": 209.4,
+            "target3": 219.1,
+            "target4": 231.5714,
+            "macro_target": 243.15,
             "wyckoff": {
                 "is_bull_market": false,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "وجود FVG (0.42%)",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
                 "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
@@ -1339,41 +1056,38 @@
                 },
                 "fibonacci": {
                     "swing_low": 187.6,
-                    "swing_high": 198.6,
-                    "direction": "up",
+                    "swing_high": 199.9,
+                    "direction": "down",
                     "retracement_levels": {
-                        "0.236": 196.004,
-                        "0.382": 194.398,
-                        "0.5": 193.1,
-                        "0.618": 191.802,
-                        "0.786": 189.954
+                        "0.236": 196.9972,
+                        "0.382": 195.2014,
+                        "0.5": 193.75,
+                        "0.618": 192.2986,
+                        "0.786": 190.2322
                     },
                     "extension_levels": {
-                        "1.272": 201.592,
-                        "1.618": 205.398,
-                        "2.0": 209.6,
-                        "2.618": 216.398
+                        "1.272": 184.2544,
+                        "1.618": 179.9986,
+                        "2.0": 175.3,
+                        "2.618": 167.6986
                     },
                     "time_zones": [
-                        1,
-                        2,
-                        3,
-                        5,
-                        8,
+                        9,
+                        10,
+                        11,
                         13,
-                        21
+                        16,
+                        21,
+                        29
                     ],
-                    "near_retracement": [
-                        0.236,
-                        196.004
-                    ],
+                    "near_retracement": null,
                     "near_extension": null
                 },
                 "chart_patterns": [],
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.66
+                    "last_clv": 0.977
                 }
             },
             "macro_info": {
@@ -1385,325 +1099,8 @@
                 "w1_resistance": 0,
                 "w1_rsi": 50
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TAO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]196.8000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]194.1964$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]199.4036$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]202.875$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]227.5987$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "AIO-USDT",
-            "price": 0.04328,
-            "level": 0.04266,
-            "rsi": 73.826480226591,
-            "ema": {
-                "ema_50": 0.03946658310380923,
-                "ema_200": 0.038656155657866696,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 0.04343210243895247,
-                "middle": 0.040084999999999996,
-                "lower": 0.03673789756104752,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "False",
-                "bandwidth": 0.16700024642397288
-            },
-            "dpr_data": {
-                "value": 72.50446387254352,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (72.5)[/yellow]"
-            },
-            "volume_ratio": 3.6213789610520943,
-            "timeframe": "15m",
-            "stop_loss": 0.0421,
-            "target1": 0.0445,
-            "target2": 0.0461,
-            "target3": 0.0488,
-            "target4": 0.0524,
-            "macro_target": 0.055,
-            "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase E (LPS - إعادة اختبار الدعم)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.03704,
-                    "swing_high": 0.04353,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 0.041998,
-                        "0.382": 0.041051,
-                        "0.5": 0.040285,
-                        "0.618": 0.039519,
-                        "0.786": 0.038429
-                    },
-                    "extension_levels": {
-                        "1.272": 0.045295,
-                        "1.618": 0.047541,
-                        "2.0": 0.05002,
-                        "2.618": 0.054031
-                    },
-                    "time_zones": [
-                        7,
-                        8,
-                        9,
-                        11,
-                        14,
-                        19,
-                        27
-                    ],
-                    "near_retracement": null,
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.806
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
-                "w1_support": 0.085,
-                "w1_resistance": 0.23696,
-                "w1_rsi": 38.09960674127683
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]AIO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.0433$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.0421$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.0445$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.0461$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.055$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "XAUT-USDT",
-            "price": 4074.3,
-            "level": 4071.4,
-            "rsi": 60.73316522647307,
-            "ema": {
-                "ema_50": 4055.791413985466,
-                "ema_200": 4066.0362607704615,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 4067.8202700597462,
-                "middle": 4048.475,
-                "lower": 4029.1297299402536,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.009556818337643842
-            },
-            "dpr_data": {
-                "value": 53.24506171818314,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (53.2)[/yellow]"
-            },
-            "volume_ratio": 2.631062783227855,
-            "timeframe": "4h",
-            "stop_loss": 4046.5821,
-            "target1": 4115.043,
-            "target2": 4176.7686,
-            "target3": 4260.304,
-            "target4": 4366.8116,
-            "macro_target": 4585.1522,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 4011.4,
-                    "swing_high": 4108.2,
-                    "direction": "down",
-                    "retracement_levels": {
-                        "0.236": 4085.3552,
-                        "0.382": 4071.2224,
-                        "0.5": 4059.8,
-                        "0.618": 4048.3776,
-                        "0.786": 4032.1152
-                    },
-                    "extension_levels": {
-                        "1.272": 3985.0704,
-                        "1.618": 3951.5776,
-                        "2.0": 3914.6,
-                        "2.618": 3854.7776
-                    },
-                    "time_zones": [
-                        2,
-                        3,
-                        4,
-                        6,
-                        9,
-                        14,
-                        22
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        4085.3552
-                    ],
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.743
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 3963.4,
-                "d3_resistance": 4191.4,
-                "d3_rsi": 42.046322848178754,
-                "w1_support": 3943.1,
-                "w1_resistance": 4580.4,
-                "w1_rsi": 39.00283299890512
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]XAUT-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]4074.3000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]4046.5821$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]4115.043$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]4176.7686$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]4585.1522$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "KITE-USDT",
-            "price": 0.09509,
-            "level": 0.09473,
-            "rsi": 65.1813886471069,
-            "ema": {
-                "ema_50": 0.09402359958265148,
-                "ema_200": 0.09427713713919163,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 0.09526629993841718,
-                "middle": 0.09351,
-                "lower": 0.09175370006158282,
-                "is_oversold_bb": false,
-                "is_overbought_bb": false,
-                "is_squeeze": "True",
-                "bandwidth": 0.03756389559228276
-            },
-            "dpr_data": {
-                "value": 59.28639062405402,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (59.3)[/yellow]"
-            },
-            "volume_ratio": 1.9434530548779698,
-            "timeframe": "15m",
-            "stop_loss": 0.0944,
-            "target1": 0.096,
-            "target2": 0.0974,
-            "target3": 0.0993,
-            "target4": 0.1018,
-            "macro_target": 0.1069,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": null,
-                "is_wyckoff_setup": false
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 0.09224,
-                    "swing_high": 0.09509,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 0.094417,
-                        "0.382": 0.094001,
-                        "0.5": 0.093665,
-                        "0.618": 0.093329,
-                        "0.786": 0.09285
-                    },
-                    "extension_levels": {
-                        "1.272": 0.095865,
-                        "1.618": 0.096851,
-                        "2.0": 0.09794,
-                        "2.618": 0.099701
-                    },
-                    "time_zones": [
-                        16,
-                        17,
-                        18,
-                        20,
-                        23,
-                        28,
-                        36
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        0.094417
-                    ],
-                    "near_extension": [
-                        1.272,
-                        0.095865
-                    ]
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 1.0
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0.09,
-                "d3_resistance": 0.14252,
-                "d3_rsi": 32.17672339711095,
-                "w1_support": 0.10031,
-                "w1_resistance": 0.25017,
-                "w1_rsi": 37.514754925613964
-            },
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
-            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]KITE-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.0951$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.0944$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.096$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.0974$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.1069$[/bold green]"
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]TAO-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]199.7000$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]195.5429$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]203.8571$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]209.4$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]243.15$[/bold green]"
         },
         {
             "type": "اختراق مقاومة",
@@ -1711,45 +1108,43 @@
             "symbol": "FET-USDT",
             "price": 0.1477,
             "level": 0.1467,
-            "rsi": 65.51200761116613,
+            "rsi": 63.84462327503561,
             "ema": {
-                "ema_50": 0.14377251532958513,
-                "ema_200": 0.14310918618149307,
+                "ema_50": 0.14415175354050122,
+                "ema_200": 0.14580497592129824,
                 "above_ema50": true,
                 "above_ema200": true,
-                "golden_cross": true
+                "golden_cross": false
             },
             "bollinger": {
-                "upper": 0.14688954473794627,
-                "middle": 0.14540999999999998,
-                "lower": 0.1439304552620537,
+                "upper": 0.1482372149049873,
+                "middle": 0.142665,
+                "lower": 0.13709278509501266,
                 "is_oversold_bb": false,
-                "is_overbought_bb": true,
+                "is_overbought_bb": false,
                 "is_squeeze": "True",
-                "bandwidth": 0.02034997232578622
+                "bandwidth": 0.0781160747904157
             },
             "dpr_data": {
-                "value": 54.904043393622,
+                "value": 61.34978113015755,
                 "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (54.9)[/yellow]"
+                "display": "[yellow]◆ [BALANCED] (61.3)[/yellow]"
             },
-            "volume_ratio": 4.6441106530201,
-            "timeframe": "1h",
-            "stop_loss": 0.1457,
-            "target1": 0.1497,
-            "target2": 0.1525,
-            "target3": 0.1573,
-            "target4": 0.1634,
-            "macro_target": 0.1716,
+            "volume_ratio": 1.7815302570135219,
+            "timeframe": "4h",
+            "stop_loss": 0.1443,
+            "target1": 0.1511,
+            "target2": 0.1556,
+            "target3": 0.1636,
+            "target4": 0.1737,
+            "macro_target": 0.1824,
             "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
             },
             "confluence": [
-                "كسر هيكل صعودي (BOS)",
                 "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
                 "انكماش البولينجر (تأهب لانفجار سعري)",
                 "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
             ],
@@ -1761,30 +1156,30 @@
                     "macd_volume_confirmed": false
                 },
                 "fibonacci": {
-                    "swing_low": 0.1401,
-                    "swing_high": 0.1481,
+                    "swing_low": 0.1369,
+                    "swing_high": 0.1482,
                     "direction": "up",
                     "retracement_levels": {
-                        "0.236": 0.146212,
-                        "0.382": 0.145044,
-                        "0.5": 0.1441,
-                        "0.618": 0.143156,
-                        "0.786": 0.141812
+                        "0.236": 0.145533,
+                        "0.382": 0.143883,
+                        "0.5": 0.14255,
+                        "0.618": 0.141217,
+                        "0.786": 0.139318
                     },
                     "extension_levels": {
-                        "1.272": 0.150276,
-                        "1.618": 0.153044,
-                        "2.0": 0.1561,
-                        "2.618": 0.161044
+                        "1.272": 0.151274,
+                        "1.618": 0.155183,
+                        "2.0": 0.1595,
+                        "2.618": 0.166483
                     },
                     "time_zones": [
-                        1,
-                        2,
-                        3,
-                        5,
-                        8,
+                        12,
                         13,
-                        21
+                        14,
+                        16,
+                        19,
+                        24,
+                        32
                     ],
                     "near_retracement": null,
                     "near_extension": null
@@ -1793,7 +1188,7 @@
                 "cvd": {
                     "trend": "شراء متزايد",
                     "divergence": null,
-                    "last_clv": 0.862
+                    "last_clv": 0.875
                 }
             },
             "macro_info": {
@@ -1805,127 +1200,26 @@
                 "w1_resistance": 0.2891,
                 "w1_rsi": 36.134824353792744
             },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]FET-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]1H[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]0.1477$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]0.1457$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]0.1497$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]0.1525$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]0.1716$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "ZEN-USDT",
-            "price": 4.2,
-            "level": 4.168,
-            "rsi": 73.5114077319217,
-            "ema": {
-                "ema_50": 4.118166283694435,
-                "ema_200": 4.111455004174313,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": true
-            },
-            "bollinger": {
-                "upper": 4.192452612866106,
-                "middle": 4.132499999999999,
-                "lower": 4.072547387133893,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.02901517864058382
-            },
-            "dpr_data": {
-                "value": 67.843025616346,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (67.8)[/yellow]"
-            },
-            "volume_ratio": 4.066401826844002,
-            "timeframe": "15m",
-            "stop_loss": 4.1785,
-            "target1": 4.242,
-            "target2": 4.3056,
-            "target3": 4.3917,
-            "target4": 4.5015,
-            "macro_target": 4.7266,
-            "wyckoff": {
-                "is_bull_market": true,
-                "wyckoff_phase": "Phase D (SOS - علامة قوة وااختراق)",
-                "is_wyckoff_setup": true
-            },
-            "confluence": [
-                "قرب Order Block",
-                "كسر هيكل صعودي (BOS)",
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 4.084,
-                    "swing_high": 4.2,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 4.172624,
-                        "0.382": 4.155688,
-                        "0.5": 4.142,
-                        "0.618": 4.128312,
-                        "0.786": 4.108824
-                    },
-                    "extension_levels": {
-                        "1.272": 4.231552,
-                        "1.618": 4.271688,
-                        "2.0": 4.316,
-                        "2.618": 4.387688
-                    },
-                    "time_zones": [
-                        8,
-                        9,
-                        10,
-                        12,
-                        15,
-                        20,
-                        28
-                    ],
-                    "near_retracement": [
-                        0.236,
-                        4.172624
-                    ],
-                    "near_extension": [
-                        1.272,
-                        4.231552
-                    ]
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 1.0
-                }
-            },
-            "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 3.735,
-                "d3_resistance": 4.531,
-                "d3_rsi": 41.01530107955005,
-                "w1_support": 3.833,
-                "w1_resistance": 6.977,
-                "w1_rsi": 32.78504429178618
-            },
-            "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
-            "formatted_message": "[bold magenta]🏛️ توصية التجميع المؤسساتي المتقدم | Wyckoff + SMC Accumulation[/bold magenta] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEN-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]النموذج الهيكلي:[/bold] سحب سيولة (Spring/Sweep) + كسر هيكل (BOS) مع منطقة طلب مؤسساتية\n\n• [bold green]منطقة التجميع والدخول:[/bold green] [bold]4.2000$[/bold]\n• [bold red]وقف الخسارة (تحت قاع الـ Spring مباشرة):[/bold red] [bold]4.1785$[/bold]\n\n▸ [bold]الهدف الأول:[/bold] [green]4.242$[/green]\n▸ [bold]الهدف الرئيسي:[/bold] [green]4.3056$[/green]\n✦ [bold]الهدف البعيد (Macro):[/bold] [bold green]4.7266$[/bold green]\n\n[bold]📊 مؤشرات التأكيد المؤسساتي:[/bold]\n  [green]✔[/green] تحقق سحب السيولة وإلغاء فخ الدببة\n  [green]✔[/green] ارتداد دقيق من منطقة طلب معتمدة"
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 توصية الانفجار السعري المؤكد بـ CVD | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]FET-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]4H[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold green]سعر الدخول بعد التأكيد:[/bold green] [bold]0.1477$[/bold]\n• [bold red]وقف الخسارة المحكم:[/bold red] [bold]0.1443$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]0.1511$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]0.1556$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]0.1824$[/bold green]"
         },
         {
             "type": "كسر دعم خطير",
-            "symbol": "XMR-USDT",
-            "price": 357.77,
-            "level": 358.1,
+            "symbol": "UB-USDT",
+            "price": 0.12857,
+            "level": 0.12998,
+            "timeframe": "1h",
+            "strategy": "BEARISH_RISK",
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `UB-USDT` كسرت دعم الأمان عند **0.1300$** على فريم `1H` مع فوليوم بيع مكثف!"
+        },
+        {
+            "type": "كسر دعم خطير",
+            "symbol": "ZAMA-USDT",
+            "price": 0.04802,
+            "level": 0.0483,
             "timeframe": "15m",
             "strategy": "BEARISH_RISK",
-            "message": "🔴 **تنبيه انهيار دعم:** العملة `XMR-USDT` كسرت دعم الأمان عند **358.1000$** على فريم `15M` مع فوليوم بيع مكثف!"
+            "message": "🔴 **تنبيه انهيار دعم:** العملة `ZAMA-USDT` كسرت دعم الأمان عند **0.0483$** على فريم `15M` مع فوليوم بيع مكثف!"
         },
         {
             "type": "كسر دعم خطير",
