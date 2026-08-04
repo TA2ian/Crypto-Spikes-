@@ -62,20 +62,54 @@ class TradeManager:
             with open(self.status_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, default=self._default_converter)
 
-    def open_trade(self, symbol: str, timeframe: str, strategy_name: str, entry_price: float, stop_loss: float, target_1: float = 0.0, target_2: float = 0.0, side: str = "BUY", **kwargs):
-        """فتح صفقة جديدة مرنة وقابلة لاستقبال أي معاملات مسماة من scanner.py"""
-        # تجنب تكرار فتح صفقة لنفس العملة على نفس الفريم
+    def open_trade(
+        self,
+        symbol: str = "UNKNOWN",
+        timeframe: str = "1h",
+        strategy_name: str = "Automated Signal",
+        entry_price: float = 0.0,
+        stop_loss: float = 0.0,
+        target_1: float = 0.0,
+        target_2: float = 0.0,
+        side: str = "BUY",
+        **kwargs
+    ):
+        """
+        فتح صفقة تلقائية مطابقة تماماً للمستدعيات الواردة من scanner.py
+        """
+        # استخراج القيم التي يرسلها scanner.py بمرونة عالية
+        symbol = kwargs.get("symbol", symbol)
+        side = kwargs.get("side", side)
+        entry_price = float(kwargs.get("entry_price", entry_price))
+        
+        # استخراج الستوب لوس سواء كان sl_price أو stop_loss
+        sl_val = kwargs.get("sl_price", kwargs.get("stop_loss", stop_loss))
+        stop_loss = float(sl_val) if sl_val else 0.0
+        
+        # استخراج أهداف أرباح الصفقة (tp_price أو target_2 / target_1)
+        tp1_val = kwargs.get("tp_price", kwargs.get("target_1", target_1))
+        tp2_val = kwargs.get("tp_2", kwargs.get("target_2", target_2))
+        
+        target_1 = float(tp1_val) if tp1_val else (entry_price * 1.02 if entry_price else 0.0)
+        target_2 = float(tp2_val) if tp2_val else (entry_price * 1.05 if entry_price else 0.0)
+
+        timeframe = kwargs.get("timeframe", timeframe)
+        strategy_name = kwargs.get("strategy_name", strategy_name)
+
+        # تخصيص إعدادات الستوب المتحرك إن وجدت
+        use_trailing = kwargs.get("use_trailing", False)
+        trailing_act = kwargs.get("trailing_activation_pct", 1.5)
+        trailing_cb = kwargs.get("trailing_callback_pct", 1.0)
+
+        # تجنب فتح صفقة مكررة لنفس العملة على نفس الفريم
         for trade in self.open_trades:
-            if trade['symbol'] == symbol and trade['timeframe'] == timeframe:
+            if trade.get('symbol') == symbol and trade.get('timeframe') == timeframe and trade.get('status') == "OPEN":
                 return False
 
-        # قراءة الهدف الأول والثاني حتى لو تم تمريرهما باسم tp_price أو target_price
-        t1 = target_1 or kwargs.get("tp_price", entry_price * 1.02)
-        t2 = target_2 or kwargs.get("tp_2", entry_price * 1.05)
-
+        # حساب إدارة المخاطر وحجم الصفقة
         risk_amount = self.account_balance * (self.risk_per_trade_pct / 100.0)
-        price_risk = abs(entry_price - stop_loss)
-        position_size = risk_amount / price_risk if price_risk > 0 else 0
+        price_risk = abs(entry_price - stop_loss) if entry_price and stop_loss else 0.0
+        position_size = (risk_amount / price_risk) if price_risk > 0 else 0.0
 
         trade_payload = {
             "id": f"{symbol}_{timeframe}_{int(datetime.now(timezone.utc).timestamp())}",
@@ -83,12 +117,15 @@ class TradeManager:
             "side": side,
             "timeframe": timeframe,
             "strategy": strategy_name,
-            "entry_price": float(entry_price),
-            "stop_loss": float(stop_loss),
-            "initial_stop_loss": float(stop_loss),
-            "target_1": float(t1),
-            "target_2": float(t2),
-            "position_size": float(position_size),
+            "entry_price": entry_price,
+            "stop_loss": stop_loss,
+            "initial_stop_loss": stop_loss,
+            "target_1": target_1,
+            "target_2": target_2,
+            "position_size": position_size,
+            "use_trailing": use_trailing,
+            "trailing_activation_pct": trailing_act,
+            "trailing_callback_pct": trailing_cb,
             "status": "OPEN",
             "opened_at": datetime.now(timezone.utc).isoformat(),
             "t1_hit": False
@@ -98,12 +135,10 @@ class TradeManager:
         self.save_state()
 
         if self.alert_manager:
-            msg = f"🚀 دخول صفقة جديدة ({side} - {strategy_name}) | سعر الدخول: ${entry_price:.4f} | الستوب: ${stop_loss:.4f}"
+            msg = f"🚀 فتح صفقة تلقائية جديدة ({side}) | السعر: ${entry_price:.4f} | الستوب: ${stop_loss:.4f} | الهدف: ${target_1:.4f}"
             self.alert_manager.send_alert("TRADE_OPEN", symbol, timeframe, msg, extra_data=trade_payload, ignore_cooldown=True)
 
         return True
-
-
 
     def update_and_check_trades(self, current_prices: dict):
         """متابعة الصفقات المفتوحة وتحديث الستوب المتحرك أو إغلاقها عند الأهداف"""
