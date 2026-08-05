@@ -1,7 +1,7 @@
 """
 ماسح العملات الحلال - السكربت الرئيسي الموحد المحسّن
 (Multi-Timeframe Edition: 15m, 1h, 4h, 1d, 3d, 1w)
-مدعوم بنظام تثبيت الأهداف الهيكلية وتتبع إعادة الدخول لمنع تزحزح الأهداف.
+مدعوم بنظام تثبيت الأهداف الهيكلية، تتبع إعادة الدخول، وآلة الحالات الـ 11 للخطط الـ 8.
 """
 import os
 import time
@@ -23,7 +23,7 @@ from alert_manager import AlertManager
 from trade_manager import TradeManager
 
 # تهيئة مدير التنبيهات وإدارة الصفقات
-alert_manager = AlertManager(max_active_alerts=10)
+alert_manager = AlertManager(max_active_alerts=20)
 trade_manager = TradeManager(alert_manager=alert_manager, account_balance=1000.0, risk_per_trade_pct=1.0)
 
 # استدعاء الملفات الأساسية
@@ -92,7 +92,7 @@ except ImportError:
     from sentiment import get_fear_and_greed_index
     from dynamic_risk import calculate_atr, rate_signal_confidence
 
-# ============ الإعدادات الأطر الزمنية ============
+# ============ الإعدادات والأطر الزمنية ============
 ACTIVE_TIMEFRAMES = ["15m", "1h", "4h", "1d", "3d", "1w"]
 CANDLE_LIMIT = 80
 
@@ -332,7 +332,7 @@ def detect_wyckoff_bull_market(df: pd.DataFrame, ms: dict, is_sweep: bool, is_ef
         wyckoff_result["wyckoff_phase"] = "Phase C (Spring - تجميع وسحب سيولة)"
         wyckoff_result["is_wyckoff_setup"] = True
     elif ms.get("bos_bullish") and is_effort:
-        wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة وااختراق)"
+        wyckoff_result["wyckoff_phase"] = "Phase D (SOS - علامة قوة واختراق)"
         wyckoff_result["is_wyckoff_setup"] = True
     elif wyckoff_result["is_bull_market"] and bull_ob and ms.get("choch_bullish"):
         wyckoff_result["wyckoff_phase"] = "Phase E (LPS - إعادة اختبار الدعم)"
@@ -402,15 +402,15 @@ def process_signal_memory(sig: dict) -> dict:
         initial_entry = state['initial_entry']
         price_change_pct = abs(current_price - initial_entry) / initial_entry
         
-        # إن عاد السعر لقرب نطاق الدخول الأصلي (اختبار الدعم/المنطقة ±1.5%) -> إعادة دخول
         if price_change_pct <= 0.015:
             sig['signal_status'] = "🔄 إعادة دخول (Retest / Re-entry)"
             sig['is_reentry'] = True
+            sig['current_stage'] = "RETEST_ENTRY"
         else:
             sig['signal_status'] = "📌 متابعة صفقة قائمة (Continuation)"
             sig['is_reentry'] = False
+            sig['current_stage'] = "ACTIVE"
 
-        # تثبيت الأهداف والستوب الأولية ومنع تزحزحها مع صعود السعر
         sig['price_entry_original'] = initial_entry
         sig['stop_loss'] = state['stop_loss']
         sig['target1'] = state['target1']
@@ -421,6 +421,7 @@ def process_signal_memory(sig: dict) -> dict:
     else:
         sig['signal_status'] = "🟢 دخول أول (Initial Entry)"
         sig['is_reentry'] = False
+        sig['current_stage'] = "FIRST_ENTRY"
         sig['price_entry_original'] = current_price
         
         ACTIVE_SIGNALS_STATE[tracking_key] = {
@@ -462,6 +463,7 @@ def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> li
             "level": support,
             "timeframe": timeframe,
             "strategy": "BEARISH_RISK",
+            "current_stage": "BEARISH_BREAKOUT",
             "message": f"🔴 **تنبيه انهيار دعم:** العملة `{symbol}` كسرت دعم الأمان عند **{support:.4f}$** على فريم `{timeframe.upper()}` مع فوليوم بيع مكثف!"
         })
     elif is_overbought_warning:
@@ -472,6 +474,7 @@ def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> li
             "level": resistance,
             "timeframe": timeframe,
             "strategy": "BEARISH_RISK",
+            "current_stage": "OVERBOUGHT_RISK",
             "message": f"⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `{symbol}` وصلت لمنطقة تشبع مفرط (RSI: `{last_rsi:.1f}`) بالقرب من المقاومة **{resistance:.4f}$**."
         })
 
@@ -985,6 +988,7 @@ def main():
 
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
+                # إرسال التنبيه وتدوينه في AlertManager
                 alert_manager.send_alert(
                     alert_type=strategy_type,
                     symbol=symbol,
@@ -997,7 +1001,8 @@ def main():
                     send_telegram_message(formatted_msg)
                     mark_alert_sent(score_state, tracking_key)
 
-                if strategy_type in ["WYCKOFF_SMC_ACCUMULATION", "CVD_BREAKOUT_CONFIRMED", "ULTIMATE_MASTER_A_PLUS"]:
+                # فتح وإدارة الصفقة داخل TradeManager عند التوافق مع الخطط الفعالة
+                if strategy_type in ["WYCKOFF_SMC_ACCUMULATION", "CVD_BREAKOUT_CONFIRMED", "ULTIMATE_MASTER_A_PLUS", "TREND_FOLLOWING_4_CONFIRMS"]:
                     trade_manager.open_trade(
                         symbol=symbol,
                         side="BUY",
@@ -1006,7 +1011,13 @@ def main():
                         sl_price=sig["stop_loss"],
                         use_trailing=True,
                         trailing_activation_pct=1.5,
-                        trailing_callback_pct=1.0
+                        trailing_callback_pct=1.0,
+                        plan_id=strategy_type,
+                        target1=sig["target1"],
+                        target2=sig["target2"],
+                        target3=sig["target3"],
+                        target4=sig["target4"],
+                        macro_target=sig["macro_target"]
                     )
 
                 all_signals.append(sig)
@@ -1022,7 +1033,8 @@ def main():
                     alert_type=b_alert["type"],
                     symbol=b_alert["symbol"],
                     timeframe=b_alert["timeframe"],
-                    message=b_alert["message"]
+                    message=b_alert["message"],
+                    extra_data=b_alert
                 )
                 send_telegram_message(b_alert["message"])
                 all_bearish_alerts.append(b_alert)
@@ -1030,15 +1042,19 @@ def main():
 
     render_grouped_alert_dashboard(grouped_signals, all_bearish_alerts)
 
+    # تحديث وتتبع الصفقات المفتوحة مع تغير الأسعار اللحظية
     if current_market_prices:
         trade_manager.update_and_check_trades(current_market_prices)
 
     save_score_state(score_state)
 
-    open_trades_list = getattr(trade_manager, "open_trades", []) if hasattr(trade_manager, "open_trades") else []
+    # مزامنة الصفقات المفتوحة والمغلقة في AlertManager وإخراج ملف market_status.json الموحد
+    open_trades_list = getattr(trade_manager, "open_trades", [])
+    closed_trades_list = getattr(trade_manager, "closed_trades", [])
+    alert_manager.update_trades_in_status(open_trades=open_trades_list, closed_trades_history=closed_trades_list)
 
     market_macro_data = {
-        "timestamp": str(datetime.now(timezone.utc)),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "dominance_status": dominance_report.get("status", "NEUTRAL"),
         "dominance_summary": dominance_report.get("message", ""),
         "bullish_signals_count": len(all_signals),
@@ -1047,6 +1063,7 @@ def main():
         "bullish_signals": all_signals,
         "bearish_signals": all_bearish_alerts,
         "open_trades": open_trades_list,
+        "recent_closed_trades": closed_trades_list[-10:],
         "signals": all_signals + all_bearish_alerts
     }
 
