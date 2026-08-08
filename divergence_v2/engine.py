@@ -24,8 +24,8 @@ class DivergenceEngine:
     def __init__(
         self,
         *,
-        pivot_left: int = 2,
-        pivot_right: int = 2,
+        pivot_left: int = 1,
+        pivot_right: int = 1,
         exaggerated_tolerance: float = 0.002,
     ) -> None:
 
@@ -54,44 +54,58 @@ class DivergenceEngine:
 
         signals: list[DivergenceSignal] = []
 
-        first = pivots[-2]
-        second = pivots[-1]
+        # Do not assume the last two pivots form the relevant comparison.
+        # A valid divergence may occur several pivots back and still be the
+        # most recent confirmed structural relationship.
+        for first_index, first in enumerate(pivots[:-1]):
+            for second in pivots[first_index + 1:]:
+                if first.pivot_type != second.pivot_type:
+                    continue
 
-        detectors = (
-            detect_regular,
-            detect_hidden,
-        )
+                for detector in (detect_regular, detect_hidden):
+                    signal = detector(
+                        first,
+                        second,
+                        indicator=indicator,
+                        timeframe=timeframe,
+                    )
 
-        for detector in detectors:
-            signal = detector(
-                first,
-                second,
+                    if signal is not None:
+                        signals.append(signal)
+
+                exaggerated = detect_exaggerated(
+                    first,
+                    second,
+                    indicator=indicator,
+                    timeframe=timeframe,
+                    price_tolerance=self.exaggerated_tolerance,
+                )
+
+                if exaggerated is not None:
+                    signals.append(exaggerated)
+
+        # Triple divergence is evaluated on every consecutive group of
+        # three pivots of the same type rather than only the last three
+        # pivots in the complete mixed high/low sequence.
+        for first_index in range(len(pivots) - 2):
+            triple_candidates = pivots[
+                first_index:first_index + 3
+            ]
+
+            if len({
+                pivot.pivot_type
+                for pivot in triple_candidates
+            }) != 1:
+                continue
+
+            triple = detect_triple(
+                triple_candidates,
                 indicator=indicator,
                 timeframe=timeframe,
             )
 
-            if signal is not None:
-                signals.append(signal)
-
-        exaggerated = detect_exaggerated(
-            first,
-            second,
-            indicator=indicator,
-            timeframe=timeframe,
-            price_tolerance=self.exaggerated_tolerance,
-        )
-
-        if exaggerated is not None:
-            signals.append(exaggerated)
-
-        triple = detect_triple(
-            pivots,
-            indicator=indicator,
-            timeframe=timeframe,
-        )
-
-        if triple is not None:
-            signals.append(triple)
+            if triple is not None:
+                signals.append(triple)
 
         return self._deduplicate(signals)
 
