@@ -1,3 +1,5 @@
+import pytest
+
 from evidence_v2 import (
     EvidenceCategory,
     EvidencePolarity,
@@ -49,4 +51,4 @@ def test_effective_score_uses_all_components() -> None:
         weight=1.0,
     )
 
-    assert evidence.effective_score == 0.36
+    assert evidence.effective_score == pytest.approx(0.36)
