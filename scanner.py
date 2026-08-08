@@ -21,6 +21,7 @@ console = Console()
 # ============ استدعاء وحدات إدارة التنبيهات والصفقات ============
 from alert_manager import AlertManager
 from trade_manager import TradeManager
+from scanner_shadow import ScannerShadowBridge, compare_legacy_and_v2
 
 # تهيئة مدير التنبيهات وإدارة الصفقات
 alert_manager = AlertManager(max_active_alerts=20)
@@ -28,6 +29,9 @@ trade_manager = TradeManager(alert_manager=alert_manager, account_balance=1000.0
 
 # استدعاء الملفات الأساسية
 from coins import WATCHLIST
+
+# V2 Shadow Integration: runs beside legacy execution and never opens exchange trades.
+shadow_bridge = ScannerShadowBridge(watchlist=WATCHLIST)
 from indicators import calc_rsi, find_support_resistance, avg_volume
 from patterns import (
     detect_candle_patterns,
@@ -986,6 +990,51 @@ def main():
                 sig["strategy_type"] = strategy_type
                 sig["formatted_message"] = formatted_msg
 
+                # ---------------------------------------------------------
+                # Sprint 008-E: V2 Shadow Integration
+                # Legacy behavior remains unchanged. V2 only evaluates
+                # and audits; it never creates a trade in SHADOW mode.
+                # ---------------------------------------------------------
+                try:
+                    v2_result = shadow_bridge.evaluate(
+                        signal=sig,
+                        strategy_type=strategy_type,
+                        macro_info=macro_info,
+                        active_positions=len(
+                            getattr(
+                                trade_manager,
+                                "open_trades",
+                                [],
+                            )
+                        ),
+                        account_equity=float(
+                            getattr(
+                                trade_manager,
+                                "account_balance",
+                                1000.0,
+                            )
+                        ),
+                        risk_percent=float(
+                            getattr(
+                                trade_manager,
+                                "risk_per_trade_pct",
+                                1.0,
+                            )
+                        ),
+                    )
+
+                    sig["v2_shadow"] = compare_legacy_and_v2(
+                        legacy_strategy=strategy_type,
+                        result=v2_result,
+                    )
+
+                except Exception as shadow_error:
+                    # Shadow integration must never interrupt legacy scanning.
+                    sig["v2_shadow"] = {
+                        "status": "shadow_error",
+                        "error": str(shadow_error),
+                    }
+
                 console.print(Panel(formatted_msg, title=f"[bold yellow]{symbol}[/bold yellow] - [cyan]{tf.upper()}[/cyan]", border_style="cyan"))
 
                 # إرسال التنبيه وتدوينه في AlertManager
@@ -1064,7 +1113,39 @@ def main():
         "bearish_signals": all_bearish_alerts,
         "open_trades": open_trades_list,
         "recent_closed_trades": closed_trades_list[-10:],
-        "signals": all_signals + all_bearish_alerts
+        "signals": all_signals + all_bearish_alerts,
+        "v2_shadow_summary": {
+            "evaluated": sum(
+                1
+                for signal in all_signals
+                if signal.get("v2_shadow", {}).get("status")
+                in {"agreement", "v2_reject"}
+            ),
+            "agreements": sum(
+                1
+                for signal in all_signals
+                if signal.get("v2_shadow", {}).get("status")
+                == "agreement"
+            ),
+            "v2_rejections": sum(
+                1
+                for signal in all_signals
+                if signal.get("v2_shadow", {}).get("status")
+                == "v2_reject"
+            ),
+            "unmapped_or_insufficient": sum(
+                1
+                for signal in all_signals
+                if signal.get("v2_shadow", {}).get("status")
+                == "unmapped_or_insufficient_evidence"
+            ),
+            "errors": sum(
+                1
+                for signal in all_signals
+                if signal.get("v2_shadow", {}).get("status")
+                == "shadow_error"
+            ),
+        },
     }
 
     with open("market_status.json", "w", encoding="utf-8") as f:
