@@ -16,6 +16,7 @@ class OutcomeStatus(str, Enum):
     TARGET_3 = "target_3"
     TARGET_4 = "target_4"
     MACRO_TARGET = "macro_target"
+    EXPIRED = "expired"
 
 
 @dataclass
@@ -42,13 +43,10 @@ class ShadowOutcome:
     )
 
     exit_time: str | None = None
-
     exit_price: float | None = None
-
     r_multiple: float | None = None
 
     bars_observed: int = 0
-
     metadata: dict[str, Any] = field(
         default_factory=dict
     )
@@ -59,21 +57,13 @@ class ShadowOutcome:
 
 
 class ShadowOutcomeTracker:
-    """
-    Tracks hypothetical V2 Shadow outcomes.
-
-    This module never opens trades and never interacts
-    with an exchange.
-    """
 
     def __init__(
         self,
         storage_path: str = "shadow_outcomes.json",
     ) -> None:
-
         self.storage_path = storage_path
         self.outcomes: dict[str, ShadowOutcome] = {}
-
         self.load()
 
     # --------------------------------------------------
@@ -81,10 +71,7 @@ class ShadowOutcomeTracker:
     # --------------------------------------------------
 
     def load(self) -> None:
-
-        if not os.path.exists(
-            self.storage_path
-        ):
+        if not os.path.exists(self.storage_path):
             return
 
         try:
@@ -93,11 +80,9 @@ class ShadowOutcomeTracker:
                 "r",
                 encoding="utf-8",
             ) as handle:
-
                 data = json.load(handle)
 
             for item in data:
-
                 item["status"] = OutcomeStatus(
                     item["status"]
                 )
@@ -112,21 +97,15 @@ class ShadowOutcomeTracker:
             TypeError,
             KeyError,
         ):
-            # Corrupt historical data must not stop
-            # the scanner.
             self.outcomes = {}
 
     def save(self) -> None:
+        payload = []
 
-        payload = [
-            asdict(outcome)
-            for outcome in self.outcomes.values()
-        ]
-
-        for item in payload:
-            item["status"] = item[
-                "status"
-            ].value
+        for outcome in self.outcomes.values():
+            item = asdict(outcome)
+            item["status"] = outcome.status.value
+            payload.append(item)
 
         directory = os.path.dirname(
             self.storage_path
@@ -143,7 +122,6 @@ class ShadowOutcomeTracker:
             "w",
             encoding="utf-8",
         ) as handle:
-
             json.dump(
                 payload,
                 handle,
@@ -173,9 +151,7 @@ class ShadowOutcomeTracker:
         metadata: dict[str, Any] | None = None,
     ) -> ShadowOutcome:
 
-        existing = self.outcomes.get(
-            signal_id
-        )
+        existing = self.outcomes.get(signal_id)
 
         if existing is not None:
             return existing
@@ -215,16 +191,13 @@ class ShadowOutcomeTracker:
             metadata=metadata or {},
         )
 
-        self.outcomes[
-            signal_id
-        ] = outcome
-
+        self.outcomes[signal_id] = outcome
         self.save()
 
         return outcome
 
     # --------------------------------------------------
-    # OHLC processing
+    # Real candle observation
     # --------------------------------------------------
 
     def process_bar(
@@ -236,9 +209,7 @@ class ShadowOutcomeTracker:
         timestamp: str | None = None,
     ) -> ShadowOutcome | None:
 
-        outcome = self.outcomes.get(
-            signal_id
-        )
+        outcome = self.outcomes.get(signal_id)
 
         if outcome is None:
             return None
@@ -251,26 +222,19 @@ class ShadowOutcomeTracker:
         high = float(high)
         low = float(low)
 
-        # --------------------------------------------------
-        # Conservative ambiguity rule:
-        #
-        # If SL and a target are both touched in the same
-        # candle and intrabar ordering is unknown, assume
-        # SL happened first.
-        # --------------------------------------------------
-
+        # Conservative rule:
+        # If SL and TP are touched in the same candle,
+        # SL is assumed to have happened first.
         if low <= outcome.stop_loss:
-
             self._resolve(
                 outcome=outcome,
                 status=OutcomeStatus.STOPPED,
                 exit_price=outcome.stop_loss,
                 timestamp=timestamp,
             )
-
             return outcome
 
-        target_levels = [
+        targets = [
             (
                 OutcomeStatus.TARGET_1,
                 outcome.target_1,
@@ -293,19 +257,14 @@ class ShadowOutcomeTracker:
             ),
         ]
 
-        # Highest reached target wins.
-        # This records the furthest target reached
-        # by the observed candle.
         reached = [
             (status, level)
-            for status, level
-            in target_levels
+            for status, level in targets
             if level is not None
             and high >= level
         ]
 
         if reached:
-
             status, price = reached[-1]
 
             self._resolve(
@@ -314,10 +273,31 @@ class ShadowOutcomeTracker:
                 exit_price=price,
                 timestamp=timestamp,
             )
-
         else:
-
             self.save()
+
+        return outcome
+
+    def expire(
+        self,
+        signal_id: str,
+        timestamp: str | None = None,
+    ) -> ShadowOutcome | None:
+
+        outcome = self.outcomes.get(signal_id)
+
+        if outcome is None:
+            return None
+
+        if outcome.resolved:
+            return outcome
+
+        self._resolve(
+            outcome=outcome,
+            status=OutcomeStatus.EXPIRED,
+            exit_price=outcome.entry,
+            timestamp=timestamp,
+        )
 
         return outcome
 
@@ -335,10 +315,7 @@ class ShadowOutcomeTracker:
     ) -> None:
 
         outcome.status = status
-
-        outcome.exit_price = float(
-            exit_price
-        )
+        outcome.exit_price = float(exit_price)
 
         outcome.exit_time = (
             timestamp
@@ -353,7 +330,6 @@ class ShadowOutcomeTracker:
         )
 
         if risk > 0:
-
             outcome.r_multiple = (
                 outcome.exit_price
                 - outcome.entry
@@ -362,11 +338,10 @@ class ShadowOutcomeTracker:
         self.save()
 
     # --------------------------------------------------
-    # Reporting
+    # Collections
     # --------------------------------------------------
 
     def pending(self) -> list[ShadowOutcome]:
-
         return [
             item
             for item in self.outcomes.values()
@@ -374,12 +349,15 @@ class ShadowOutcomeTracker:
         ]
 
     def resolved(self) -> list[ShadowOutcome]:
-
         return [
             item
             for item in self.outcomes.values()
             if item.resolved
         ]
+
+    # --------------------------------------------------
+    # Performance report
+    # --------------------------------------------------
 
     def summary(self) -> dict[str, Any]:
 
@@ -423,8 +401,7 @@ class ShadowOutcomeTracker:
         )
 
         profit_factor = (
-            positive_r
-            / abs(negative_r)
+            positive_r / abs(negative_r)
             if negative_r < 0
             else (
                 float("inf")
@@ -433,24 +410,27 @@ class ShadowOutcomeTracker:
             )
         )
 
+        by_status = {
+            status.value: sum(
+                1
+                for item in self.outcomes.values()
+                if item.status == status
+            )
+            for status in OutcomeStatus
+        }
+
         return {
-            "total": len(
-                self.outcomes
-            ),
-            "pending": len(
-                self.pending()
-            ),
-            "resolved": len(
-                resolved
-            ),
+            "total": len(self.outcomes),
+            "pending": len(self.pending()),
+            "resolved": len(resolved),
             "wins": len(wins),
             "losses": len(losses),
             "win_rate": (
-                len(wins)
-                / len(resolved)
+                len(wins) / len(resolved)
                 if resolved
                 else 0.0
             ),
             "average_r": average_r,
             "profit_factor": profit_factor,
+            "by_status": by_status,
         }
