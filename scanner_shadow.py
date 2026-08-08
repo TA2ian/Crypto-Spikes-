@@ -25,22 +25,31 @@ def _category_for_note(note: str) -> EvidenceCategory:
 
     if "diverg" in text or "دايفرجنس" in text:
         return EvidenceCategory.DIVERGENCE
+
     if "fvg" in text:
         return EvidenceCategory.SMC
+
     if "order block" in text:
         return EvidenceCategory.SMC
+
     if "liquidity" in text or "سيولة" in text:
         return EvidenceCategory.LIQUIDITY
+
     if "bos" in text or "choch" in text or "هيكل" in text:
         return EvidenceCategory.STRUCTURE
+
     if "volume" in text or "فوليوم" in text or "جهد" in text:
         return EvidenceCategory.VOLUME
+
     if "ema" in text or "اتجاه" in text:
         return EvidenceCategory.TREND
+
     if "bollinger" in text or "بولينجر" in text:
         return EvidenceCategory.VOLATILITY
+
     if "pattern" in text or "نمط" in text:
         return EvidenceCategory.PATTERN
+
     if "rsi" in text or "dpr" in text:
         return EvidenceCategory.MOMENTUM
 
@@ -50,7 +59,9 @@ def _category_for_note(note: str) -> EvidenceCategory:
 def _evidence_from_signal(
     signal: dict[str, Any],
 ) -> list[EvidenceRecord]:
+
     notes = signal.get("confluence") or []
+
     if not isinstance(notes, list):
         notes = [str(notes)]
 
@@ -58,6 +69,7 @@ def _evidence_from_signal(
 
     for note in notes:
         name = str(note).strip()
+
         if not name:
             continue
 
@@ -69,7 +81,12 @@ def _evidence_from_signal(
                 strength=1.0,
                 reliability=0.80,
                 freshness=1.0,
-                timeframe=str(signal.get("timeframe", "1h")),
+                timeframe=str(
+                    signal.get(
+                        "timeframe",
+                        "1h",
+                    )
+                ),
                 source="legacy_scanner_shadow",
             )
         )
@@ -80,41 +97,56 @@ def _evidence_from_signal(
 def _confluence_score(
     evidence: Iterable[EvidenceRecord],
 ) -> float:
+
     count = len(tuple(evidence))
-    return min(1.0, count / 5.0)
+
+    return min(
+        1.0,
+        count / 5.0,
+    )
 
 
 def _risk_reward(
     signal: dict[str, Any],
 ) -> float:
-    entry = float(signal["price"])
-    stop = float(signal["stop_loss"])
+
+    entry = float(
+        signal["price"]
+    )
+
+    stop = float(
+        signal["stop_loss"]
+    )
+
     target = float(
         signal.get("target2")
         or signal.get("target1")
         or entry
     )
 
-    risk = abs(entry - stop)
+    risk = abs(
+        entry - stop
+    )
+
     if risk <= 0:
         return 0.0
 
-    return abs(target - entry) / risk
+    return abs(
+        target - entry
+    ) / risk
 
 
 def _halal_from_watchlist(
     symbol: str,
     watchlist: Iterable[str],
 ) -> bool:
-    """
-    Shadow-mode bridge.
 
-    The existing WATCHLIST is explicitly documented by the project
-    as the user's filtered halal list. This is used only as a
-    provisional bridge until AssetProfile becomes the authoritative
-    source for halal status.
-    """
-    normalized = symbol.upper().replace("/", "-")
+    normalized = (
+        symbol
+        .upper()
+        .replace("/", "-")
+    )
+
     return normalized in {
         item.upper().replace("/", "-")
         for item in watchlist
@@ -123,10 +155,11 @@ def _halal_from_watchlist(
 
 class ScannerShadowBridge:
     """
-    Runs V2 beside the legacy scanner without changing legacy
-    execution behavior.
+    Runs V2 beside the legacy scanner without changing
+    legacy execution behavior.
 
-    SHADOW mode never creates a TradeState and never submits orders.
+    SHADOW mode never creates a TradeState
+    and never submits orders.
     """
 
     def __init__(
@@ -134,10 +167,14 @@ class ScannerShadowBridge:
         *,
         watchlist: Iterable[str],
     ) -> None:
+
         self.pipeline = V2Pipeline(
             mode=ExecutionMode.SHADOW
         )
-        self.watchlist = tuple(watchlist)
+
+        self.watchlist = tuple(
+            watchlist
+        )
 
     def evaluate(
         self,
@@ -149,6 +186,7 @@ class ScannerShadowBridge:
         account_equity: float,
         risk_percent: float,
     ):
+
         strategy = LEGACY_TO_V2_STRATEGY.get(
             strategy_type
         )
@@ -156,7 +194,9 @@ class ScannerShadowBridge:
         if strategy is None:
             return None
 
-        evidence = _evidence_from_signal(signal)
+        evidence = _evidence_from_signal(
+            signal
+        )
 
         if not evidence:
             return None
@@ -165,32 +205,57 @@ class ScannerShadowBridge:
             evidence
         )
 
-        entry = float(signal["price"])
-        stop = float(signal["stop_loss"])
+        entry = float(
+            signal["price"]
+        )
+
+        stop = float(
+            signal["stop_loss"]
+        )
 
         return self.pipeline.evaluate(
-            symbol=str(signal["symbol"]),
+            symbol=str(
+                signal["symbol"]
+            ),
             evidence=evidence,
             confluence_score=confluence_score,
-            hypothesis_polarity=EvidencePolarity.BULLISH,
+            hypothesis_polarity=(
+                EvidencePolarity.BULLISH
+            ),
             risk=RiskParameters(
                 entry_price=entry,
                 stop_loss=stop,
-                target_1=signal.get("target1"),
-                target_2=signal.get("target2"),
-                target_3=signal.get("target3"),
-                target_4=signal.get("target4"),
+                target_1=signal.get(
+                    "target1"
+                ),
+                target_2=signal.get(
+                    "target2"
+                ),
+                target_3=signal.get(
+                    "target3"
+                ),
+                target_4=signal.get(
+                    "target4"
+                ),
                 account_equity=account_equity,
                 risk_percent=risk_percent,
             ),
             active_positions=active_positions,
             htf_bullish=bool(
-                macro_info.get("macro_bullish", False)
+                macro_info.get(
+                    "macro_bullish",
+                    False,
+                )
             ),
             macro_bullish=bool(
-                macro_info.get("macro_bullish", False)
+                macro_info.get(
+                    "macro_bullish",
+                    False,
+                )
             ),
-            risk_reward_value=_risk_reward(signal),
+            risk_reward_value=_risk_reward(
+                signal
+            ),
             halal_eligible=_halal_from_watchlist(
                 str(signal["symbol"]),
                 self.watchlist,
@@ -210,11 +275,15 @@ class ScannerShadowBridge:
             ),
             metadata={
                 "legacy_strategy": strategy_type,
-                "legacy_signal_type": signal.get("type"),
+                "legacy_signal_type": signal.get(
+                    "type"
+                ),
                 "legacy_signal_status": signal.get(
                     "signal_status"
                 ),
-                "legacy_stars": signal.get("stars"),
+                "legacy_stars": signal.get(
+                    "stars"
+                ),
             },
         )
 
@@ -224,9 +293,12 @@ def compare_legacy_and_v2(
     legacy_strategy: str,
     result: Any,
 ) -> dict[str, Any]:
+
     if result is None:
         return {
-            "status": "unmapped_or_insufficient_evidence",
+            "status": (
+                "unmapped_or_insufficient_evidence"
+            ),
             "legacy_strategy": legacy_strategy,
         }
 
@@ -241,17 +313,29 @@ def compare_legacy_and_v2(
             else "v2_reject"
         ),
         "legacy_strategy": legacy_strategy,
-        "v2_action": result.decision.action.value,
-        "v2_grade": result.decision.grade.value,
-        "v2_confidence": result.decision.confidence,
-        "v2_eligibility": result.eligibility.status.value,
+        "v2_action": (
+            result.decision.action.value
+        ),
+        "v2_grade": (
+            result.decision.grade.value
+        ),
+        "v2_confidence": (
+            result.decision.confidence
+        ),
+        "v2_eligibility": (
+            result.eligibility.status.value
+        ),
         "v2_blocked_reasons": [
             reason.value
-            for reason in result.eligibility.blocked_reasons
+            for reason
+            in result.eligibility.blocked_reasons
         ],
         "v2_strategy_eligible": [
             strategy.value
-            for strategy in result.eligibility.eligible_strategies
+            for strategy
+            in result.eligibility.eligible_strategies
         ],
-        "audit_event_id": result.audit_event_id,
+        "audit_event_id": (
+            result.audit_event_id
+        ),
     }
