@@ -1,3 +1,4 @@
+from .adapter import to_domain_decision
 from .classifier import DecisionClassifier
 from .engine import DecisionEngine
 from .enums import (
@@ -24,6 +25,7 @@ from .rules import (
 
 __all__ = [
     "DecisionAction",
+    "to_domain_decision",
     "DecisionClassifier",
     "DecisionDirection",
     "DecisionEngine",
