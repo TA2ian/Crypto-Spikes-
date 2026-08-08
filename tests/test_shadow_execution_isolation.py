@@ -1,8 +1,6 @@
 from types import SimpleNamespace
 
-from shadow_outcome_integration import (
-    ShadowOutcomeIntegration,
-)
+from shadow_outcome_integration import ShadowOutcomeIntegration
 
 
 class FakeTracker:
@@ -14,9 +12,7 @@ class FakeTracker:
 
         return SimpleNamespace(
             signal_id=kwargs["signal_id"],
-            status=SimpleNamespace(
-                value="registered"
-            ),
+            status=SimpleNamespace(value="registered"),
             symbol=kwargs["symbol"],
             timeframe=kwargs["timeframe"],
             entry=kwargs["entry"],
@@ -56,31 +52,21 @@ def test_shadow_registration_is_observation_only():
         audit_event_id="audit-isolation-001",
     )
 
-    outcome = (
-        integration.register_if_accepted(
-            signal=make_signal(),
-            strategy_type="FVG_SCALP_4_CONFIRMS",
-            result=result,
-        )
+    outcome = integration.register_if_accepted(
+        signal=make_signal(),
+        strategy_type="FVG_SCALP_4_CONFIRMS",
+        result=result,
     )
 
     assert outcome is not None
-
     assert len(tracker.calls) == 1
 
     registered = tracker.calls[0]
 
     assert registered["symbol"] == "BTC-USDT"
-
     assert registered["entry"] == 100.0
+    assert registered["metadata"]["mode"] == "SHADOW"
 
-    assert (
-        registered["metadata"]["mode"]
-        == "SHADOW"
-    )
-
-    # Explicitly verify that the integration
-    # receives no execution/trading object.
     assert "trade_manager" not in registered
     assert "open_trade" not in registered
     assert "execute_trade" not in registered
@@ -98,14 +84,11 @@ def test_rejected_signal_has_no_side_effect():
         audit_event_id="audit-isolation-002",
     )
 
-    outcome = (
-        integration.register_if_accepted(
-            signal=make_signal(),
-            strategy_type="FVG_SCALP_4_CONFIRMS",
-            result=result,
-        )
+    outcome = integration.register_if_accepted(
+        signal=make_signal(),
+        strategy_type="FVG_SCALP_4_CONFIRMS",
+        result=result,
     )
 
     assert outcome is None
-
     assert tracker.calls == []
