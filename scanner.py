@@ -997,6 +997,26 @@ def main():
             latest_price = float(df['close'].iloc[-1])
             local_prices[sym] = latest_price
 
+            # Sprint 008-I: feed each completed market bar into the
+            # observation-only Shadow Outcome tracker BEFORE registering
+            # signals from the current candle. This allows previously
+            # accepted V2 shadow outcomes to resolve on later candles
+            # while preserving the no-same-candle rule.
+            if shadow_outcome_tracker is not None:
+                try:
+                    shadow_outcome_tracker.process_market_bar(
+                        symbol=sym,
+                        timeframe=tf,
+                        high=float(df["high"].iloc[-1]),
+                        low=float(df["low"].iloc[-1]),
+                        timestamp=str(df["time"].iloc[-1]),
+                    )
+                except Exception as outcome_error:
+                    console.print(
+                        f"[yellow][Shadow Outcome][/yellow] "
+                        f"{sym} {tf}: {outcome_error}"
+                    )
+
             try:
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
                 for sig in sigs:
