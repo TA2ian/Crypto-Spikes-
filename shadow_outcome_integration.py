@@ -258,6 +258,84 @@ class ShadowOutcomeIntegration:
 
         self._loaded_storage_path = current_path
 
+    def process_market_bar(
+        self,
+        *,
+        symbol: str,
+        timeframe: str,
+        high: float,
+        low: float,
+        timestamp: str | None = None,
+    ) -> list[Any]:
+        """
+        Process one completed market candle against existing
+        pending shadow outcomes.
+
+        Observation-only:
+        this method never creates, modifies, or closes real trades.
+
+        The current candle is processed at most once per outcome.
+        Newly registered signals are therefore not evaluated against
+        the candle that created them.
+        """
+        self._sync_storage_context()
+
+        processed: list[Any] = []
+
+        for outcome in list(
+            self.tracker.outcomes.values()
+        ):
+            if outcome.resolved:
+                continue
+
+            if str(outcome.symbol) != str(symbol):
+                continue
+
+            if str(outcome.timeframe) != str(timeframe):
+                continue
+
+            metadata = outcome.metadata or {}
+
+            if timestamp is not None:
+                signal_timestamp = metadata.get(
+                    "candle_timestamp"
+                )
+
+                # Never evaluate the candle that created the signal,
+                # or any candle older than that signal candle.
+                if (
+                    signal_timestamp is not None
+                    and str(timestamp) <= str(signal_timestamp)
+                ):
+                    continue
+
+                # A candle must be processed at most once.
+                last_processed = metadata.get(
+                    "last_processed_timestamp"
+                )
+
+                if last_processed == str(timestamp):
+                    continue
+
+            result = self.tracker.process_bar(
+                signal_id=outcome.signal_id,
+                high=float(high),
+                low=float(low),
+                timestamp=timestamp,
+            )
+
+            # Record the candle even when the outcome remains PENDING.
+            # This prevents the same candle from being processed again.
+            if timestamp is not None:
+                metadata["last_processed_timestamp"] = str(timestamp)
+                outcome.metadata = metadata
+                self.tracker.save()
+
+            if result is not None:
+                processed.append(result)
+
+        return processed
+
     def register_if_accepted(
         self,
         *,
@@ -290,6 +368,9 @@ class ShadowOutcomeIntegration:
         metadata = {
             "source": "scanner_shadow",
             "mode": "SHADOW",
+            "candle_timestamp": signal.get(
+                "candle_timestamp"
+            ),
             "audit_event_id": self._read_value(
                 result,
                 "audit_event_id",

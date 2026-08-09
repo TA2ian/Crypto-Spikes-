@@ -1001,6 +1001,14 @@ def main():
                 sigs = analyze_symbol(sym, df, timeframe=tf, score_state=score_state)
                 for sig in sigs:
                     sig["macro_info"] = macro_info
+
+                    # Sprint 008-H:
+                    # Record the candle that produced this signal.
+                    # Shadow outcomes must never resolve against
+                    # the same candle that created the signal.
+                    sig["candle_timestamp"] = str(
+                        df["time"].iloc[-1]
+                    )
                     symbol_signals.append(sig)
                 
                 bearish_alerts = analyze_bearish_signals(sym, df, timeframe=tf)
