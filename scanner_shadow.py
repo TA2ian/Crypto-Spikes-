@@ -33,6 +33,16 @@ LEGACY_TO_V2_STRATEGY = {
 }
 
 
+HTF_BY_SIGNAL_TIMEFRAME = {
+    "15m": "1h",
+    "1h": "4h",
+    "4h": "1d",
+    "1d": "3d",
+    "3d": "1w",
+    "1w": None,
+}
+
+
 def _category_for_note(
     note: str,
 ) -> EvidenceCategory:
@@ -166,6 +176,78 @@ def _halal_from_watchlist(
     }
 
 
+def _higher_timeframe(
+    timeframe: str,
+) -> str | None:
+    return HTF_BY_SIGNAL_TIMEFRAME.get(
+        str(timeframe).lower()
+    )
+
+
+def _trend_bullish_from_frame(
+    df: Any,
+) -> bool:
+    """Match the scanner's bullish trend rule on a closed HTF candle."""
+    if df is None or len(df) < 20:
+        return False
+
+    closed_df = df.iloc[:-1]
+    if len(closed_df) < 20:
+        return False
+
+    try:
+        from indicators import calc_rsi
+
+        last_close = float(
+            closed_df["close"].iloc[-1]
+        )
+        ema20 = float(
+            closed_df["close"]
+            .ewm(span=20, adjust=False)
+            .mean()
+            .iloc[-1]
+        )
+        rsi = float(
+            calc_rsi(
+                closed_df["close"],
+                14,
+            ).iloc[-1]
+        )
+    except Exception:
+        return False
+
+    return (
+        last_close > ema20
+        and rsi > 45
+    )
+
+
+def _fetch_higher_timeframe_bullish(
+    symbol: str,
+    timeframe: str,
+) -> bool:
+    """Fetch the real HTF context using the same market-data provider chain."""
+    higher_timeframe = _higher_timeframe(
+        timeframe
+    )
+
+    if higher_timeframe is None:
+        return False
+
+    try:
+        # Lazy import avoids the scanner -> shadow bridge import cycle.
+        from scanner import fetch_klines
+
+        df = fetch_klines(
+            symbol,
+            timeframe=higher_timeframe,
+        )
+    except Exception:
+        return False
+
+    return _trend_bullish_from_frame(df)
+
+
 class ScannerShadowBridge:
     """
     Runs V2 beside the legacy scanner without changing
@@ -248,6 +330,27 @@ class ScannerShadowBridge:
             )
         )
 
+        signal_timeframe = str(
+            signal.get(
+                "timeframe",
+                "1h",
+            )
+        ).lower()
+
+        # HTF is deliberately independent from macro context.
+        # Prefer explicit signal context when available; otherwise
+        # derive the next higher timeframe from the live market data.
+        explicit_htf = signal.get(
+            "htf_bullish"
+        )
+        if isinstance(explicit_htf, bool):
+            htf_bullish = explicit_htf
+        else:
+            htf_bullish = _fetch_higher_timeframe_bullish(
+                symbol,
+                signal_timeframe,
+            )
+
         target1 = signal.get("target1")
         target2 = signal.get("target2")
         target3 = signal.get("target3")
@@ -301,10 +404,10 @@ class ScannerShadowBridge:
             ),
 
             # --------------------------------------------------
-            # Position / Macro context
+            # Position / independent HTF + Macro context
             # --------------------------------------------------
             active_positions=active_positions,
-            htf_bullish=macro_bullish,
+            htf_bullish=htf_bullish,
             macro_bullish=macro_bullish,
 
             # --------------------------------------------------
@@ -329,9 +432,12 @@ class ScannerShadowBridge:
                 "legacy_stars": signal.get(
                     "stars"
                 ),
-                "timeframe": signal.get(
-                    "timeframe"
+                "timeframe": signal_timeframe,
+                "htf_timeframe": _higher_timeframe(
+                    signal_timeframe
                 ),
+                "htf_bullish": htf_bullish,
+                "macro_bullish": macro_bullish,
                 "entry": entry,
                 "stop_loss": stop,
             },
