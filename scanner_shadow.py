@@ -3,9 +3,22 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from evidence_v2 import EvidenceCategory, EvidencePolarity, EvidenceRecord
-from integration_v2 import ExecutionMode, V2Pipeline
-from risk_v2 import RiskParameters, StrategyType
+from evidence_v2 import (
+    EvidenceCategory,
+    EvidencePolarity,
+    EvidenceRecord,
+)
+from integration_v2 import (
+    ExecutionMode,
+    V2Pipeline,
+)
+from risk_v2 import (
+    RiskParameters,
+    StrategyType,
+)
+from shadow_outcome_integration import (
+    ShadowOutcomeIntegration,
+)
 
 
 LEGACY_TO_V2_STRATEGY = {
@@ -20,7 +33,9 @@ LEGACY_TO_V2_STRATEGY = {
 }
 
 
-def _category_for_note(note: str) -> EvidenceCategory:
+def _category_for_note(
+    note: str,
+) -> EvidenceCategory:
     text = note.lower()
 
     if "diverg" in text or "دايفرجنس" in text:
@@ -59,7 +74,6 @@ def _category_for_note(note: str) -> EvidenceCategory:
 def _evidence_from_signal(
     signal: dict[str, Any],
 ) -> list[EvidenceRecord]:
-
     notes = signal.get("confluence") or []
 
     if not isinstance(notes, list):
@@ -97,7 +111,6 @@ def _evidence_from_signal(
 def _confluence_score(
     evidence: Iterable[EvidenceRecord],
 ) -> float:
-
     count = len(tuple(evidence))
 
     return min(
@@ -109,7 +122,6 @@ def _confluence_score(
 def _risk_reward(
     signal: dict[str, Any],
 ) -> float:
-
     entry = float(
         signal["price"]
     )
@@ -140,7 +152,6 @@ def _halal_from_watchlist(
     symbol: str,
     watchlist: Iterable[str],
 ) -> bool:
-
     normalized = (
         symbol
         .upper()
@@ -160,6 +171,10 @@ class ScannerShadowBridge:
 
     SHADOW mode never creates a TradeState
     and never submits orders.
+
+    Accepted V2 signals are registered with the
+    ShadowOutcomeIntegration layer for later
+    outcome tracking.
     """
 
     def __init__(
@@ -167,13 +182,16 @@ class ScannerShadowBridge:
         *,
         watchlist: Iterable[str],
     ) -> None:
-
         self.pipeline = V2Pipeline(
             mode=ExecutionMode.SHADOW
         )
 
         self.watchlist = tuple(
             watchlist
+        )
+
+        self.outcome_integration = (
+            ShadowOutcomeIntegration()
         )
 
     def evaluate(
@@ -186,7 +204,6 @@ class ScannerShadowBridge:
         account_equity: float,
         risk_percent: float,
     ):
-
         strategy = LEGACY_TO_V2_STRATEGY.get(
             strategy_type
         )
@@ -213,14 +230,31 @@ class ScannerShadowBridge:
             signal["stop_loss"]
         )
 
-        return self.pipeline.evaluate(
+        asset_supported = _halal_from_watchlist(
+            str(
+                signal["symbol"]
+            ),
+            self.watchlist,
+        )
+
+        result = self.pipeline.evaluate(
             symbol=str(
                 signal["symbol"]
             ),
+            asset_supported=asset_supported,
+            strategies=[strategy],
             evidence=evidence,
             confluence_score=confluence_score,
             hypothesis_polarity=(
                 EvidencePolarity.BULLISH
+            ),
+            entry=entry,
+            stop_loss=stop,
+            targets=(
+                signal.get("target1"),
+                signal.get("target2"),
+                signal.get("target3"),
+                signal.get("target4"),
             ),
             risk=RiskParameters(
                 entry_price=entry,
@@ -256,23 +290,6 @@ class ScannerShadowBridge:
             risk_reward_value=_risk_reward(
                 signal
             ),
-            halal_eligible=_halal_from_watchlist(
-                str(signal["symbol"]),
-                self.watchlist,
-            ),
-            asset_supported=_halal_from_watchlist(
-                str(signal["symbol"]),
-                self.watchlist,
-            ),
-            strategies=[strategy],
-            entry=entry,
-            stop_loss=stop,
-            targets=(
-                signal.get("target1"),
-                signal.get("target2"),
-                signal.get("target3"),
-                signal.get("target4"),
-            ),
             metadata={
                 "legacy_strategy": strategy_type,
                 "legacy_signal_type": signal.get(
@@ -284,8 +301,27 @@ class ScannerShadowBridge:
                 "legacy_stars": signal.get(
                     "stars"
                 ),
+                "timeframe": signal.get(
+                    "timeframe"
+                ),
+                "entry": entry,
+                "stop_loss": stop,
             },
         )
+
+        # --------------------------------------------------
+        # Shadow Outcome Registration
+        #
+        # This is observation-only.
+        # It never opens, modifies, or submits a real trade.
+        # --------------------------------------------------
+        self.outcome_integration.register_if_accepted(
+            signal=signal,
+            strategy_type=strategy_type,
+            result=result,
+        )
+
+        return result
 
 
 def compare_legacy_and_v2(
@@ -293,7 +329,6 @@ def compare_legacy_and_v2(
     legacy_strategy: str,
     result: Any,
 ) -> dict[str, Any]:
-
     if result is None:
         return {
             "status": (
