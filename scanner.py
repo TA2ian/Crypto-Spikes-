@@ -119,13 +119,24 @@ except ImportError:
 
 # --- استدعاء الموديولات الذكية ---
 try:
-    from modules.smc import detect_fvg, detect_liquidity_sweep
-    from modules.sentiment import get_fear_and_greed_index
-    from modules.dynamic_risk import calculate_atr, rate_signal_confidence
-except ImportError:
-    from smc import detect_fvg, detect_liquidity_sweep
-    from sentiment import get_fear_and_greed_index
-    from dynamic_risk import calculate_atr, rate_signal_confidence
+    from models.smc import (
+        detect_fvg,
+        detect_liquidity_sweep,
+    )
+    from models.sentiment import (
+        get_fear_and_greed_index,
+    )
+    from models.dynamic_risk import (
+        calculate_atr,
+        rate_signal_confidence,
+    )
+except ImportError as exc:
+    raise ImportError(
+        "Failed to import scanner model modules from "
+        "'models'. Expected files: "
+        "models/smc.py, models/sentiment.py, "
+        "models/dynamic_risk.py"
+    ) from exc
 
 # ============ الإعدادات والأطر الزمنية ============
 ACTIVE_TIMEFRAMES = ["15m", "1h", "4h", "1d", "3d", "1w"]

@@ -272,15 +272,41 @@ class TradeManager:
 
             # --- (أ) الانتقال من WAITING_ENTRY إلى FIRST_ENTRY / ACTIVE ---
             if stage == "WAITING_ENTRY":
-                if current_price <= trade["original_entry"] * 1.002:
+                original_entry = trade.get(
+                    "original_entry",
+                    trade.get(
+                        "entry_price",
+                        trade.get("entry"),
+                    ),
+                )
+
+                if original_entry is None:
+                    continue
+
+                original_entry = float(original_entry)
+                trade["original_entry"] = original_entry
+
+                if current_price <= original_entry * 1.002:
                     trade["current_stage"] = "FIRST_ENTRY"
                     trade["last_update_time"] = now_str
                     updated = True
+
                     if self.alert_manager:
-                        msg = f"⚡ تفعيل الدخول الأول (FIRST_ENTRY) عند ${current_price:.4f}"
-                        self.alert_manager.send_alert("FIRST_ENTRY", symbol, timeframe, msg, extra_data=trade, ignore_cooldown=True)
-                remaining_trades.append(trade)
-                continue
+                        msg = (
+                            f"⚡ تفعيل الدخول الأول "
+                            f"(FIRST_ENTRY) عند ${current_price:.4f}"
+                        )
+                        self.alert_manager.send_alert(
+                            "FIRST_ENTRY",
+                            symbol,
+                            timeframe,
+                            msg,
+                            extra_data=trade,
+                            ignore_cooldown=True,
+                        )
+
+                    remaining_trades.append(trade)
+                    continue
 
             # --- (ب) التحقق من ضرب وقف الخسارة (Stop Loss) ---
             if current_price <= current_sl:
