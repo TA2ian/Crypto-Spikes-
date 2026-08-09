@@ -1,4 +1,4 @@
-name: فحص العملات الحلال
+name: فحص العملات الحلال - V2 Shadow
 
 on:
   schedule:
@@ -7,14 +7,20 @@ on:
   workflow_dispatch: {}
 
 permissions:
-  contents: write   # مطلوب لمنح صلاحية حفظ وتحديث ملفات التقرير تلقائياً
+  contents: write
+
+env:
+  V2_BRANCH: "halal-crypto-intelligence/-(v2-Development)"
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - name: سحب الكود
+      - name: سحب كود V2
         uses: actions/checkout@v4
+        with:
+          ref: "halal-crypto-intelligence/-(v2-Development)"
+          fetch-depth: 0
 
       - name: تثبيت Python
         uses: actions/setup-python@v5
@@ -25,8 +31,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install cachetools tenacity requests pandas blessed rich
-          
-
 
       - name: تشغيل الماسح
         env:
@@ -34,22 +38,16 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scanner.py
 
-      - name: حفظ بيانات Mini App والتحديث التلقائي
+      - name: حفظ بيانات Mini App على فرع V2
         run: |
           git config user.name "halal-scanner-bot"
           git config user.email "actions@github.com"
-          
-          # إيجاد وإنشاء مجلد docs في حال عدم وجوده
           mkdir -p docs
-          
-          # إضافة جميع الملفات والبيانات التي تم توليدها داخل مجلد docs
           git add docs/
-          
-          # التحقق مما إذا كان هناك تغيير فعلي قبل عمل commit
+
           if ! git diff --staged --quiet; then
-            git commit -m "تحديث بيانات الإشارات [تلقائي]"
-            git pull --rebase origin main || true
-            git push
+            git commit -m "تحديث بيانات الإشارات V2 [تلقائي]"
+            git push origin "HEAD:${V2_BRANCH}"
           else
             echo "لا توجد تغييرات جديدة للحفظ."
           fi
