@@ -1,0 +1,13 @@
+
+# Python generated files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime files
+alerts.log
+market_status.json
+shadow_outcomes.json
+
+# Local backup files
+*.bak
