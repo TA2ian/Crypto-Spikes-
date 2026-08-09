@@ -290,6 +290,7 @@ class ScannerShadowBridge:
             risk_reward_value=_risk_reward(
                 signal
             ),
+            halal_eligible=asset_supported,
             metadata={
                 "legacy_strategy": strategy_type,
                 "legacy_signal_type": signal.get(
@@ -312,8 +313,8 @@ class ScannerShadowBridge:
         # --------------------------------------------------
         # Shadow Outcome Registration
         #
-        # This is observation-only.
-        # It never opens, modifies, or submits a real trade.
+        # Observation-only.
+        # Never opens, modifies, or submits a real trade.
         # --------------------------------------------------
         self.outcome_integration.register_if_accepted(
             signal=signal,
