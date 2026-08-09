@@ -111,11 +111,11 @@ def _evidence_from_signal(
 def _confluence_score(
     evidence: Iterable[EvidenceRecord],
 ) -> float:
-    count = len(tuple(evidence))
+    evidence_list = list(evidence)
 
     return min(
         1.0,
-        count / 5.0,
+        len(evidence_list) / 5.0,
     )
 
 
@@ -159,7 +159,9 @@ def _halal_from_watchlist(
     )
 
     return normalized in {
-        item.upper().replace("/", "-")
+        str(item)
+        .upper()
+        .replace("/", "-")
         for item in watchlist
     }
 
@@ -230,67 +232,92 @@ class ScannerShadowBridge:
             signal["stop_loss"]
         )
 
+        symbol = str(
+            signal["symbol"]
+        )
+
         asset_supported = _halal_from_watchlist(
-            str(
-                signal["symbol"]
-            ),
+            symbol,
             self.watchlist,
         )
 
+        macro_bullish = bool(
+            macro_info.get(
+                "macro_bullish",
+                False,
+            )
+        )
+
+        target1 = signal.get("target1")
+        target2 = signal.get("target2")
+        target3 = signal.get("target3")
+        target4 = signal.get("target4")
+
         result = self.pipeline.evaluate(
-            symbol=str(
-                signal["symbol"]
-            ),
+            # --------------------------------------------------
+            # Asset
+            # --------------------------------------------------
+            symbol=symbol,
             asset_supported=asset_supported,
+
+            # --------------------------------------------------
+            # Strategy
+            # --------------------------------------------------
             strategies=[strategy],
+
+            # --------------------------------------------------
+            # Evidence / decision inputs
+            # --------------------------------------------------
             evidence=evidence,
             confluence_score=confluence_score,
             hypothesis_polarity=(
                 EvidencePolarity.BULLISH
             ),
+
+            # --------------------------------------------------
+            # Entry / Stop / Targets
+            # --------------------------------------------------
             entry=entry,
             stop_loss=stop,
             targets=(
-                signal.get("target1"),
-                signal.get("target2"),
-                signal.get("target3"),
-                signal.get("target4"),
+                target1,
+                target2,
+                target3,
+                target4,
             ),
+
+            # --------------------------------------------------
+            # Risk
+            # --------------------------------------------------
             risk=RiskParameters(
                 entry_price=entry,
                 stop_loss=stop,
-                target_1=signal.get(
-                    "target1"
-                ),
-                target_2=signal.get(
-                    "target2"
-                ),
-                target_3=signal.get(
-                    "target3"
-                ),
-                target_4=signal.get(
-                    "target4"
-                ),
+                target_1=target1,
+                target_2=target2,
+                target_3=target3,
+                target_4=target4,
                 account_equity=account_equity,
                 risk_percent=risk_percent,
             ),
+
+            # --------------------------------------------------
+            # Position / Macro context
+            # --------------------------------------------------
             active_positions=active_positions,
-            htf_bullish=bool(
-                macro_info.get(
-                    "macro_bullish",
-                    False,
-                )
-            ),
-            macro_bullish=bool(
-                macro_info.get(
-                    "macro_bullish",
-                    False,
-                )
-            ),
+            htf_bullish=macro_bullish,
+            macro_bullish=macro_bullish,
+
+            # --------------------------------------------------
+            # Risk / Halal eligibility
+            # --------------------------------------------------
             risk_reward_value=_risk_reward(
                 signal
             ),
             halal_eligible=asset_supported,
+
+            # --------------------------------------------------
+            # Audit metadata
+            # --------------------------------------------------
             metadata={
                 "legacy_strategy": strategy_type,
                 "legacy_signal_type": signal.get(
