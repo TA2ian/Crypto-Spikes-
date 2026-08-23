@@ -114,10 +114,6 @@ class ShadowOutcomeIntegration:
         if result is None:
             return False
 
-        # --------------------------------------------------
-        # Primary V2 API:
-        # result.decision.accepted
-        # --------------------------------------------------
         decision = cls._read_value(
             result,
             "decision",
@@ -164,10 +160,6 @@ class ShadowOutcomeIntegration:
                 }:
                     return False
 
-            # --------------------------------------------------
-            # Backward compatibility:
-            # decision itself may be a string.
-            # --------------------------------------------------
             if isinstance(
                 decision,
                 str,
@@ -191,16 +183,8 @@ class ShadowOutcomeIntegration:
                 }:
                     return False
 
-            # --------------------------------------------------
-            # If a decision object exists but doesn't explicitly
-            # expose acceptance, do NOT infer acceptance from
-            # another unrelated field.
-            # --------------------------------------------------
             return False
 
-        # --------------------------------------------------
-        # Fallback only when no decision exists at all.
-        # --------------------------------------------------
         action = cls._read_value(
             result,
             "action",
@@ -236,10 +220,6 @@ class ShadowOutcomeIntegration:
         """
         Keep in-memory outcomes aligned with the currently
         configured storage path when the tracker exposes one.
-
-        Lightweight test doubles such as FakeTracker may not
-        provide storage_path; in that case no synchronization
-        is required.
         """
 
         current_path = getattr(
@@ -301,15 +281,12 @@ class ShadowOutcomeIntegration:
                     "candle_timestamp"
                 )
 
-                # Never evaluate the candle that created the signal,
-                # or any candle older than that signal candle.
                 if (
                     signal_timestamp is not None
                     and str(timestamp) <= str(signal_timestamp)
                 ):
                     continue
 
-                # A candle must be processed at most once.
                 last_processed = metadata.get(
                     "last_processed_timestamp"
                 )
@@ -324,8 +301,6 @@ class ShadowOutcomeIntegration:
                 timestamp=timestamp,
             )
 
-            # Record the candle even when the outcome remains PENDING.
-            # This prevents the same candle from being processed again.
             if timestamp is not None:
                 metadata["last_processed_timestamp"] = str(timestamp)
                 outcome.metadata = metadata
@@ -333,6 +308,52 @@ class ShadowOutcomeIntegration:
 
             if result is not None:
                 processed.append(result)
+
+        return processed
+
+    def process_market_bars(
+        self,
+        *,
+        symbol: str,
+        timeframe: str,
+        bars,
+    ) -> list[Any]:
+        """
+        Reconcile pending Shadow Outcomes against historical
+        completed candles for the same symbol/timeframe.
+
+        Each bar must provide:
+            timestamp, high, low
+
+        Bars at or before the signal candle are ignored.
+        Already processed timestamps are ignored by
+        process_market_bar().
+
+        Observation-only:
+        this method never creates, modifies, or closes real trades.
+        """
+        processed: list[Any] = []
+
+        for bar in bars:
+            if isinstance(bar, dict):
+                timestamp = bar.get("timestamp")
+                high = bar.get("high")
+                low = bar.get("low")
+            else:
+                timestamp, high, low = bar
+
+            if timestamp is None or high is None or low is None:
+                continue
+
+            results = self.process_market_bar(
+                symbol=symbol,
+                timeframe=timeframe,
+                high=float(high),
+                low=float(low),
+                timestamp=str(timestamp),
+            )
+
+            processed.extend(results)
 
         return processed
 
