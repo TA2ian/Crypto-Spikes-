@@ -1,5 +1,5 @@
 {
-    "timestamp": "2026-08-23T08:03:26.868803+00:00",
+    "timestamp": "2026-08-23T08:07:21.972081+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 29,
@@ -135,7 +135,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2ed0139b-7b9e-4af7-83e7-9c0cc2d28310"
+                "audit_event_id": "c6fd0a3f-041a-44c8-b710-2b08eccdf71f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BTC-USDT-3d-CVD_BREAKOUT_CONFIRMED-76991.00000000",
@@ -261,7 +261,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "cad78862-28ed-46c2-8691-064cf8276ba8"
+                "audit_event_id": "85ec38b5-039e-4074-a5ca-0aedb4342683"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETH-USDT-3d-CVD_BREAKOUT_CONFIRMED-2410.95000000",
@@ -389,7 +389,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9d6c4bad-ef8a-4271-b9a7-274449448ce1"
+                "audit_event_id": "937b35fb-372c-4f42-9ddb-f3694d3a62c4"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BNB-USDT-1d-WYCKOFF_SMC_ACCUMULATION-688.40000000",
@@ -513,7 +513,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "47afe9bf-0a8f-483f-96a3-549c34bbaa24"
+                "audit_event_id": "cd49101e-3a2e-42b1-a741-b028b1855736"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -639,7 +639,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4fd41f2f-f8d1-4958-9c65-376837299647"
+                "audit_event_id": "f8c5a2e1-e145-4af7-81da-59a030f544af"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-1d-WYCKOFF_SMC_ACCUMULATION-1.43950000",
@@ -767,7 +767,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d94170b4-0df3-4730-a179-ca822a6e9b6f"
+                "audit_event_id": "895588bd-548a-47f0-81e2-e99481fa2aba"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-3d-CVD_BREAKOUT_CONFIRMED-1.43950000",
@@ -897,7 +897,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "a926b979-109d-4d79-a8f7-444e16107a9d"
+                "audit_event_id": "34fbf20a-ad3f-4c4c-85d1-aec68be46ec4"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SOL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-93.06000000",
@@ -1022,7 +1022,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "99623e1b-f0a5-4eeb-8f5b-41987333712e"
+                "audit_event_id": "c54b6c36-4f9f-47a5-af8e-b9bd494de3a8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-1d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -1148,7 +1148,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "81f74606-94b9-4e2d-8f4e-4f48f3857824"
+                "audit_event_id": "aeca1b06-a101-4b4b-9707-c5e0e4bbbbd1"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -1275,7 +1275,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6e9c16ab-6d85-4edd-99f4-6bffdbc157d3"
+                "audit_event_id": "c878de2b-9b37-4371-85e7-e83c92b1b05c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -1400,7 +1400,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "48729927-cb27-480f-8195-3d9e54e9c049"
+                "audit_event_id": "7e0ebc30-ea7e-4761-a2f8-e80bb61b943e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -1525,7 +1525,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d0d5baa2-2229-4654-bc67-d8b156aa684c"
+                "audit_event_id": "f23db62d-fd28-4e84-a9a9-ef1f61430018"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -1650,7 +1650,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "994dcff5-b278-4e20-9ede-7003e6ebe261"
+                "audit_event_id": "d925b46b-a33e-41c9-b9ca-885e9b3c33f8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LINK-USDT-3d-CVD_BREAKOUT_CONFIRMED-11.60700000",
@@ -1778,7 +1778,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6c60396e-ddec-48ed-b238-fa251d0311b3"
+                "audit_event_id": "a02defa9-6062-45e8-b762-53fcaa5ec5e8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BCH-USDT-3d-WYCKOFF_SMC_ACCUMULATION-275.30000000",
@@ -1907,7 +1907,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9f3b6981-9ffb-4e3f-b155-1ef80d623a49"
+                "audit_event_id": "7e340dc4-fd3a-49a4-9fc0-d30f17edc86c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LTC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-51.95000000",
@@ -2035,7 +2035,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6e892de8-fdc9-4231-84e7-ab340a4de5dc"
+                "audit_event_id": "48a240c9-b463-4c4a-a37a-5fc27c9ef787"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SUI-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.81530000",
@@ -2163,7 +2163,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4f86fbcf-2382-4049-8267-066fe0aac753"
+                "audit_event_id": "e83bc398-ad2a-4987-b554-a26568c31ba0"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -2288,7 +2288,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4df57d75-8d0f-4371-8142-16517dba087b"
+                "audit_event_id": "3f05946c-199a-4c19-bd69-604565735455"
             },
             "v2_shadow_outcome": {
                 "signal_id": "DOT-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.92370000",
@@ -2395,9 +2395,9 @@
                 "d3_support": 1.991,
                 "d3_resistance": 2.399,
                 "d3_rsi": 53.864159062363164,
-                "w1_support": 2.003,
-                "w1_resistance": 3.221,
-                "w1_rsi": 44.853351372751405
+                "w1_support": 1.991,
+                "w1_resistance": 3.226,
+                "w1_rsi": 44.777454573050676
             },
             "candle_timestamp": "1787472000000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -2413,7 +2413,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "28d41ca0-1db8-4e40-9e51-bf24412d6e44"
+                "audit_event_id": "f486ca4e-b9d4-4fb8-9969-57cdc2b3787d"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ICP-USDT-15m-CVD_BREAKOUT_CONFIRMED-2.38900000",
@@ -2520,9 +2520,9 @@
                 "d3_support": 6.02,
                 "d3_resistance": 7.196,
                 "d3_rsi": 60.83827356343058,
-                "w1_support": 6.32,
-                "w1_resistance": 8.23,
-                "w1_rsi": 29.644053452988047
+                "w1_support": 6.315,
+                "w1_resistance": 8.238,
+                "w1_rsi": 28.634933835700252
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -2538,7 +2538,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "0d03fc05-63c8-4651-9262-29594a303639"
+                "audit_event_id": "c5b0be6c-0117-455b-83db-1ce0e1d27512"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETC-USDT-1d-CVD_BREAKOUT_CONFIRMED-7.80700000",
@@ -2643,9 +2643,9 @@
                 "d3_support": 6.02,
                 "d3_resistance": 7.196,
                 "d3_rsi": 60.83827356343058,
-                "w1_support": 6.32,
-                "w1_resistance": 8.23,
-                "w1_rsi": 29.644053452988047
+                "w1_support": 6.315,
+                "w1_resistance": 8.238,
+                "w1_rsi": 28.634933835700252
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -2662,7 +2662,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9a51e1f3-561f-4cdd-a4bc-23d4c8476c09"
+                "audit_event_id": "33563d04-e1c5-4f9a-9065-e81fa4e038dc"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -2766,10 +2766,10 @@
             "current_stage": "FIRST_ENTRY",
             "price_entry_original": 0.11029,
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
+                "macro_bullish": true,
+                "d3_support": 0.07016,
+                "d3_resistance": 0.08448,
+                "d3_rsi": 72.98762089274082,
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 37.86737077514102
@@ -2785,11 +2785,10 @@
                 "v2_confidence": 0.8,
                 "v2_eligibility": "blocked",
                 "v2_blocked_reasons": [
-                    "active_trade_conflict",
-                    "macro_conflict"
+                    "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2dfb5aaf-7580-4408-9bff-03fdfa88fec5"
+                "audit_event_id": "2cb1754c-d61f-4794-b44b-9f1c8c3a1c01"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -2893,10 +2892,10 @@
             "current_stage": "FIRST_ENTRY",
             "price_entry_original": 0.11029,
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
+                "macro_bullish": true,
+                "d3_support": 0.07016,
+                "d3_resistance": 0.08448,
+                "d3_rsi": 72.98762089274082,
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 37.86737077514102
@@ -2913,11 +2912,10 @@
                 "v2_eligibility": "blocked",
                 "v2_blocked_reasons": [
                     "active_trade_conflict",
-                    "htf_conflict",
-                    "macro_conflict"
+                    "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2a729f89-f97a-404d-af71-f74e570063ca"
+                "audit_event_id": "f52b69bb-77e6-4277-a102-3b9a6e903646"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -3044,7 +3042,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e1225dc-85be-4e62-85a6-df8e44eef0a7"
+                "audit_event_id": "3a6b1abd-0d98-4347-83cc-2443d2330022"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -3169,7 +3167,7 @@
                 "v2_strategy_eligible": [
                     "precision_trend_following"
                 ],
-                "audit_event_id": "ca6af9f3-b33e-4a50-bbc5-0786b63738aa"
+                "audit_event_id": "dd58dacd-d1db-4b4c-ba51-cdfdf7607532"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -3293,7 +3291,7 @@
                     "macro_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2f8fb168-ad16-4eea-ba0e-590bcc30753a"
+                "audit_event_id": "0510a969-45d4-43ea-b33a-4ebd9f6c70a1"
             },
             "v2_shadow_outcome": {
                 "signal_id": "KITE-USDT-1d-FVG_SCALP_4_CONFIRMS-0.11216000",
@@ -3404,7 +3402,7 @@
                 "d3_rsi": 56.544592262317394,
                 "w1_support": 5.684,
                 "w1_resistance": 9.073,
-                "w1_rsi": 33.36932391771711
+                "w1_rsi": 32.471460605244715
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -3421,7 +3419,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4bd7a169-faee-4c5d-bd1c-f1649d8f5399"
+                "audit_event_id": "039e9394-04e1-4bc5-95b5-b342806e7013"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -3531,9 +3529,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.735,
-                "w1_resistance": 6.0,
-                "w1_rsi": 33.31814687468791
+                "w1_support": 3.74,
+                "w1_resistance": 6.009,
+                "w1_rsi": 37.078885941813446
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -3549,7 +3547,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "97b724f4-288b-450c-9ee3-4187bac92964"
+                "audit_event_id": "335a6d7f-c2f7-4265-8fcd-e62330136300"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-1d-CVD_BREAKOUT_CONFIRMED-5.23200000",
@@ -3659,9 +3657,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.735,
-                "w1_resistance": 6.0,
-                "w1_rsi": 33.31814687468791
+                "w1_support": 3.74,
+                "w1_resistance": 6.009,
+                "w1_rsi": 37.078885941813446
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -3678,7 +3676,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "83fb103e-16cf-4011-ac11-0b1529f20ec2"
+                "audit_event_id": "bdf2098e-e1b5-4450-9348-831cb8811326"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-3d-WYCKOFF_SMC_ACCUMULATION-5.23200000",
@@ -3806,7 +3804,7 @@
             "original_entry": 0.07442,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 0.07442,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "BNB-USDT_1h_1785857580",
@@ -3827,14 +3825,14 @@
             "opened_at": "2026-08-04T15:33:00.396806+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 684.4,
+                "highest_price_seen": 685.0,
                 "is_active": true,
-                "current_trailing_sl": 677.5559999999999
+                "current_trailing_sl": 678.15
             },
             "original_entry": 594.3,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 594.3,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "XAUT-USDT_1h_1785866466",
@@ -3862,7 +3860,7 @@
             "original_entry": 4074.3,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 4074.3,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "TAO-USDT_1h_1785873136",
@@ -3883,14 +3881,14 @@
             "opened_at": "2026-08-04T19:52:16.241452+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 219.7,
+                "highest_price_seen": 220.4,
                 "is_active": true,
-                "current_trailing_sl": 217.503
+                "current_trailing_sl": 218.196
             },
             "original_entry": 196.8,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 196.8,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "ZEC-USDT_1h_1785912753",
@@ -3911,14 +3909,14 @@
             "opened_at": "2026-08-05T06:52:33.659742+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 803.3,
+                "highest_price_seen": 809.54,
                 "is_active": true,
-                "current_trailing_sl": 795.2669999999999
+                "current_trailing_sl": 801.4445999999999
             },
             "original_entry": 512.86,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 512.86,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "ICP-USDT_1h_1785912760",
@@ -3939,14 +3937,14 @@
             "opened_at": "2026-08-05T06:52:40.388275+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 2.376,
+                "highest_price_seen": 2.377,
                 "is_active": true,
-                "current_trailing_sl": 2.3522399999999997
+                "current_trailing_sl": 2.35323
             },
             "original_entry": 2.119,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 2.119,
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00"
+            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
         },
         {
             "id": "WYCKOFF_SMC_ACCUMULATION_BTC-USDT_1h_1786285711",
@@ -4017,8 +4015,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 76005.8,
-                "current_trailing_sl": 75245.742
+                "highest_price_seen": 76096.6,
+                "current_trailing_sl": 75335.634
             }
         },
         {
@@ -4090,8 +4088,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 803.3,
-                "current_trailing_sl": 795.2669999999999
+                "highest_price_seen": 809.54,
+                "current_trailing_sl": 801.4445999999999
             }
         },
         {
@@ -4309,8 +4307,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.2251,
-                "current_trailing_sl": 0.222849
+                "highest_price_seen": 0.2252,
+                "current_trailing_sl": 0.222948
             }
         },
         {
@@ -4382,8 +4380,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 5.14,
-                "current_trailing_sl": 5.0886
+                "highest_price_seen": 5.151,
+                "current_trailing_sl": 5.099489999999999
             }
         },
         {
@@ -4455,7 +4453,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 2.376,
+                "highest_price_seen": 2.377,
                 "current_trailing_sl": null
             }
         },
@@ -4528,8 +4526,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 92.44,
-                "current_trailing_sl": 91.51559999999999
+                "highest_price_seen": 92.55,
+                "current_trailing_sl": 91.6245
             }
         },
         {
@@ -4601,8 +4599,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 267.3,
-                "current_trailing_sl": 264.627
+                "highest_price_seen": 267.7,
+                "current_trailing_sl": 265.02299999999997
             }
         },
         {
@@ -4893,7 +4891,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 219.7,
+                "highest_price_seen": 220.4,
                 "current_trailing_sl": null
             }
         },
@@ -5039,7 +5037,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 2.376,
+                "highest_price_seen": 2.377,
                 "current_trailing_sl": null
             }
         },
@@ -5112,8 +5110,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.07672,
-                "current_trailing_sl": 0.0759528
+                "highest_price_seen": 0.0768,
+                "current_trailing_sl": 0.07603199999999999
             }
         },
         {
@@ -5331,7 +5329,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 1.414,
+                "highest_price_seen": 1.415,
                 "current_trailing_sl": null
             }
         },
@@ -5404,8 +5402,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.1557,
-                "current_trailing_sl": 0.154143
+                "highest_price_seen": 0.1563,
+                "current_trailing_sl": 0.15473699999999999
             }
         },
         {
@@ -5477,7 +5475,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 13.656,
+                "highest_price_seen": 13.684,
                 "current_trailing_sl": null
             }
         },
@@ -6770,7 +6768,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2ed0139b-7b9e-4af7-83e7-9c0cc2d28310"
+                "audit_event_id": "c6fd0a3f-041a-44c8-b710-2b08eccdf71f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BTC-USDT-3d-CVD_BREAKOUT_CONFIRMED-76991.00000000",
@@ -6896,7 +6894,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "cad78862-28ed-46c2-8691-064cf8276ba8"
+                "audit_event_id": "85ec38b5-039e-4074-a5ca-0aedb4342683"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETH-USDT-3d-CVD_BREAKOUT_CONFIRMED-2410.95000000",
@@ -7024,7 +7022,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9d6c4bad-ef8a-4271-b9a7-274449448ce1"
+                "audit_event_id": "937b35fb-372c-4f42-9ddb-f3694d3a62c4"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BNB-USDT-1d-WYCKOFF_SMC_ACCUMULATION-688.40000000",
@@ -7148,7 +7146,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "47afe9bf-0a8f-483f-96a3-549c34bbaa24"
+                "audit_event_id": "cd49101e-3a2e-42b1-a741-b028b1855736"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -7274,7 +7272,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4fd41f2f-f8d1-4958-9c65-376837299647"
+                "audit_event_id": "f8c5a2e1-e145-4af7-81da-59a030f544af"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-1d-WYCKOFF_SMC_ACCUMULATION-1.43950000",
@@ -7402,7 +7400,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d94170b4-0df3-4730-a179-ca822a6e9b6f"
+                "audit_event_id": "895588bd-548a-47f0-81e2-e99481fa2aba"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-3d-CVD_BREAKOUT_CONFIRMED-1.43950000",
@@ -7532,7 +7530,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "a926b979-109d-4d79-a8f7-444e16107a9d"
+                "audit_event_id": "34fbf20a-ad3f-4c4c-85d1-aec68be46ec4"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SOL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-93.06000000",
@@ -7657,7 +7655,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "99623e1b-f0a5-4eeb-8f5b-41987333712e"
+                "audit_event_id": "c54b6c36-4f9f-47a5-af8e-b9bd494de3a8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-1d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -7783,7 +7781,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "81f74606-94b9-4e2d-8f4e-4f48f3857824"
+                "audit_event_id": "aeca1b06-a101-4b4b-9707-c5e0e4bbbbd1"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -7910,7 +7908,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6e9c16ab-6d85-4edd-99f4-6bffdbc157d3"
+                "audit_event_id": "c878de2b-9b37-4371-85e7-e83c92b1b05c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -8035,7 +8033,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "48729927-cb27-480f-8195-3d9e54e9c049"
+                "audit_event_id": "7e0ebc30-ea7e-4761-a2f8-e80bb61b943e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -8160,7 +8158,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d0d5baa2-2229-4654-bc67-d8b156aa684c"
+                "audit_event_id": "f23db62d-fd28-4e84-a9a9-ef1f61430018"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -8285,7 +8283,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "994dcff5-b278-4e20-9ede-7003e6ebe261"
+                "audit_event_id": "d925b46b-a33e-41c9-b9ca-885e9b3c33f8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LINK-USDT-3d-CVD_BREAKOUT_CONFIRMED-11.60700000",
@@ -8413,7 +8411,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6c60396e-ddec-48ed-b238-fa251d0311b3"
+                "audit_event_id": "a02defa9-6062-45e8-b762-53fcaa5ec5e8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BCH-USDT-3d-WYCKOFF_SMC_ACCUMULATION-275.30000000",
@@ -8542,7 +8540,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9f3b6981-9ffb-4e3f-b155-1ef80d623a49"
+                "audit_event_id": "7e340dc4-fd3a-49a4-9fc0-d30f17edc86c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LTC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-51.95000000",
@@ -8670,7 +8668,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "6e892de8-fdc9-4231-84e7-ab340a4de5dc"
+                "audit_event_id": "48a240c9-b463-4c4a-a37a-5fc27c9ef787"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SUI-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.81530000",
@@ -8798,7 +8796,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4f86fbcf-2382-4049-8267-066fe0aac753"
+                "audit_event_id": "e83bc398-ad2a-4987-b554-a26568c31ba0"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -8923,7 +8921,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4df57d75-8d0f-4371-8142-16517dba087b"
+                "audit_event_id": "3f05946c-199a-4c19-bd69-604565735455"
             },
             "v2_shadow_outcome": {
                 "signal_id": "DOT-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.92370000",
@@ -9030,9 +9028,9 @@
                 "d3_support": 1.991,
                 "d3_resistance": 2.399,
                 "d3_rsi": 53.864159062363164,
-                "w1_support": 2.003,
-                "w1_resistance": 3.221,
-                "w1_rsi": 44.853351372751405
+                "w1_support": 1.991,
+                "w1_resistance": 3.226,
+                "w1_rsi": 44.777454573050676
             },
             "candle_timestamp": "1787472000000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -9048,7 +9046,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "28d41ca0-1db8-4e40-9e51-bf24412d6e44"
+                "audit_event_id": "f486ca4e-b9d4-4fb8-9969-57cdc2b3787d"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ICP-USDT-15m-CVD_BREAKOUT_CONFIRMED-2.38900000",
@@ -9155,9 +9153,9 @@
                 "d3_support": 6.02,
                 "d3_resistance": 7.196,
                 "d3_rsi": 60.83827356343058,
-                "w1_support": 6.32,
-                "w1_resistance": 8.23,
-                "w1_rsi": 29.644053452988047
+                "w1_support": 6.315,
+                "w1_resistance": 8.238,
+                "w1_rsi": 28.634933835700252
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -9173,7 +9171,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "0d03fc05-63c8-4651-9262-29594a303639"
+                "audit_event_id": "c5b0be6c-0117-455b-83db-1ce0e1d27512"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETC-USDT-1d-CVD_BREAKOUT_CONFIRMED-7.80700000",
@@ -9278,9 +9276,9 @@
                 "d3_support": 6.02,
                 "d3_resistance": 7.196,
                 "d3_rsi": 60.83827356343058,
-                "w1_support": 6.32,
-                "w1_resistance": 8.23,
-                "w1_rsi": 29.644053452988047
+                "w1_support": 6.315,
+                "w1_resistance": 8.238,
+                "w1_rsi": 28.634933835700252
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -9297,7 +9295,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "9a51e1f3-561f-4cdd-a4bc-23d4c8476c09"
+                "audit_event_id": "33563d04-e1c5-4f9a-9065-e81fa4e038dc"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -9401,10 +9399,10 @@
             "current_stage": "FIRST_ENTRY",
             "price_entry_original": 0.11029,
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
+                "macro_bullish": true,
+                "d3_support": 0.07016,
+                "d3_resistance": 0.08448,
+                "d3_rsi": 72.98762089274082,
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 37.86737077514102
@@ -9420,11 +9418,10 @@
                 "v2_confidence": 0.8,
                 "v2_eligibility": "blocked",
                 "v2_blocked_reasons": [
-                    "active_trade_conflict",
-                    "macro_conflict"
+                    "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2dfb5aaf-7580-4408-9bff-03fdfa88fec5"
+                "audit_event_id": "2cb1754c-d61f-4794-b44b-9f1c8c3a1c01"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -9528,10 +9525,10 @@
             "current_stage": "FIRST_ENTRY",
             "price_entry_original": 0.11029,
             "macro_info": {
-                "macro_bullish": false,
-                "d3_support": 0,
-                "d3_resistance": 0,
-                "d3_rsi": 50,
+                "macro_bullish": true,
+                "d3_support": 0.07016,
+                "d3_resistance": 0.08448,
+                "d3_rsi": 72.98762089274082,
                 "w1_support": 0.06749,
                 "w1_resistance": 0.09593,
                 "w1_rsi": 37.86737077514102
@@ -9548,11 +9545,10 @@
                 "v2_eligibility": "blocked",
                 "v2_blocked_reasons": [
                     "active_trade_conflict",
-                    "htf_conflict",
-                    "macro_conflict"
+                    "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2a729f89-f97a-404d-af71-f74e570063ca"
+                "audit_event_id": "f52b69bb-77e6-4277-a102-3b9a6e903646"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -9679,7 +9675,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e1225dc-85be-4e62-85a6-df8e44eef0a7"
+                "audit_event_id": "3a6b1abd-0d98-4347-83cc-2443d2330022"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -9804,7 +9800,7 @@
                 "v2_strategy_eligible": [
                     "precision_trend_following"
                 ],
-                "audit_event_id": "ca6af9f3-b33e-4a50-bbc5-0786b63738aa"
+                "audit_event_id": "dd58dacd-d1db-4b4c-ba51-cdfdf7607532"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -9928,7 +9924,7 @@
                     "macro_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2f8fb168-ad16-4eea-ba0e-590bcc30753a"
+                "audit_event_id": "0510a969-45d4-43ea-b33a-4ebd9f6c70a1"
             },
             "v2_shadow_outcome": {
                 "signal_id": "KITE-USDT-1d-FVG_SCALP_4_CONFIRMS-0.11216000",
@@ -10039,7 +10035,7 @@
                 "d3_rsi": 56.544592262317394,
                 "w1_support": 5.684,
                 "w1_resistance": 9.073,
-                "w1_rsi": 33.36932391771711
+                "w1_rsi": 32.471460605244715
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -10056,7 +10052,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "4bd7a169-faee-4c5d-bd1c-f1649d8f5399"
+                "audit_event_id": "039e9394-04e1-4bc5-95b5-b342806e7013"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -10166,9 +10162,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.735,
-                "w1_resistance": 6.0,
-                "w1_rsi": 33.31814687468791
+                "w1_support": 3.74,
+                "w1_resistance": 6.009,
+                "w1_rsi": 37.078885941813446
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -10184,7 +10180,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "97b724f4-288b-450c-9ee3-4187bac92964"
+                "audit_event_id": "335a6d7f-c2f7-4265-8fcd-e62330136300"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-1d-CVD_BREAKOUT_CONFIRMED-5.23200000",
@@ -10294,9 +10290,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.735,
-                "w1_resistance": 6.0,
-                "w1_rsi": 33.31814687468791
+                "w1_support": 3.74,
+                "w1_resistance": 6.009,
+                "w1_rsi": 37.078885941813446
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -10313,7 +10309,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "83fb103e-16cf-4011-ac11-0b1529f20ec2"
+                "audit_event_id": "bdf2098e-e1b5-4450-9348-831cb8811326"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-3d-WYCKOFF_SMC_ACCUMULATION-5.23200000",
