@@ -139,10 +139,7 @@ except ImportError as exc:
     ) from exc
 
 # ============ الإعدادات والأطر الزمنية ============
-# V2 validation mode: 1H only.
-# Other signal timeframes are intentionally disabled until the 1H
-# pipeline has been validated independently.
-ACTIVE_TIMEFRAMES = ["1h"]
+ACTIVE_TIMEFRAMES = ["15m", "1h", "4h", "1d", "3d", "1w"]
 CANDLE_LIMIT = 80
 
 RESISTANCE_LOOKBACK = 20
@@ -400,34 +397,179 @@ def calculate_fixed_targets(entry_price: float, atr: float, resistance: float, f
             pattern_target = entry_price + (p["high"] - p["low"])
 
     if pattern_target > entry_price * 1.01:
-        target1 = min(pattern_target, resistance) if resistance > entry_price else pattern_target
+        target1 = pattern_target
     elif resistance > entry_price * 1.01:
         target1 = resistance
-    elif fvg.get("target") and fvg["target"] > entry_price * 1.01:
-        target1 = fvg["target"]
     else:
         target1 = entry_price + (atr * 1.5)
 
-    risk = entry_price - stop_loss
-    target2 = entry_price + (risk * 2.0)
-    target3 = entry_price + (risk * 3.0)
-    target4 = entry_price + (risk * 4.0)
-    macro_target = max(target3, target1 * 1.05)
+    fib_data = extra_analysis.get("fibonacci", {}) if isinstance(extra_analysis.get("fibonacci"), dict) else {}
+    fib_1618 = fib_data.get("ext_1618", 0)
 
-    return (
-        float(stop_loss),
-        float(target1),
-        float(target2),
-        float(target3),
-        float(target4),
-        float(macro_target),
-    )
+    fvg_top = fvg.get("top", 0) if fvg else 0
+    target2 = fvg_top if fvg_top > target1 else target1 + (atr * 1.5)
+    
+    last_high = ms.get("last_high")
+    if last_high and last_high > target2:
+        target3 = last_high
+    elif fib_1618 > target2:
+        target3 = fib_1618
+    else:
+        target3 = target2 + (atr * 2.0)
 
-# ============ تحليل الإشارات الصعودية ============
-def analyze_bullish_signals(sym: str, df: pd.DataFrame, timeframe: str = "1h", score_state: dict | None = None) -> list:
+    fib_2618 = fib_data.get("ext_2618", 0)
+    target4 = fib_2618 if fib_2618 > target3 else target3 + (atr * 3.0)
+
+    fib_3618 = fib_data.get("ext_3618", 0)
+    macro_target = fib_3618 if fib_3618 > target4 else entry_price + (atr * 6.0)
+
+    t1 = round(target1, 4)
+    t2 = round(max(target2, t1 * 1.015), 4)
+    t3 = round(max(target3, t2 * 1.02), 4)
+    t4 = round(max(target4, t3 * 1.025), 4)
+    macro_t = round(max(macro_target, t4 * 1.05), 4)
+    sl = round(stop_loss, 4)
+
+    return sl, t1, t2, t3, t4, macro_t
+
+# ============ لمعالجة حالة الذاكرة ومنع تزحزح الأهداف ============
+def process_signal_memory(sig: dict) -> dict:
+    tracking_key = f"{sig['symbol']}_{sig['timeframe']}"
+    current_price = sig['price']
+    now = time.time()
+    
+    # تنظيف الذاكرة المتقادمة
+    expired_keys = [k for k, v in ACTIVE_SIGNALS_STATE.items() if (now - v['timestamp']) > (MEMORY_EXPIRY_HOURS * 3600)]
+    for k in expired_keys:
+        del ACTIVE_SIGNALS_STATE[k]
+
+    if tracking_key in ACTIVE_SIGNALS_STATE:
+        state = ACTIVE_SIGNALS_STATE[tracking_key]
+        initial_entry = state['initial_entry']
+        price_change_pct = abs(current_price - initial_entry) / initial_entry
+        
+        if price_change_pct <= 0.015:
+            sig['signal_status'] = "🔄 إعادة دخول (Retest / Re-entry)"
+            sig['is_reentry'] = True
+            sig['current_stage'] = "RETEST_ENTRY"
+        else:
+            sig['signal_status'] = "📌 متابعة صفقة قائمة (Continuation)"
+            sig['is_reentry'] = False
+            sig['current_stage'] = "ACTIVE"
+
+        sig['price_entry_original'] = initial_entry
+        sig['stop_loss'] = state['stop_loss']
+        sig['target1'] = state['target1']
+        sig['target2'] = state['target2']
+        sig['target3'] = state['target3']
+        sig['target4'] = state['target4']
+        sig['macro_target'] = state['macro_target']
+    else:
+        sig['signal_status'] = "🟢 دخول أول (Initial Entry)"
+        sig['is_reentry'] = False
+        sig['current_stage'] = "FIRST_ENTRY"
+        sig['price_entry_original'] = current_price
+        
+        ACTIVE_SIGNALS_STATE[tracking_key] = {
+            "initial_entry": current_price,
+            "stop_loss": sig['stop_loss'],
+            "target1": sig['target1'],
+            "target2": sig['target2'],
+            "target3": sig['target3'],
+            "target4": sig['target4'],
+            "macro_target": sig['macro_target'],
+            "timestamp": now
+        }
+        
+    return sig
+
+# ============ رصد تحذيرات الهبوط والمخاطر ============
+def analyze_bearish_signals(symbol: str, df: pd.DataFrame, timeframe: str) -> list[dict]:
+    bearish_signals = []
+    if df is None or len(df) < 30: return bearish_signals
+
+    closed_df = df.iloc[:-1]
+    last_row = closed_df.iloc[-1]
+    last_close = float(last_row["close"])
+    last_volume = float(last_row["volume"])
+
+    support, resistance = find_support_resistance(closed_df, RESISTANCE_LOOKBACK)
+    avg_vol = avg_volume(closed_df, 20)
+    rsi = calc_rsi(closed_df["close"], 14)
+    last_rsi = float(rsi.iloc[-1])
+
+    is_support_broken = last_close < support and last_volume > avg_vol * 1.5
+    is_overbought_warning = last_rsi >= 78
+
+    if is_support_broken:
+        bearish_signals.append({
+            "type": "كسر دعم خطير",
+            "symbol": symbol,
+            "price": last_close,
+            "level": support,
+            "timeframe": timeframe,
+            "strategy": "BEARISH_RISK",
+            "current_stage": "BEARISH_BREAKOUT",
+            "message": f"🔴 **تنبيه انهيار دعم:** العملة `{symbol}` كسرت دعم الأمان عند **{support:.4f}$** على فريم `{timeframe.upper()}` مع فوليوم بيع مكثف!"
+        })
+    elif is_overbought_warning:
+        bearish_signals.append({
+            "type": "تحذير تشبع شرائي",
+            "symbol": symbol,
+            "price": last_close,
+            "level": resistance,
+            "timeframe": timeframe,
+            "strategy": "BEARISH_RISK",
+            "current_stage": "OVERBOUGHT_RISK",
+            "message": f"⚠️ **تحذير تشبع شرائي وقرب انعكاس:** العملة `{symbol}` وصلت لمنطقة تشبع مفرط (RSI: `{last_rsi:.1f}`) بالقرب من المقاومة **{resistance:.4f}$**."
+        })
+
+    return bearish_signals
+
+# ============ فحص اتجاه الماكرو (3D + 1W) ============
+def analyze_macro_trends(symbol: str) -> dict:
+    df_3d = fetch_klines(symbol, timeframe="3d")
+    df_1w = fetch_klines(symbol, timeframe="1w")
+
+    macro_data = {
+        "macro_bullish": False,
+        "d3_support": 0, "d3_resistance": 0, "d3_rsi": 50,
+        "w1_support": 0, "w1_resistance": 0, "w1_rsi": 50
+    }
+
+    if df_3d is not None and len(df_3d) >= 20:
+        c_3d = df_3d.iloc[:-1]
+        last_3d_close = float(c_3d["close"].iloc[-1])
+        ema20_3d = float(c_3d["close"].ewm(span=20, adjust=False).mean().iloc[-1])
+        macro_data["d3_rsi"] = float(calc_rsi(c_3d["close"], 14).iloc[-1])
+        s_supp, s_res = find_support_resistance(c_3d, 10)
+        macro_data["d3_support"], macro_data["d3_resistance"] = float(s_supp), float(s_res)
+        d3_bullish = last_3d_close > ema20_3d and macro_data["d3_rsi"] > 45
+    else:
+        d3_bullish = False
+
+    if df_1w is not None and len(df_1w) >= 20:
+        c_1w = df_1w.iloc[:-1]
+        last_1w_close = float(c_1w["close"].iloc[-1])
+        ema20_1w = float(c_1w["close"].ewm(span=20, adjust=False).mean().iloc[-1])
+        macro_data["w1_rsi"] = float(calc_rsi(c_1w["close"], 14).iloc[-1])
+        w_supp, w_res = find_support_resistance(c_1w, 10)
+        macro_data["w1_support"], macro_data["w1_resistance"] = float(w_supp), float(w_res)
+        w1_bullish = last_1w_close > ema20_1w and macro_data["w1_rsi"] > 45
+    else:
+        w1_bullish = False
+
+    macro_data["macro_bullish"] = bool(d3_bullish or w1_bullish)
+    return macro_data
+
+# ============ تحليل العملة ============
+def analyze_symbol(symbol: str, df: pd.DataFrame, timeframe: str = "1h", score_state: dict = None) -> list[dict]:
     signals = []
+    if df is None or len(df) < max(RESISTANCE_LOOKBACK, SUPPORT_LOOKBACK) + 5:
+        return signals
+
     try:
-        rsi_series = calc_rsi(df['close'], 14)
+        rsi_series = calc_rsi(df["close"], 14)
         rsi = float(rsi_series.iloc[-1])
         if pd.isna(rsi): return signals
 
@@ -435,53 +577,70 @@ def analyze_bullish_signals(sym: str, df: pd.DataFrame, timeframe: str = "1h", s
         bb_data = calculate_bollinger_bands(df)
         ms = detect_market_structure(df)
         avg_vol = avg_volume(df)
-        current_vol = float(df['volume'].iloc[-1])
-        is_sweep = bool(df['low'].iloc[-1] < df['low'].iloc[-2])
+        current_vol = float(df["volume"].iloc[-1])
+        is_sweep = bool(df["low"].iloc[-1] < df["low"].iloc[-2])
         is_effort = detect_volume_imbalance_and_effort(df)
         bull_ob = find_bullish_order_block(df)
         extra = build_extra_analysis(df, rsi_series)
         atr = calculate_atr(df)
-        resistance = find_support_resistance(df)['nearest_resistance']
+        resistance = find_support_resistance(df)[1]
         fvg = detect_fvg(df)
 
         wyckoff = detect_wyckoff_bull_market(df, ms, is_sweep, is_effort, bull_ob, ema_data)
+        targets = calculate_fixed_targets(float(df["close"].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))
+
         if wyckoff.get("is_wyckoff_setup"):
-            signals.append({"symbol": sym, "timeframe": timeframe, "type": "wyckoff_bull", "price": float(df['close'].iloc[-1]), "signal_status": "دخول أول", "stop_loss": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[0], "target1": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[1], "target2": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[2], "target3": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[3], "target4": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[4], "macro_target": calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))[5], "confluence": ["Wyckoff", "SMC", "EMA", "Volume"]})
+            signals.append({
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "type": "wyckoff_bull",
+                "price": float(df["close"].iloc[-1]),
+                "signal_status": "دخول أول",
+                "stop_loss": targets[0], "target1": targets[1], "target2": targets[2],
+                "target3": targets[3], "target4": targets[4], "macro_target": targets[5],
+                "confluence": ["Wyckoff", "SMC", "EMA", "Volume"],
+            })
 
         if len(df) >= 50 and current_vol > avg_vol * VOLUME_MULTIPLIER and rsi > 50 and bb_data.get("is_squeeze"):
-            targets = calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))
-            signals.append({"symbol": sym, "timeframe": timeframe, "type": "cvd_breakout_confirmed", "price": float(df['close'].iloc[-1]), "signal_status": "دخول أول", "stop_loss": targets[0], "target1": targets[1], "target2": targets[2], "target3": targets[3], "target4": targets[4], "macro_target": targets[5], "confluence": ["CVD", "Volume", "RSI", "Bollinger Squeeze"]})
+            signals.append({
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "type": "cvd_breakout_confirmed",
+                "price": float(df["close"].iloc[-1]),
+                "signal_status": "دخول أول",
+                "stop_loss": targets[0], "target1": targets[1], "target2": targets[2],
+                "target3": targets[3], "target4": targets[4], "macro_target": targets[5],
+                "confluence": ["CVD", "Volume", "RSI", "Bollinger Squeeze"],
+            })
 
         if len(df) >= 50 and rsi > 55 and ema_data.get("golden_cross") and ema_data.get("above_ema50"):
-            targets = calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))
-            signals.append({"symbol": sym, "timeframe": timeframe, "type": "trend_following", "price": float(df['close'].iloc[-1]), "signal_status": "دخول أول", "stop_loss": targets[0], "target1": targets[1], "target2": targets[2], "target3": targets[3], "target4": targets[4], "macro_target": targets[5], "confluence": ["EMA", "RSI", "Trend"]})
+            signals.append({
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "type": "trend_following",
+                "price": float(df["close"].iloc[-1]),
+                "signal_status": "دخول أول",
+                "stop_loss": targets[0], "target1": targets[1], "target2": targets[2],
+                "target3": targets[3], "target4": targets[4], "macro_target": targets[5],
+                "confluence": ["EMA", "RSI", "Trend"],
+            })
 
         if rsi < RSI_OVERSOLD and bb_data.get("is_oversold_bb"):
-            targets = calculate_fixed_targets(float(df['close'].iloc[-1]), atr, resistance, fvg, ms, extra, detect_candle_patterns(df))
-            signals.append({"symbol": sym, "timeframe": timeframe, "type": "mean_reversion", "price": float(df['close'].iloc[-1]), "signal_status": "دخول أول", "stop_loss": targets[0], "target1": targets[1], "target2": targets[2], "target3": targets[3], "target4": targets[4], "macro_target": targets[5], "confluence": ["RSI Oversold", "Bollinger Lower Band"]})
+            signals.append({
+                "symbol": symbol,
+                "timeframe": timeframe,
+                "type": "mean_reversion",
+                "price": float(df["close"].iloc[-1]),
+                "signal_status": "دخول أول",
+                "stop_loss": targets[0], "target1": targets[1], "target2": targets[2],
+                "target3": targets[3], "target4": targets[4], "macro_target": targets[5],
+                "confluence": ["RSI Oversold", "Bollinger Lower Band"],
+            })
 
         return signals
     except Exception as e:
-        console.print(f"[red][خطأ تحليل صعودي][/red] {sym}: {e}")
+        console.print(f"[red][خطأ تحليل][/red] {symbol}: {e}")
         return signals
-
-def analyze_bearish_signals(sym: str, df: pd.DataFrame, timeframe: str = "1h") -> list:
-    alerts = []
-    try:
-        rsi_series = calc_rsi(df['close'], 14)
-        rsi = float(rsi_series.iloc[-1])
-        ema_data = calculate_ema_indicators(df)
-        ms = detect_market_structure(df)
-        if ema_data.get("above_ema50") is False and ema_data.get("above_ema200") is False and rsi < 45:
-            alerts.append({"symbol": sym, "timeframe": timeframe, "type": "bearish_trend", "price": float(df['close'].iloc[-1]), "level": float(ms.get('last_high') or df['close'].iloc[-1])})
-        return alerts
-    except Exception as e:
-        console.print(f"[red][خطأ تحليل هبوطي][/red] {sym}: {e}")
-        return alerts
-
-def analyze_symbol(sym: str, df: pd.DataFrame, timeframe: str = "1h", score_state: dict | None = None) -> list:
-    bullish = analyze_bullish_signals(sym, df, timeframe=timeframe, score_state=score_state)
-    return bullish
 
 def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: str) -> tuple:
     symbol = sig.get("symbol", "UNKNOWN")
@@ -539,32 +698,6 @@ def classify_and_format_signal(sig: dict, macro_info: dict, fng_status: str) -> 
         return "MEAN_REVERSION_4_CONFIRMS", msg
 
     return "STANDARD", f"[bold]◈ {status_tag}:[/bold] [cyan]{symbol}[/cyan] على فريم [yellow]{tf}[/yellow] بسعر الدخول {entry_str}"
-
-def send_telegram_message(text: str):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        console.print("[yellow][تنبيه][/yellow] لم يتم تعيين مفاتيح تيليغرام. طباعة الرسالة عبر rich:")
-        console.print(Panel(text, title="Telegram Preview"))
-        return
-
-    clean_text = text
-    for tag in ["[bold magenta]", "[/bold magenta]", "[bold cyan]", "[/bold cyan]", "[bold blue]", "[/bold blue]", 
-                "[bold green]", "[/bold green]", "[bold red]", "[/bold red]", "[bold yellow]", "[/bold yellow]", 
-                "[bold gold1]", "[/bold gold1]", "[bold]", "[/bold]", "[cyan]", "[/cyan]", "[yellow]", "[/yellow]", 
-                "[green]", "[/green]", "[red]", "[/red]", "[dim]", "[/dim]"]:
-        clean_text = clean_text.replace(tag, "")
-
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": clean_text,
-        "parse_mode": "HTML",
-        "disable_web_page_preview": True,
-    }
-    try:
-        resp = requests.post(url, json=payload, timeout=12)
-        resp.raise_for_status()
-    except Exception as e:
-        console.print(f"[bold red][خطأ][/bold red] فشل إرسال رسالة تيليغرام: {e}")
 
 # ============ بناء واجهة لوحة التنبيهات المجمعة (Grouped Alert Dashboard) ============
 def render_grouped_alert_dashboard(grouped_signals: dict, all_bearish_alerts: list):
@@ -642,7 +775,7 @@ def render_grouped_alert_dashboard(grouped_signals: dict, all_bearish_alerts: li
 
 # ============ التشغيل الرئيسي ============
 def main():
-    console.print(Panel.fit(f"[bold cyan]بدء فحص العملات على فريم 1h فقط لعدد {len(WATCHLIST)} عملة...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
+    console.print(Panel.fit(f"[bold cyan]بدء فحص العملات لعدد {len(WATCHLIST)} عملة عبر الفريمات (15m, 1h, 4h, 1d, 3d, 1w)...[/bold cyan]", title="[bold green]Halal Crypto Scanner[/bold green]"))
     
     score_state = load_score_state()
     clean_old_events(score_state)
@@ -669,7 +802,7 @@ def main():
         macro_info = analyze_macro_trends(sym)
         local_prices = {}
 
-        for tf in ACTIVE_TIMEFRAMES:
+        for tf in ["15m", "1h", "4h", "1d", "3d"]:
             df = fetch_klines(sym, timeframe=tf)
             if df is None:
                 continue
@@ -862,37 +995,15 @@ def main():
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "v2_shadow_mode": "SHADOW",
         "v2_shadow_summary": {
-            "signals_total": sum(
-                1
-                for signal in all_signals
-                if signal.get("v2_shadow", {}).get("status")
-            ),
-            "agreement": sum(
-                1
-                for signal in all_signals
-                if signal.get("v2_shadow", {}).get("status") == "agreement"
-            ),
-            "v2_reject": sum(
-                1
-                for signal in all_signals
-                if signal.get("v2_shadow", {}).get("status") == "v2_reject"
-            ),
-            "unmapped_or_insufficient_evidence": sum(
-                1
-                for signal in all_signals
-                if signal.get("v2_shadow", {}).get("status") == "unmapped_or_insufficient_evidence"
-            ),
-            "shadow_outcomes_registered": sum(
-                1
-                for signal in all_signals
-                if signal.get("v2_shadow_outcome", {}).get("registered")
-            ),
+            "signals_total": sum(1 for signal in all_signals if signal.get("v2_shadow", {}).get("status")),
+            "agreement": sum(1 for signal in all_signals if signal.get("v2_shadow", {}).get("status") == "agreement"),
+            "v2_reject": sum(1 for signal in all_signals if signal.get("v2_shadow", {}).get("status") == "v2_reject"),
+            "unmapped_or_insufficient_evidence": sum(1 for signal in all_signals if signal.get("v2_shadow", {}).get("status") == "unmapped_or_insufficient_evidence"),
+            "shadow_outcomes_registered": sum(1 for signal in all_signals if signal.get("v2_shadow_outcome", {}).get("registered")),
         },
         "bullish_signals_count": len(all_signals),
         "bearish_signals_count": len(all_bearish_alerts),
-        "grouped_signals_summary": {
-            k: len(v) for k, v in grouped_signals.items()
-        },
+        "grouped_signals_summary": {k: len(v) for k, v in grouped_signals.items()},
         "bullish_signals": all_signals,
         "bearish_signals": all_bearish_alerts,
         "open_trades": alert_manager.get_open_alerts(),
