@@ -1,5 +1,5 @@
 {
-    "timestamp": "2026-08-23T08:07:21.972081+00:00",
+    "timestamp": "2026-08-23T08:28:57.439703+00:00",
     "dominance_status": "NEUTRAL",
     "dominance_summary": "",
     "bullish_signals_count": 29,
@@ -135,7 +135,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c6fd0a3f-041a-44c8-b710-2b08eccdf71f"
+                "audit_event_id": "4abb1b8f-8427-4236-b8b4-62e7c38bfd5b"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BTC-USDT-3d-CVD_BREAKOUT_CONFIRMED-76991.00000000",
@@ -261,7 +261,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "85ec38b5-039e-4074-a5ca-0aedb4342683"
+                "audit_event_id": "900c5d9e-6ef4-4b3a-8ad3-ba891a4649b6"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETH-USDT-3d-CVD_BREAKOUT_CONFIRMED-2410.95000000",
@@ -389,7 +389,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "937b35fb-372c-4f42-9ddb-f3694d3a62c4"
+                "audit_event_id": "a56d6267-ab05-4483-b36b-a192217502ba"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BNB-USDT-1d-WYCKOFF_SMC_ACCUMULATION-688.40000000",
@@ -513,7 +513,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "cd49101e-3a2e-42b1-a741-b028b1855736"
+                "audit_event_id": "ec085e14-5cb2-43ac-bb08-91527b86ab69"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -639,7 +639,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f8c5a2e1-e145-4af7-81da-59a030f544af"
+                "audit_event_id": "76906d19-2018-4784-853c-d912ec6a371e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-1d-WYCKOFF_SMC_ACCUMULATION-1.43950000",
@@ -767,7 +767,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "895588bd-548a-47f0-81e2-e99481fa2aba"
+                "audit_event_id": "e8b0606a-8613-45a7-af02-068fa126fa6f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-3d-CVD_BREAKOUT_CONFIRMED-1.43950000",
@@ -897,10 +897,139 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "34fbf20a-ad3f-4c4c-85d1-aec68be46ec4"
+                "audit_event_id": "f0a752a7-1e14-464f-9bcb-37276dda33d5"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SOL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-93.06000000",
+                "status": "pending",
+                "registered": true
+            }
+        },
+        {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "ZEC-USDT",
+            "price": 810.07,
+            "level": 804.99,
+            "rsi": 63.552781141834494,
+            "ema": {
+                "ema_50": 796.4021270621356,
+                "ema_200": 798.7105507962522,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 806.792220789277,
+                "middle": 787.8985,
+                "lower": 769.004779210723,
+                "is_oversold_bb": false,
+                "is_overbought_bb": true,
+                "is_squeeze": "True",
+                "bandwidth": 0.04795978362511679
+            },
+            "dpr_data": {
+                "value": 56.62539341273766,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (56.6)[/yellow]"
+            },
+            "volume_ratio": 3.260557920351218,
+            "timeframe": "15m",
+            "stop_loss": 794.0929,
+            "target1": 826.0471,
+            "target2": 842.0243,
+            "target3": 863.3271,
+            "target4": 895.2814,
+            "macro_target": 940.0455,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "نمط شمعة صعودي",
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 766.25,
+                    "swing_high": 822.96,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 809.57644,
+                        "0.382": 801.29678,
+                        "0.5": 794.605,
+                        "0.618": 787.91322,
+                        "0.786": 778.38594
+                    },
+                    "extension_levels": {
+                        "1.272": 838.38512,
+                        "1.618": 858.00678,
+                        "2.0": 879.67,
+                        "2.618": 914.71678
+                    },
+                    "time_zones": [
+                        17,
+                        18,
+                        19,
+                        21,
+                        24,
+                        29,
+                        37
+                    ],
+                    "near_retracement": [
+                        0.236,
+                        809.57644
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.403
+                }
+            },
+            "signal_status": "🟢 دخول أول (Initial Entry)",
+            "is_reentry": false,
+            "current_stage": "FIRST_ENTRY",
+            "price_entry_original": 810.07,
+            "macro_info": {
+                "macro_bullish": true,
+                "d3_support": 451.8,
+                "d3_resistance": 557.8,
+                "d3_rsi": 74.4058193782515,
+                "w1_support": 251.39,
+                "w1_resistance": 644.64,
+                "w1_rsi": 52.54808280217261
+            },
+            "candle_timestamp": "1787472900000",
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 🟢 دخول أول (Initial Entry) | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold]سعر الدخول:[/bold] [bold green]810.0700$[/bold green]\n• [bold red]وقف الخسارة (الثابت):[/bold red] [bold]794.0929$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]826.0471$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]842.0243$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]940.0455$[/bold green]",
+            "v2_shadow": {
+                "status": "agreement",
+                "legacy_strategy": "CVD_BREAKOUT_CONFIRMED",
+                "v2_action": "accept",
+                "v2_grade": "A+",
+                "v2_confidence": 1.0,
+                "v2_eligibility": "blocked",
+                "v2_blocked_reasons": [
+                    "active_trade_conflict"
+                ],
+                "v2_strategy_eligible": [],
+                "audit_event_id": "0ea0c527-f7a7-41c8-a388-25bebf3a7e76"
+            },
+            "v2_shadow_outcome": {
+                "signal_id": "ZEC-USDT-15m-CVD_BREAKOUT_CONFIRMED-810.07000000",
                 "status": "pending",
                 "registered": true
             }
@@ -1022,7 +1151,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c54b6c36-4f9f-47a5-af8e-b9bd494de3a8"
+                "audit_event_id": "756ca339-4ccc-4f77-9ce7-77100c7aecb8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-1d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -1148,7 +1277,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "aeca1b06-a101-4b4b-9707-c5e0e4bbbbd1"
+                "audit_event_id": "252a2d2d-f587-4870-ac16-543d49fbe688"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -1275,7 +1404,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c878de2b-9b37-4371-85e7-e83c92b1b05c"
+                "audit_event_id": "0e2dd124-d69d-462c-ae04-35e8e7933639"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -1400,7 +1529,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e0ebc30-ea7e-4761-a2f8-e80bb61b943e"
+                "audit_event_id": "7141cced-5aea-457b-b0a1-8e0c133a855e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -1525,7 +1654,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f23db62d-fd28-4e84-a9a9-ef1f61430018"
+                "audit_event_id": "dd1bb377-aa47-4395-8517-9c01e7a9b227"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -1650,7 +1779,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d925b46b-a33e-41c9-b9ca-885e9b3c33f8"
+                "audit_event_id": "ff0500da-23b4-425e-99cb-9bd297b931e2"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LINK-USDT-3d-CVD_BREAKOUT_CONFIRMED-11.60700000",
@@ -1778,7 +1907,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "a02defa9-6062-45e8-b762-53fcaa5ec5e8"
+                "audit_event_id": "4b68d31d-292d-469b-84ff-65a14e25beca"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BCH-USDT-3d-WYCKOFF_SMC_ACCUMULATION-275.30000000",
@@ -1907,7 +2036,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e340dc4-fd3a-49a4-9fc0-d30f17edc86c"
+                "audit_event_id": "b1edecd3-c2fe-456d-a5b1-096b886547c5"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LTC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-51.95000000",
@@ -2035,7 +2164,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "48a240c9-b463-4c4a-a37a-5fc27c9ef787"
+                "audit_event_id": "36a18269-e3a2-4bda-9345-e0591714d60f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SUI-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.81530000",
@@ -2163,7 +2292,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "e83bc398-ad2a-4987-b554-a26568c31ba0"
+                "audit_event_id": "ddea05ae-b897-40f8-a131-8bdadd069efd"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -2288,135 +2417,10 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "3f05946c-199a-4c19-bd69-604565735455"
+                "audit_event_id": "1dc8a7ee-7f4e-4af5-b012-219899201b9c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "DOT-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.92370000",
-                "status": "pending",
-                "registered": true
-            }
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "ICP-USDT",
-            "price": 2.389,
-            "level": 2.365,
-            "rsi": 68.81482442325768,
-            "ema": {
-                "ema_50": 2.340797409095716,
-                "ema_200": 2.352449734045597,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 2.3706097218783713,
-                "middle": 2.3182,
-                "lower": 2.265790278121629,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.0452158760058418
-            },
-            "dpr_data": {
-                "value": 56.911000942595734,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (56.9)[/yellow]"
-            },
-            "volume_ratio": 3.1874429033741016,
-            "timeframe": "15m",
-            "stop_loss": 2.3551,
-            "target1": 2.4229,
-            "target2": 2.4592,
-            "target3": 2.5084,
-            "target4": 2.5711,
-            "macro_target": 2.6997,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": null,
-                "is_wyckoff_setup": false
-            },
-            "confluence": [
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 2.275,
-                    "swing_high": 2.39,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 2.36286,
-                        "0.382": 2.34607,
-                        "0.5": 2.3325,
-                        "0.618": 2.31893,
-                        "0.786": 2.29961
-                    },
-                    "extension_levels": {
-                        "1.272": 2.42128,
-                        "1.618": 2.46107,
-                        "2.0": 2.505,
-                        "2.618": 2.57607
-                    },
-                    "time_zones": [
-                        20,
-                        21,
-                        22,
-                        24,
-                        27,
-                        32,
-                        40
-                    ],
-                    "near_retracement": null,
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.976
-                }
-            },
-            "signal_status": "🟢 دخول أول (Initial Entry)",
-            "is_reentry": false,
-            "current_stage": "FIRST_ENTRY",
-            "price_entry_original": 2.389,
-            "macro_info": {
-                "macro_bullish": true,
-                "d3_support": 1.991,
-                "d3_resistance": 2.399,
-                "d3_rsi": 53.864159062363164,
-                "w1_support": 1.991,
-                "w1_resistance": 3.226,
-                "w1_rsi": 44.777454573050676
-            },
-            "candle_timestamp": "1787472000000",
-            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
-            "formatted_message": "[bold cyan]🚀 🟢 دخول أول (Initial Entry) | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ICP-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold]سعر الدخول:[/bold] [bold green]2.3890$[/bold green]\n• [bold red]وقف الخسارة (الثابت):[/bold red] [bold]2.3551$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]2.4229$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]2.4592$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]2.6997$[/bold green]",
-            "v2_shadow": {
-                "status": "agreement",
-                "legacy_strategy": "CVD_BREAKOUT_CONFIRMED",
-                "v2_action": "accept",
-                "v2_grade": "A",
-                "v2_confidence": 0.8,
-                "v2_eligibility": "blocked",
-                "v2_blocked_reasons": [
-                    "active_trade_conflict"
-                ],
-                "v2_strategy_eligible": [],
-                "audit_event_id": "f486ca4e-b9d4-4fb8-9969-57cdc2b3787d"
-            },
-            "v2_shadow_outcome": {
-                "signal_id": "ICP-USDT-15m-CVD_BREAKOUT_CONFIRMED-2.38900000",
                 "status": "pending",
                 "registered": true
             }
@@ -2538,7 +2542,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c5b0be6c-0117-455b-83db-1ce0e1d27512"
+                "audit_event_id": "91dea4e4-c6be-4851-9d53-1e922020a625"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETC-USDT-1d-CVD_BREAKOUT_CONFIRMED-7.80700000",
@@ -2662,7 +2666,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "33563d04-e1c5-4f9a-9065-e81fa4e038dc"
+                "audit_event_id": "05896834-9df4-4e4e-bdb0-3896a15f8697"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -2788,7 +2792,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2cb1754c-d61f-4794-b44b-9f1c8c3a1c01"
+                "audit_event_id": "f5c26119-d7e5-4dfd-89bd-961fab9b7078"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -2915,7 +2919,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f52b69bb-77e6-4277-a102-3b9a6e903646"
+                "audit_event_id": "6de48bcc-e43c-443b-afcf-1a589bede914"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -3042,7 +3046,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "3a6b1abd-0d98-4347-83cc-2443d2330022"
+                "audit_event_id": "80c83df4-2bd3-40c8-8948-eceaf214967b"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -3167,7 +3171,7 @@
                 "v2_strategy_eligible": [
                     "precision_trend_following"
                 ],
-                "audit_event_id": "dd58dacd-d1db-4b4c-ba51-cdfdf7607532"
+                "audit_event_id": "df06032e-4e8f-4937-9ca1-383178145356"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -3291,7 +3295,7 @@
                     "macro_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "0510a969-45d4-43ea-b33a-4ebd9f6c70a1"
+                "audit_event_id": "de597121-a4a9-4064-935a-3579642b6d47"
             },
             "v2_shadow_outcome": {
                 "signal_id": "KITE-USDT-1d-FVG_SCALP_4_CONFIRMS-0.11216000",
@@ -3419,7 +3423,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "039e9394-04e1-4bc5-95b5-b342806e7013"
+                "audit_event_id": "cc1854d2-1abe-47e0-b1b7-40640230a8bd"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -3529,9 +3533,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.74,
-                "w1_resistance": 6.009,
-                "w1_rsi": 37.078885941813446
+                "w1_support": 3.735,
+                "w1_resistance": 6.0,
+                "w1_rsi": 33.31814687468791
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -3547,7 +3551,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "335a6d7f-c2f7-4265-8fcd-e62330136300"
+                "audit_event_id": "4b7fb5d2-8beb-45da-8051-6013f106303c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-1d-CVD_BREAKOUT_CONFIRMED-5.23200000",
@@ -3657,9 +3661,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.74,
-                "w1_resistance": 6.009,
-                "w1_rsi": 37.078885941813446
+                "w1_support": 3.735,
+                "w1_resistance": 6.0,
+                "w1_rsi": 33.31814687468791
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -3676,7 +3680,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "bdf2098e-e1b5-4450-9348-831cb8811326"
+                "audit_event_id": "edb93efd-12d5-463d-8bcd-40a13aeb9dfc"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-3d-WYCKOFF_SMC_ACCUMULATION-5.23200000",
@@ -3797,14 +3801,14 @@
             "opened_at": "2026-08-04T09:35:47.868274+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 0.105,
+                "highest_price_seen": 0.10572,
                 "is_active": true,
-                "current_trailing_sl": 0.10395
+                "current_trailing_sl": 0.1046628
             },
             "original_entry": 0.07442,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 0.07442,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "BNB-USDT_1h_1785857580",
@@ -3825,14 +3829,14 @@
             "opened_at": "2026-08-04T15:33:00.396806+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 685.0,
+                "highest_price_seen": 687.7,
                 "is_active": true,
-                "current_trailing_sl": 678.15
+                "current_trailing_sl": 680.8230000000001
             },
             "original_entry": 594.3,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 594.3,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "XAUT-USDT_1h_1785866466",
@@ -3860,7 +3864,7 @@
             "original_entry": 4074.3,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 4074.3,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "TAO-USDT_1h_1785873136",
@@ -3881,14 +3885,14 @@
             "opened_at": "2026-08-04T19:52:16.241452+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 220.4,
+                "highest_price_seen": 221.3,
                 "is_active": true,
-                "current_trailing_sl": 218.196
+                "current_trailing_sl": 219.08700000000002
             },
             "original_entry": 196.8,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 196.8,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "ZEC-USDT_1h_1785912753",
@@ -3916,7 +3920,7 @@
             "original_entry": 512.86,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 512.86,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "ICP-USDT_1h_1785912760",
@@ -3937,14 +3941,14 @@
             "opened_at": "2026-08-05T06:52:40.388275+00:00",
             "t1_hit": true,
             "trailing_config": {
-                "highest_price_seen": 2.377,
+                "highest_price_seen": 2.396,
                 "is_active": true,
-                "current_trailing_sl": 2.35323
+                "current_trailing_sl": 2.3720399999999997
             },
             "original_entry": 2.119,
             "current_stage": "TRAILING_ACTIVE",
             "current_stop_loss": 2.119,
-            "last_update_time": "2026-08-23T08:07:21.513739+00:00"
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00"
         },
         {
             "id": "WYCKOFF_SMC_ACCUMULATION_BTC-USDT_1h_1786285711",
@@ -4015,8 +4019,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 76096.6,
-                "current_trailing_sl": 75335.634
+                "highest_price_seen": 76239.9,
+                "current_trailing_sl": 75477.50099999999
             }
         },
         {
@@ -4161,7 +4165,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 429.33,
+                "highest_price_seen": 429.5,
                 "current_trailing_sl": null
             }
         },
@@ -4234,8 +4238,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.3763,
-                "current_trailing_sl": 0.372537
+                "highest_price_seen": 0.3786,
+                "current_trailing_sl": 0.374814
             }
         },
         {
@@ -4307,8 +4311,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.2252,
-                "current_trailing_sl": 0.222948
+                "highest_price_seen": 0.2261,
+                "current_trailing_sl": 0.22383899999999998
             }
         },
         {
@@ -4380,8 +4384,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 5.151,
-                "current_trailing_sl": 5.099489999999999
+                "highest_price_seen": 5.163,
+                "current_trailing_sl": 5.11137
             }
         },
         {
@@ -4392,11 +4396,11 @@
             "side": "BUY",
             "timeframe": "1h",
             "strategy": "Automated Signal",
-            "current_stage": "TP3_REACHED",
+            "current_stage": "TRAILING_ACTIVE",
             "status": "OPEN",
             "first_detection_time": "2026-08-09T14:31:05.763745+00:00",
             "opened_at": "2026-08-09T14:31:05.763745+00:00",
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00",
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00",
             "original_entry": 2.202,
             "first_entry_price": 2.202,
             "best_entry": 2.202,
@@ -4438,8 +4442,8 @@
                 },
                 "TP4": {
                     "price": 2.3781600000000003,
-                    "hit": false,
-                    "hit_time": null,
+                    "hit": true,
+                    "hit_time": "2026-08-23T08:28:56.867105+00:00",
                     "close_pct": 25
                 }
             },
@@ -4450,11 +4454,11 @@
             "t1_hit": true,
             "use_trailing": true,
             "trailing_config": {
-                "is_active": false,
+                "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 2.377,
-                "current_trailing_sl": null
+                "highest_price_seen": 2.396,
+                "current_trailing_sl": 2.3720399999999997
             }
         },
         {
@@ -4526,8 +4530,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 92.55,
-                "current_trailing_sl": 91.6245
+                "highest_price_seen": 92.85,
+                "current_trailing_sl": 91.9215
             }
         },
         {
@@ -4599,8 +4603,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 267.7,
-                "current_trailing_sl": 265.02299999999997
+                "highest_price_seen": 268.7,
+                "current_trailing_sl": 266.013
             }
         },
         {
@@ -4672,8 +4676,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.7928,
-                "current_trailing_sl": 0.7848719999999999
+                "highest_price_seen": 0.7948,
+                "current_trailing_sl": 0.786852
             }
         },
         {
@@ -4745,8 +4749,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 7.381,
-                "current_trailing_sl": 7.30719
+                "highest_price_seen": 7.394,
+                "current_trailing_sl": 7.32006
             }
         },
         {
@@ -4818,8 +4822,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 7.381,
-                "current_trailing_sl": 7.30719
+                "highest_price_seen": 7.394,
+                "current_trailing_sl": 7.32006
             }
         },
         {
@@ -4891,7 +4895,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 220.4,
+                "highest_price_seen": 221.3,
                 "current_trailing_sl": null
             }
         },
@@ -4964,8 +4968,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.3763,
-                "current_trailing_sl": 0.372537
+                "highest_price_seen": 0.3786,
+                "current_trailing_sl": 0.374814
             }
         },
         {
@@ -5037,7 +5041,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 2.377,
+                "highest_price_seen": 2.396,
                 "current_trailing_sl": null
             }
         },
@@ -5110,8 +5114,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.0768,
-                "current_trailing_sl": 0.07603199999999999
+                "highest_price_seen": 0.07728,
+                "current_trailing_sl": 0.0765072
             }
         },
         {
@@ -5183,8 +5187,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.05141,
-                "current_trailing_sl": 0.050895899999999994
+                "highest_price_seen": 0.05192,
+                "current_trailing_sl": 0.0514008
             }
         },
         {
@@ -5268,11 +5272,11 @@
             "side": "BUY",
             "timeframe": "1h",
             "strategy": "Automated Signal",
-            "current_stage": "TP2_REACHED",
+            "current_stage": "TP3_REACHED",
             "status": "OPEN",
             "first_detection_time": "2026-08-09T16:06:28.607680+00:00",
             "opened_at": "2026-08-09T16:06:28.607680+00:00",
-            "last_update_time": "2026-08-23T08:03:24.965478+00:00",
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00",
             "original_entry": 1.335,
             "first_entry_price": 1.335,
             "best_entry": 1.335,
@@ -5291,8 +5295,8 @@
                 }
             ],
             "initial_stop_loss": 1.3301,
-            "stop_loss": 1.3617,
-            "current_stop_loss": 1.3617,
+            "stop_loss": 1.3884,
+            "current_stop_loss": 1.3884,
             "targets": {
                 "TP1": {
                     "price": 1.3617,
@@ -5308,8 +5312,8 @@
                 },
                 "TP3": {
                     "price": 1.4151,
-                    "hit": false,
-                    "hit_time": null,
+                    "hit": true,
+                    "hit_time": "2026-08-23T08:28:56.867105+00:00",
                     "close_pct": 25
                 },
                 "TP4": {
@@ -5329,7 +5333,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 1.415,
+                "highest_price_seen": 1.42,
                 "current_trailing_sl": null
             }
         },
@@ -5402,8 +5406,8 @@
                 "is_active": true,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 0.1563,
-                "current_trailing_sl": 0.15473699999999999
+                "highest_price_seen": 0.1571,
+                "current_trailing_sl": 0.155529
             }
         },
         {
@@ -5475,7 +5479,7 @@
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 13.684,
+                "highest_price_seen": 13.727,
                 "current_trailing_sl": null
             }
         },
@@ -5779,11 +5783,11 @@
             "side": "BUY",
             "timeframe": "1h",
             "strategy": "Automated Signal",
-            "current_stage": "WAITING_ENTRY",
+            "current_stage": "TP1_REACHED",
             "status": "OPEN",
             "first_detection_time": "2026-08-23T08:03:06.607408+00:00",
             "opened_at": "2026-08-23T08:03:06.607408+00:00",
-            "last_update_time": "2026-08-23T08:03:06.607408+00:00",
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00",
             "original_entry": 1.4395,
             "first_entry_price": 1.4395,
             "best_entry": 1.4395,
@@ -5802,13 +5806,13 @@
                 }
             ],
             "initial_stop_loss": 1.3279,
-            "stop_loss": 1.3279,
-            "current_stop_loss": 1.3279,
+            "stop_loss": 1.4395,
+            "current_stop_loss": 1.4395,
             "targets": {
                 "TP1": {
                     "price": 1.46829,
-                    "hit": false,
-                    "hit_time": null,
+                    "hit": true,
+                    "hit_time": "2026-08-23T08:28:56.867105+00:00",
                     "close_pct": 25
                 },
                 "TP2": {
@@ -5834,13 +5838,13 @@
             "target_2": 1.49708,
             "target_3": 1.52587,
             "target_4": 1.5546600000000002,
-            "t1_hit": false,
+            "t1_hit": true,
             "use_trailing": true,
             "trailing_config": {
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 1.4622,
+                "highest_price_seen": 1.477,
                 "current_trailing_sl": null
             }
         },
@@ -5852,11 +5856,11 @@
             "side": "BUY",
             "timeframe": "1h",
             "strategy": "Automated Signal",
-            "current_stage": "WAITING_ENTRY",
+            "current_stage": "TP1_REACHED",
             "status": "OPEN",
             "first_detection_time": "2026-08-23T08:03:07.324946+00:00",
             "opened_at": "2026-08-23T08:03:07.324946+00:00",
-            "last_update_time": "2026-08-23T08:03:07.324946+00:00",
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00",
             "original_entry": 1.4395,
             "first_entry_price": 1.4395,
             "best_entry": 1.4395,
@@ -5875,13 +5879,13 @@
                 }
             ],
             "initial_stop_loss": 1.299,
-            "stop_loss": 1.299,
-            "current_stop_loss": 1.299,
+            "stop_loss": 1.4395,
+            "current_stop_loss": 1.4395,
             "targets": {
                 "TP1": {
                     "price": 1.46829,
-                    "hit": false,
-                    "hit_time": null,
+                    "hit": true,
+                    "hit_time": "2026-08-23T08:28:56.867105+00:00",
                     "close_pct": 25
                 },
                 "TP2": {
@@ -5907,13 +5911,13 @@
             "target_2": 1.49708,
             "target_3": 1.52587,
             "target_4": 1.5546600000000002,
-            "t1_hit": false,
+            "t1_hit": true,
             "use_trailing": true,
             "trailing_config": {
                 "is_active": false,
                 "activation_pct": 1.5,
                 "callback_pct": 1.0,
-                "highest_price_seen": 1.4622,
+                "highest_price_seen": 1.477,
                 "current_trailing_sl": null
             }
         },
@@ -6646,6 +6650,79 @@
                 "highest_price_seen": 5.232,
                 "current_trailing_sl": null
             }
+        },
+        {
+            "id": "CVD_BREAKOUT_CONFIRMED_ZEC-USDT_1h_1787473721",
+            "trade_id": "CVD_BREAKOUT_CONFIRMED_ZEC-USDT_1h_1787473721",
+            "plan_id": "CVD_BREAKOUT_CONFIRMED",
+            "symbol": "ZEC-USDT",
+            "side": "BUY",
+            "timeframe": "1h",
+            "strategy": "Automated Signal",
+            "current_stage": "FIRST_ENTRY",
+            "status": "OPEN",
+            "first_detection_time": "2026-08-23T08:28:41.818288+00:00",
+            "opened_at": "2026-08-23T08:28:41.818288+00:00",
+            "last_update_time": "2026-08-23T08:28:56.867105+00:00",
+            "original_entry": 810.07,
+            "first_entry_price": 810.07,
+            "best_entry": 810.07,
+            "average_entry": 810.07,
+            "entry_price": 810.07,
+            "retest_count": 0,
+            "position_size": 0.6258958133829018,
+            "position_size_coin": 0.6258958133829018,
+            "total_invested_usdt": 507.02,
+            "entry_fills": [
+                {
+                    "timestamp": "2026-08-23T08:28:41.818288+00:00",
+                    "price": 810.07,
+                    "amount": 0.6258958133829018,
+                    "type": "FIRST_ENTRY"
+                }
+            ],
+            "initial_stop_loss": 794.0929,
+            "stop_loss": 794.0929,
+            "current_stop_loss": 794.0929,
+            "targets": {
+                "TP1": {
+                    "price": 826.2714000000001,
+                    "hit": false,
+                    "hit_time": null,
+                    "close_pct": 25
+                },
+                "TP2": {
+                    "price": 842.4728000000001,
+                    "hit": false,
+                    "hit_time": null,
+                    "close_pct": 25
+                },
+                "TP3": {
+                    "price": 858.6742,
+                    "hit": false,
+                    "hit_time": null,
+                    "close_pct": 25
+                },
+                "TP4": {
+                    "price": 874.8756000000001,
+                    "hit": false,
+                    "hit_time": null,
+                    "close_pct": 25
+                }
+            },
+            "target_1": 826.2714000000001,
+            "target_2": 842.4728000000001,
+            "target_3": 858.6742,
+            "target_4": 874.8756000000001,
+            "t1_hit": false,
+            "use_trailing": true,
+            "trailing_config": {
+                "is_active": false,
+                "activation_pct": 1.5,
+                "callback_pct": 1.0,
+                "highest_price_seen": 810.07,
+                "current_trailing_sl": null
+            }
         }
     ],
     "recent_closed_trades": [],
@@ -6768,7 +6845,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c6fd0a3f-041a-44c8-b710-2b08eccdf71f"
+                "audit_event_id": "4abb1b8f-8427-4236-b8b4-62e7c38bfd5b"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BTC-USDT-3d-CVD_BREAKOUT_CONFIRMED-76991.00000000",
@@ -6894,7 +6971,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "85ec38b5-039e-4074-a5ca-0aedb4342683"
+                "audit_event_id": "900c5d9e-6ef4-4b3a-8ad3-ba891a4649b6"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETH-USDT-3d-CVD_BREAKOUT_CONFIRMED-2410.95000000",
@@ -7022,7 +7099,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "937b35fb-372c-4f42-9ddb-f3694d3a62c4"
+                "audit_event_id": "a56d6267-ab05-4483-b36b-a192217502ba"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BNB-USDT-1d-WYCKOFF_SMC_ACCUMULATION-688.40000000",
@@ -7146,7 +7223,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "cd49101e-3a2e-42b1-a741-b028b1855736"
+                "audit_event_id": "ec085e14-5cb2-43ac-bb08-91527b86ab69"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -7272,7 +7349,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f8c5a2e1-e145-4af7-81da-59a030f544af"
+                "audit_event_id": "76906d19-2018-4784-853c-d912ec6a371e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-1d-WYCKOFF_SMC_ACCUMULATION-1.43950000",
@@ -7400,7 +7477,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "895588bd-548a-47f0-81e2-e99481fa2aba"
+                "audit_event_id": "e8b0606a-8613-45a7-af02-068fa126fa6f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XRP-USDT-3d-CVD_BREAKOUT_CONFIRMED-1.43950000",
@@ -7530,10 +7607,139 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "34fbf20a-ad3f-4c4c-85d1-aec68be46ec4"
+                "audit_event_id": "f0a752a7-1e14-464f-9bcb-37276dda33d5"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SOL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-93.06000000",
+                "status": "pending",
+                "registered": true
+            }
+        },
+        {
+            "type": "اختراق مقاومة",
+            "stars": "⭐⭐⭐",
+            "symbol": "ZEC-USDT",
+            "price": 810.07,
+            "level": 804.99,
+            "rsi": 63.552781141834494,
+            "ema": {
+                "ema_50": 796.4021270621356,
+                "ema_200": 798.7105507962522,
+                "above_ema50": true,
+                "above_ema200": true,
+                "golden_cross": false
+            },
+            "bollinger": {
+                "upper": 806.792220789277,
+                "middle": 787.8985,
+                "lower": 769.004779210723,
+                "is_oversold_bb": false,
+                "is_overbought_bb": true,
+                "is_squeeze": "True",
+                "bandwidth": 0.04795978362511679
+            },
+            "dpr_data": {
+                "value": 56.62539341273766,
+                "status": "balanced",
+                "display": "[yellow]◆ [BALANCED] (56.6)[/yellow]"
+            },
+            "volume_ratio": 3.260557920351218,
+            "timeframe": "15m",
+            "stop_loss": 794.0929,
+            "target1": 826.0471,
+            "target2": 842.0243,
+            "target3": 863.3271,
+            "target4": 895.2814,
+            "macro_target": 940.0455,
+            "wyckoff": {
+                "is_bull_market": false,
+                "wyckoff_phase": null,
+                "is_wyckoff_setup": false
+            },
+            "confluence": [
+                "نمط شمعة صعودي",
+                "تغير اتجاه صعودي (CHoCH)",
+                "شمعة جهد وسيولة عالية (Volume Spike)",
+                "انكماش البولينجر (تأهب لانفجار سعري)",
+                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
+            ],
+            "extra": {
+                "divergence": {
+                    "rsi_signal": null,
+                    "rsi_volume_confirmed": false,
+                    "macd_signal": null,
+                    "macd_volume_confirmed": false
+                },
+                "fibonacci": {
+                    "swing_low": 766.25,
+                    "swing_high": 822.96,
+                    "direction": "up",
+                    "retracement_levels": {
+                        "0.236": 809.57644,
+                        "0.382": 801.29678,
+                        "0.5": 794.605,
+                        "0.618": 787.91322,
+                        "0.786": 778.38594
+                    },
+                    "extension_levels": {
+                        "1.272": 838.38512,
+                        "1.618": 858.00678,
+                        "2.0": 879.67,
+                        "2.618": 914.71678
+                    },
+                    "time_zones": [
+                        17,
+                        18,
+                        19,
+                        21,
+                        24,
+                        29,
+                        37
+                    ],
+                    "near_retracement": [
+                        0.236,
+                        809.57644
+                    ],
+                    "near_extension": null
+                },
+                "chart_patterns": [],
+                "cvd": {
+                    "trend": "شراء متزايد",
+                    "divergence": null,
+                    "last_clv": 0.403
+                }
+            },
+            "signal_status": "🟢 دخول أول (Initial Entry)",
+            "is_reentry": false,
+            "current_stage": "FIRST_ENTRY",
+            "price_entry_original": 810.07,
+            "macro_info": {
+                "macro_bullish": true,
+                "d3_support": 451.8,
+                "d3_resistance": 557.8,
+                "d3_rsi": 74.4058193782515,
+                "w1_support": 251.39,
+                "w1_resistance": 644.64,
+                "w1_rsi": 52.54808280217261
+            },
+            "candle_timestamp": "1787472900000",
+            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
+            "formatted_message": "[bold cyan]🚀 🟢 دخول أول (Initial Entry) | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ZEC-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold]سعر الدخول:[/bold] [bold green]810.0700$[/bold green]\n• [bold red]وقف الخسارة (الثابت):[/bold red] [bold]794.0929$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]826.0471$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]842.0243$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]940.0455$[/bold green]",
+            "v2_shadow": {
+                "status": "agreement",
+                "legacy_strategy": "CVD_BREAKOUT_CONFIRMED",
+                "v2_action": "accept",
+                "v2_grade": "A+",
+                "v2_confidence": 1.0,
+                "v2_eligibility": "blocked",
+                "v2_blocked_reasons": [
+                    "active_trade_conflict"
+                ],
+                "v2_strategy_eligible": [],
+                "audit_event_id": "0ea0c527-f7a7-41c8-a388-25bebf3a7e76"
+            },
+            "v2_shadow_outcome": {
+                "signal_id": "ZEC-USDT-15m-CVD_BREAKOUT_CONFIRMED-810.07000000",
                 "status": "pending",
                 "registered": true
             }
@@ -7655,7 +7861,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c54b6c36-4f9f-47a5-af8e-b9bd494de3a8"
+                "audit_event_id": "756ca339-4ccc-4f77-9ce7-77100c7aecb8"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-1d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -7781,7 +7987,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "aeca1b06-a101-4b4b-9707-c5e0e4bbbbd1"
+                "audit_event_id": "252a2d2d-f587-4870-ac16-543d49fbe688"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-789.16000000",
@@ -7908,7 +8114,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c878de2b-9b37-4371-85e7-e83c92b1b05c"
+                "audit_event_id": "0e2dd124-d69d-462c-ae04-35e8e7933639"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -8033,7 +8239,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e0ebc30-ea7e-4761-a2f8-e80bb61b943e"
+                "audit_event_id": "7141cced-5aea-457b-b0a1-8e0c133a855e"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -8158,7 +8364,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f23db62d-fd28-4e84-a9a9-ef1f61430018"
+                "audit_event_id": "dd1bb377-aa47-4395-8517-9c01e7a9b227"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ADA-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.22230000",
@@ -8283,7 +8489,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "d925b46b-a33e-41c9-b9ca-885e9b3c33f8"
+                "audit_event_id": "ff0500da-23b4-425e-99cb-9bd297b931e2"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LINK-USDT-3d-CVD_BREAKOUT_CONFIRMED-11.60700000",
@@ -8411,7 +8617,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "a02defa9-6062-45e8-b762-53fcaa5ec5e8"
+                "audit_event_id": "4b68d31d-292d-469b-84ff-65a14e25beca"
             },
             "v2_shadow_outcome": {
                 "signal_id": "BCH-USDT-3d-WYCKOFF_SMC_ACCUMULATION-275.30000000",
@@ -8540,7 +8746,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "7e340dc4-fd3a-49a4-9fc0-d30f17edc86c"
+                "audit_event_id": "b1edecd3-c2fe-456d-a5b1-096b886547c5"
             },
             "v2_shadow_outcome": {
                 "signal_id": "LTC-USDT-3d-WYCKOFF_SMC_ACCUMULATION-51.95000000",
@@ -8668,7 +8874,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "48a240c9-b463-4c4a-a37a-5fc27c9ef787"
+                "audit_event_id": "36a18269-e3a2-4bda-9345-e0591714d60f"
             },
             "v2_shadow_outcome": {
                 "signal_id": "SUI-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.81530000",
@@ -8796,7 +9002,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "e83bc398-ad2a-4987-b554-a26568c31ba0"
+                "audit_event_id": "ddea05ae-b897-40f8-a131-8bdadd069efd"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -8921,135 +9127,10 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "3f05946c-199a-4c19-bd69-604565735455"
+                "audit_event_id": "1dc8a7ee-7f4e-4af5-b012-219899201b9c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "DOT-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.92370000",
-                "status": "pending",
-                "registered": true
-            }
-        },
-        {
-            "type": "اختراق مقاومة",
-            "stars": "⭐⭐⭐",
-            "symbol": "ICP-USDT",
-            "price": 2.389,
-            "level": 2.365,
-            "rsi": 68.81482442325768,
-            "ema": {
-                "ema_50": 2.340797409095716,
-                "ema_200": 2.352449734045597,
-                "above_ema50": true,
-                "above_ema200": true,
-                "golden_cross": false
-            },
-            "bollinger": {
-                "upper": 2.3706097218783713,
-                "middle": 2.3182,
-                "lower": 2.265790278121629,
-                "is_oversold_bb": false,
-                "is_overbought_bb": true,
-                "is_squeeze": "True",
-                "bandwidth": 0.0452158760058418
-            },
-            "dpr_data": {
-                "value": 56.911000942595734,
-                "status": "balanced",
-                "display": "[yellow]◆ [BALANCED] (56.9)[/yellow]"
-            },
-            "volume_ratio": 3.1874429033741016,
-            "timeframe": "15m",
-            "stop_loss": 2.3551,
-            "target1": 2.4229,
-            "target2": 2.4592,
-            "target3": 2.5084,
-            "target4": 2.5711,
-            "macro_target": 2.6997,
-            "wyckoff": {
-                "is_bull_market": false,
-                "wyckoff_phase": null,
-                "is_wyckoff_setup": false
-            },
-            "confluence": [
-                "تغير اتجاه صعودي (CHoCH)",
-                "شمعة جهد وسيولة عالية (Volume Spike)",
-                "انكماش البولينجر (تأهب لانفجار سعري)",
-                "تداول فوق EMA 50 & 200 (اتجاه صاعد قاطِع)"
-            ],
-            "extra": {
-                "divergence": {
-                    "rsi_signal": null,
-                    "rsi_volume_confirmed": false,
-                    "macd_signal": null,
-                    "macd_volume_confirmed": false
-                },
-                "fibonacci": {
-                    "swing_low": 2.275,
-                    "swing_high": 2.39,
-                    "direction": "up",
-                    "retracement_levels": {
-                        "0.236": 2.36286,
-                        "0.382": 2.34607,
-                        "0.5": 2.3325,
-                        "0.618": 2.31893,
-                        "0.786": 2.29961
-                    },
-                    "extension_levels": {
-                        "1.272": 2.42128,
-                        "1.618": 2.46107,
-                        "2.0": 2.505,
-                        "2.618": 2.57607
-                    },
-                    "time_zones": [
-                        20,
-                        21,
-                        22,
-                        24,
-                        27,
-                        32,
-                        40
-                    ],
-                    "near_retracement": null,
-                    "near_extension": null
-                },
-                "chart_patterns": [],
-                "cvd": {
-                    "trend": "شراء متزايد",
-                    "divergence": null,
-                    "last_clv": 0.976
-                }
-            },
-            "signal_status": "🟢 دخول أول (Initial Entry)",
-            "is_reentry": false,
-            "current_stage": "FIRST_ENTRY",
-            "price_entry_original": 2.389,
-            "macro_info": {
-                "macro_bullish": true,
-                "d3_support": 1.991,
-                "d3_resistance": 2.399,
-                "d3_rsi": 53.864159062363164,
-                "w1_support": 1.991,
-                "w1_resistance": 3.226,
-                "w1_rsi": 44.777454573050676
-            },
-            "candle_timestamp": "1787472000000",
-            "strategy_type": "CVD_BREAKOUT_CONFIRMED",
-            "formatted_message": "[bold cyan]🚀 🟢 دخول أول (Initial Entry) | CVD-Verified Breakout[/bold cyan] [[yellow]⭐⭐⭐[/yellow]]\n────────────────────────────────────────\n[bold]العملة:[/bold] [cyan]ICP-USDT[/cyan] | [bold]الفريم:[/bold] [yellow]15M[/yellow]\n[bold]طبيعة الاختراق:[/bold] انكماش سُعري (BB Squeeze) + إغلاق قوي + شراء عدواني مفرط\n\n• [bold]سعر الدخول:[/bold] [bold green]2.3890$[/bold green]\n• [bold red]وقف الخسارة (الثابت):[/bold red] [bold]2.3551$[/bold]\n\n▸ [bold]الهدف الأول (T1):[/bold] [green]2.4229$[/green]\n▸ [bold]الهدف الممتد (T2):[/bold] [green]2.4592$[/green]\n✦ [bold]الهدف البعيد:[/bold] [bold green]2.6997$[/bold green]",
-            "v2_shadow": {
-                "status": "agreement",
-                "legacy_strategy": "CVD_BREAKOUT_CONFIRMED",
-                "v2_action": "accept",
-                "v2_grade": "A",
-                "v2_confidence": 0.8,
-                "v2_eligibility": "blocked",
-                "v2_blocked_reasons": [
-                    "active_trade_conflict"
-                ],
-                "v2_strategy_eligible": [],
-                "audit_event_id": "f486ca4e-b9d4-4fb8-9969-57cdc2b3787d"
-            },
-            "v2_shadow_outcome": {
-                "signal_id": "ICP-USDT-15m-CVD_BREAKOUT_CONFIRMED-2.38900000",
                 "status": "pending",
                 "registered": true
             }
@@ -9171,7 +9252,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "c5b0be6c-0117-455b-83db-1ce0e1d27512"
+                "audit_event_id": "91dea4e4-c6be-4851-9d53-1e922020a625"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ETC-USDT-1d-CVD_BREAKOUT_CONFIRMED-7.80700000",
@@ -9295,7 +9376,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "33563d04-e1c5-4f9a-9065-e81fa4e038dc"
+                "audit_event_id": "05896834-9df4-4e4e-bdb0-3896a15f8697"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -9421,7 +9502,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "2cb1754c-d61f-4794-b44b-9f1c8c3a1c01"
+                "audit_event_id": "f5c26119-d7e5-4dfd-89bd-961fab9b7078"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-1d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -9548,7 +9629,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "f52b69bb-77e6-4277-a102-3b9a6e903646"
+                "audit_event_id": "6de48bcc-e43c-443b-afcf-1a589bede914"
             },
             "v2_shadow_outcome": {
                 "signal_id": "POL-USDT-3d-WYCKOFF_SMC_ACCUMULATION-0.11029000",
@@ -9675,7 +9756,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "3a6b1abd-0d98-4347-83cc-2443d2330022"
+                "audit_event_id": "80c83df4-2bd3-40c8-8948-eceaf214967b"
             },
             "v2_shadow_outcome": {
                 "signal_id": "XLM-USDT-1d-CVD_BREAKOUT_CONFIRMED-0.19560000",
@@ -9800,7 +9881,7 @@
                 "v2_strategy_eligible": [
                     "precision_trend_following"
                 ],
-                "audit_event_id": "dd58dacd-d1db-4b4c-ba51-cdfdf7607532"
+                "audit_event_id": "df06032e-4e8f-4937-9ca1-383178145356"
             },
             "v2_shadow_outcome": {
                 "registered": false
@@ -9924,7 +10005,7 @@
                     "macro_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "0510a969-45d4-43ea-b33a-4ebd9f6c70a1"
+                "audit_event_id": "de597121-a4a9-4064-935a-3579642b6d47"
             },
             "v2_shadow_outcome": {
                 "signal_id": "KITE-USDT-1d-FVG_SCALP_4_CONFIRMS-0.11216000",
@@ -10052,7 +10133,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "039e9394-04e1-4bc5-95b5-b342806e7013"
+                "audit_event_id": "cc1854d2-1abe-47e0-b1b7-40640230a8bd"
             },
             "v2_shadow_outcome": {
                 "signal_id": "AVAX-USDT-3d-WYCKOFF_SMC_ACCUMULATION-7.45000000",
@@ -10162,9 +10243,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.74,
-                "w1_resistance": 6.009,
-                "w1_rsi": 37.078885941813446
+                "w1_support": 3.735,
+                "w1_resistance": 6.0,
+                "w1_rsi": 33.31814687468791
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "CVD_BREAKOUT_CONFIRMED",
@@ -10180,7 +10261,7 @@
                     "active_trade_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "335a6d7f-c2f7-4265-8fcd-e62330136300"
+                "audit_event_id": "4b7fb5d2-8beb-45da-8051-6013f106303c"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-1d-CVD_BREAKOUT_CONFIRMED-5.23200000",
@@ -10290,9 +10371,9 @@
                 "d3_support": 3.735,
                 "d3_resistance": 4.356,
                 "d3_rsi": 61.849954141861055,
-                "w1_support": 3.74,
-                "w1_resistance": 6.009,
-                "w1_rsi": 37.078885941813446
+                "w1_support": 3.735,
+                "w1_resistance": 6.0,
+                "w1_rsi": 33.31814687468791
             },
             "candle_timestamp": "1787414400000",
             "strategy_type": "WYCKOFF_SMC_ACCUMULATION",
@@ -10309,7 +10390,7 @@
                     "htf_conflict"
                 ],
                 "v2_strategy_eligible": [],
-                "audit_event_id": "bdf2098e-e1b5-4450-9348-831cb8811326"
+                "audit_event_id": "edb93efd-12d5-463d-8bcd-40a13aeb9dfc"
             },
             "v2_shadow_outcome": {
                 "signal_id": "ZEN-USDT-3d-WYCKOFF_SMC_ACCUMULATION-5.23200000",
