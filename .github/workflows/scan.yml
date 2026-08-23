@@ -41,6 +41,24 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scanner.py
 
+      - name: حفظ Shadow Outcomes
+        run: |
+          mkdir -p docs
+          if [ -f shadow_outcomes.json ]; then
+            cp shadow_outcomes.json docs/shadow_outcomes.json
+            echo "تم حفظ shadow_outcomes.json في docs/."
+          else
+            echo "لم يتم إنشاء shadow_outcomes.json في هذه الدورة."
+          fi
+
+      - name: رفع Shadow Outcomes كـ Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-shadow-outcomes
+          path: shadow_outcomes.json
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: حفظ بيانات Mini App على فرع V2
         run: |
           git config user.name "halal-scanner-bot"
@@ -49,7 +67,7 @@ jobs:
           git add docs/
 
           if ! git diff --staged --quiet; then
-            git commit -m "تحديث بيانات الإشارات V2 [تلقائي]"
+            git commit -m "تحديث بيانات الإشارات ونتائج Shadow V2 [تلقائي]"
             git push origin "HEAD:${V2_BRANCH}"
           else
             echo "لا توجد تغييرات جديدة للحفظ."
