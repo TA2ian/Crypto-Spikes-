@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: v2-shadow-scan
+  cancel-in-progress: false
+
 env:
   V2_BRANCH: "halal-crypto-intelligence/-(v2-Development)"
 
@@ -21,6 +25,25 @@ jobs:
         with:
           ref: "halal-crypto-intelligence/-(v2-Development)"
           fetch-depth: 0
+
+      - name: استعادة حالة Shadow السابقة
+        run: |
+          if [ -f docs/shadow_outcomes.json ]; then
+            cp docs/shadow_outcomes.json shadow_outcomes.json
+            echo "تمت استعادة حالة Shadow السابقة."
+          else
+            echo '[]' > shadow_outcomes.json
+            echo "لا توجد حالة Shadow سابقة؛ بدأنا بحالة فارغة."
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path("shadow_outcomes.json")
+          data = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(data, list):
+              raise SystemExit("shadow_outcomes.json must contain a JSON list")
+          print(f"Shadow outcomes loaded: {len(data)}")
+          PY
 
       - name: تثبيت Python
         uses: actions/setup-python@v5
