@@ -56,13 +56,49 @@ jobs:
           pip install cachetools tenacity requests pandas blessed rich pytest
 
       - name: Release Gate - Shadow Outcome Tests
-        run: python -m pytest -q tests/test_shadow_outcome_integration.py
+        run: python -m pytest -q tests/test_shadow_outcome_integration.py tests/test_shadow_state_persistence.py
 
       - name: تشغيل الماسح
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scanner.py
+
+      - name: تقرير Shadow بعد التشغيل
+        run: |
+          python - <<'PY'
+          import json
+          from collections import Counter
+          from pathlib import Path
+
+          path = Path("shadow_outcomes.json")
+          if not path.exists():
+              print("Shadow outcomes file not created by this scan.")
+              raise SystemExit(0)
+
+          data = json.loads(path.read_text(encoding="utf-8"))
+          if not isinstance(data, list):
+              raise SystemExit("shadow_outcomes.json must contain a JSON list")
+
+          statuses = Counter(item.get("status", "missing") for item in data)
+          resolved = [item for item in data if item.get("r_multiple") is not None]
+          total_r = sum(float(item["r_multiple"]) for item in resolved)
+
+          print(f"Shadow outcomes after scan: {len(data)}")
+          print(f"Status counts: {dict(statuses)}")
+          print(f"Resolved: {len(resolved)}")
+          print(f"Total R: {total_r}")
+
+          for item in resolved:
+              print(
+                  f"RESOLVED {item.get('symbol')} | "
+                  f"{item.get('timeframe')} | "
+                  f"{item.get('strategy')} | "
+                  f"{item.get('status')} | "
+                  f"R={item.get('r_multiple')} | "
+                  f"bars={item.get('bars_observed')}"
+              )
+          PY
 
       - name: حفظ Shadow Outcomes
         run: |
