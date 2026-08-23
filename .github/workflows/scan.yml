@@ -56,7 +56,7 @@ jobs:
           pip install cachetools tenacity requests pandas blessed rich pytest
 
       - name: Release Gate - Shadow Outcome Tests
-        run: python -m pytest -q tests/test_shadow_outcome_integration.py tests/test_shadow_state_persistence.py
+        run: python -m pytest -q tests/test_shadow_outcome_integration.py tests/test_shadow_state_persistence.py tests/test_shadow_history_reconciliation.py
 
       - name: تشغيل الماسح
         env:
