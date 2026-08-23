@@ -16,8 +16,7 @@ class ShadowOutcomeIntegration:
 
     Historical reconciliation is intentionally kept here so the legacy
     scanner can continue calling process_market_bar() unchanged while
-    pending V2 outcomes are checked against completed candles that may
-    have occurred between scanner runs.
+    pending V2 outcomes are checked only against confirmed candles.
     """
 
     _OKX_BAR_MAP = {
@@ -140,10 +139,8 @@ class ShadowOutcomeIntegration:
         """
         Fetch recent completed OKX candles for reconciliation.
 
-        OKX explicitly exposes candle confirmation state; only candles
-        with confirm=1 are admitted to the shadow outcome engine.
-        The scanner's existing current-bar call remains the trigger,
-        so no scanner-side API integration is required.
+        OKX marks candle state with confirm=1 for completed candles.
+        Only those candles are admitted to the shadow outcome engine.
         """
         cache_key = (str(symbol), str(timeframe), str(current_timestamp))
         if cache_key in self._history_cache:
@@ -246,41 +243,38 @@ class ShadowOutcomeIntegration:
         timestamp: str | None = None,
     ) -> list[Any]:
         """
-        Reconcile pending outcomes against completed history, then
-        process the supplied completed/current market bar.
+        Reconcile pending outcomes against confirmed historical candles.
 
-        The history pass is observation-only and respects the signal
-        candle boundary plus per-candle deduplication.
+        The supplied scanner candle is deliberately NOT processed directly.
+        The scanner currently supplies the latest candle, which may still
+        be open. Using the exchange-confirmed history here prevents an open
+        candle from falsely hitting a shadow stop or target.
         """
         self._sync_storage_context()
-        processed: list[Any] = []
 
-        if self._pending_for_market(symbol=symbol, timeframe=timeframe):
-            history = self._fetch_completed_history(
-                symbol=symbol,
-                timeframe=timeframe,
-                current_timestamp=str(timestamp) if timestamp is not None else "",
-            )
-            for bar in history:
-                processed.extend(
-                    self._process_one_market_bar(
-                        symbol=symbol,
-                        timeframe=timeframe,
-                        high=bar["high"],
-                        low=bar["low"],
-                        timestamp=bar["timestamp"],
-                    )
-                )
+        if not self._pending_for_market(
+            symbol=symbol,
+            timeframe=timeframe,
+        ):
+            return []
 
-        processed.extend(
-            self._process_one_market_bar(
-                symbol=symbol,
-                timeframe=timeframe,
-                high=high,
-                low=low,
-                timestamp=timestamp,
-            )
+        history = self._fetch_completed_history(
+            symbol=symbol,
+            timeframe=timeframe,
+            current_timestamp=str(timestamp) if timestamp is not None else "",
         )
+
+        processed: list[Any] = []
+        for bar in history:
+            processed.extend(
+                self._process_one_market_bar(
+                    symbol=symbol,
+                    timeframe=timeframe,
+                    high=bar["high"],
+                    low=bar["low"],
+                    timestamp=bar["timestamp"],
+                )
+            )
 
         return processed
 
@@ -292,8 +286,8 @@ class ShadowOutcomeIntegration:
         bars,
     ) -> list[Any]:
         """
-        Reconcile pending Shadow Outcomes against supplied historical
-        completed candles. Bars at or before the signal candle are ignored.
+        Reconcile pending Shadow Outcomes against supplied completed candles.
+        Bars at or before the signal candle are ignored.
         """
         self._sync_storage_context()
         processed: list[Any] = []
