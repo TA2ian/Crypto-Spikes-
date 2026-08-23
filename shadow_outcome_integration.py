@@ -228,7 +228,13 @@ class ShadowOutcomeIntegration:
                 outcome.metadata = metadata
                 self.tracker.save()
 
-            if result is not None:
+            # process_bar() returns the still-pending outcome as well as a
+            # resolved outcome. The integration API, however, is a
+            # reconciliation API: callers should receive only outcomes that
+            # actually changed to a terminal state. Pending observations are
+            # persisted internally through bars_observed/metadata and must
+            # not be reported as "processed" results.
+            if result is not None and result.resolved:
                 processed.append(result)
 
         return processed
@@ -246,8 +252,8 @@ class ShadowOutcomeIntegration:
         Reconcile pending outcomes against confirmed historical candles.
 
         The supplied scanner candle is deliberately NOT processed directly.
-        The scanner currently supplies the latest candle, which may still
-        be open. Using the exchange-confirmed history here prevents an open
+        The scanner currently supplies the latest candle, which may still be
+        open. Using the exchange-confirmed history here prevents an open
         candle from falsely hitting a shadow stop or target.
         """
         self._sync_storage_context()
