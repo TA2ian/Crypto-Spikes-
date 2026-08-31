@@ -5,7 +5,7 @@ from typing import Any
 
 import requests
 
-from shadow_outcomes import ShadowOutcomeTracker
+from shadow_outcomes import OutcomeDirection, ShadowOutcomeTracker
 
 
 class ShadowOutcomeIntegration:
@@ -67,9 +67,11 @@ class ShadowOutcomeIntegration:
         symbol = str(signal.get("symbol", "UNKNOWN"))
         timeframe = str(signal.get("timeframe", "UNKNOWN"))
         entry = float(signal.get("price", 0.0))
-        direction = str(
-            signal.get("direction", signal.get("side", "long"))
-        ).strip().lower()
+        raw_direction = signal.get(
+            "direction",
+            signal.get("side", "long"),
+        )
+        direction = OutcomeDirection.normalize(str(raw_direction)).value
         return f"{symbol}-{timeframe}-{strategy_type}-{direction}-{entry:.8f}"
 
     @staticmethod
