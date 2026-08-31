@@ -165,23 +165,15 @@ class ShadowOutcomeTracker:
             os.makedirs(directory, exist_ok=True)
 
         temporary_path = f"{self.storage_path}.tmp"
-        try:
-            with open(temporary_path, "w", encoding="utf-8") as handle:
-                json.dump(
-                    payload,
-                    handle,
-                    ensure_ascii=False,
-                    indent=2,
-                    default=str,
-                )
-            os.replace(temporary_path, self.storage_path)
-        except OSError:
-            try:
-                if os.path.exists(temporary_path):
-                    os.remove(temporary_path)
-            except OSError:
-                pass
-            raise
+        with open(temporary_path, "w", encoding="utf-8") as handle:
+            json.dump(
+                payload,
+                handle,
+                ensure_ascii=False,
+                indent=2,
+                default=str,
+            )
+        os.replace(temporary_path, self.storage_path)
 
     def register(
         self,
@@ -300,8 +292,6 @@ class ShadowOutcomeTracker:
             stop_hit = normalized_high >= outcome.stop_loss
             target_hit = lambda level: normalized_low <= level
 
-        # Without intrabar tick data, an SL/TP collision is resolved against the
-        # strategy first so shadow results never assume a favorable candle path.
         if stop_hit:
             self._resolve(
                 outcome=outcome,
@@ -319,8 +309,6 @@ class ShadowOutcomeTracker:
             (OutcomeStatus.MACRO_TARGET, outcome.macro_target),
         ]
 
-        # The first crossed target is the only defensible result when a candle
-        # crosses multiple levels because the exact intrabar path is unknown.
         for status, level in targets:
             if level is not None and target_hit(level):
                 self._resolve(
@@ -386,9 +374,7 @@ class ShadowOutcomeTracker:
 
     def summary(self) -> dict[str, Any]:
         resolved = self.resolved()
-        measurable = [
-            item for item in resolved if item.r_multiple is not None
-        ]
+        measurable = [item for item in resolved if item.r_multiple is not None]
         wins = [item for item in measurable if item.r_multiple > 0]
         losses = [item for item in measurable if item.r_multiple <= 0]
 
