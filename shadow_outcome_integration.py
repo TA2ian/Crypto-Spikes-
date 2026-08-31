@@ -67,7 +67,10 @@ class ShadowOutcomeIntegration:
         symbol = str(signal.get("symbol", "UNKNOWN"))
         timeframe = str(signal.get("timeframe", "UNKNOWN"))
         entry = float(signal.get("price", 0.0))
-        return f"{symbol}-{timeframe}-{strategy_type}-{entry:.8f}"
+        direction = str(
+            signal.get("direction", signal.get("side", "long"))
+        ).strip().lower()
+        return f"{symbol}-{timeframe}-{strategy_type}-{direction}-{entry:.8f}"
 
     @staticmethod
     def _read_value(
@@ -126,9 +129,6 @@ class ShadowOutcomeIntegration:
             self.tracker.outcomes = {}
             self._loaded_storage_path = current_path
 
-        # The JSON file is the cross-instance source of truth. Reloading here
-        # prevents the bridge tracker and scanner tracker from overwriting
-        # each other's newer outcomes.
         self.tracker.load()
 
     def _pending_for_market(
@@ -170,14 +170,6 @@ class ShadowOutcomeIntegration:
         timeframe: str,
         current_timestamp: str,
     ) -> list[dict[str, Any]]:
-        """
-        Fetch confirmed OKX candles far enough back to cover pending entries.
-
-        A single latest-candles request only exposes a limited recent window.
-        Shadow outcomes can be older than that window, so this method pages
-        through OKX history until the oldest pending signal candle is reached
-        or a bounded safety limit is hit.
-        """
         cache_key = (str(symbol), str(timeframe), str(current_timestamp))
         if cache_key in self._history_cache:
             return self._history_cache[cache_key]
@@ -251,10 +243,7 @@ class ShadowOutcomeIntegration:
                 if len(rows) < 100:
                     break
 
-            completed = [
-                collected[key]
-                for key in sorted(collected)
-            ]
+            completed = [collected[key] for key in sorted(collected)]
             self._history_cache[cache_key] = completed
             return completed
         except Exception:
@@ -317,13 +306,9 @@ class ShadowOutcomeIntegration:
         low: float,
         timestamp: str | None = None,
     ) -> list[Any]:
-        """
-        Reconcile pending outcomes against confirmed historical candles.
-
-        The supplied scanner candle is deliberately not processed directly.
-        The exchange-confirmed history is the source used for resolution.
-        """
-        storage_path = str(getattr(self.tracker, "storage_path", "shadow_outcomes.json"))
+        storage_path = str(
+            getattr(self.tracker, "storage_path", "shadow_outcomes.json")
+        )
         with self._lock_for(storage_path):
             self._sync_storage_context()
 
@@ -359,8 +344,9 @@ class ShadowOutcomeIntegration:
         timeframe: str,
         bars,
     ) -> list[Any]:
-        """Reconcile supplied completed candles in chronological order."""
-        storage_path = str(getattr(self.tracker, "storage_path", "shadow_outcomes.json"))
+        storage_path = str(
+            getattr(self.tracker, "storage_path", "shadow_outcomes.json")
+        )
         with self._lock_for(storage_path):
             self._sync_storage_context()
             processed: list[Any] = []
@@ -395,7 +381,9 @@ class ShadowOutcomeIntegration:
         strategy_type: str,
         result: Any,
     ):
-        storage_path = str(getattr(self.tracker, "storage_path", "shadow_outcomes.json"))
+        storage_path = str(
+            getattr(self.tracker, "storage_path", "shadow_outcomes.json")
+        )
         with self._lock_for(storage_path):
             self._sync_storage_context()
 
@@ -418,6 +406,11 @@ class ShadowOutcomeIntegration:
                 ),
             }
 
+            direction = signal.get(
+                "direction",
+                signal.get("side", "long"),
+            )
+
             return self.tracker.register(
                 signal_id=signal_id,
                 symbol=str(signal["symbol"]),
@@ -425,6 +418,7 @@ class ShadowOutcomeIntegration:
                 strategy=str(strategy_type),
                 entry=float(signal["price"]),
                 stop_loss=float(signal["stop_loss"]),
+                direction=str(direction),
                 target_1=(
                     float(signal["target1"])
                     if signal.get("target1") is not None
