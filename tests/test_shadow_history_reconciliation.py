@@ -29,7 +29,7 @@ def test_okx_history_paginates_until_oldest_pending_signal(monkeypatch, tmp_path
 
     page_1 = [
         ["3000", "100", "104", "99", "103", "0", "0", "0", "1"],
-        ["2000", "100", "106", "104", "105", "0", "0", "0", "1"],
+        ["2000", "100", "104", "101", "103", "0", "0", "0", "1"],
     ]
     page_2 = [
         ["1500", "100", "103", "99", "102", "0", "0", "0", "1"],
@@ -60,6 +60,6 @@ def test_okx_history_paginates_until_oldest_pending_signal(monkeypatch, tmp_path
     assert integration.tracker.outcomes[next(iter(integration.tracker.outcomes))].resolved is False
 
     # The signal candle itself must never resolve the outcome. The next
-    # completed candle at 1500 is also after 1000 and remains below TP1.
+    # completed candles at 1500 and 2000 also remain below TP1.
     outcome = next(iter(integration.tracker.outcomes.values()))
     assert outcome.metadata["last_processed_timestamp"] == "3000"
