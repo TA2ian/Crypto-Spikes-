@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
@@ -19,6 +20,55 @@ class OutcomeStatus(str, Enum):
     EXPIRED = "expired"
 
 
+class OutcomeDirection(str, Enum):
+    LONG = "long"
+    SHORT = "short"
+
+    @classmethod
+    def normalize(cls, value: str | None) -> "OutcomeDirection":
+        normalized = str(value or "long").strip().lower()
+        aliases = {
+            "buy": cls.LONG,
+            "bullish": cls.LONG,
+            "long": cls.LONG,
+            "sell": cls.SHORT,
+            "bearish": cls.SHORT,
+            "short": cls.SHORT,
+        }
+        try:
+            return aliases[normalized]
+        except KeyError as exc:
+            raise ValueError(
+                "direction must be one of: long, short, buy, sell, bullish, bearish"
+            ) from exc
+
+
+class ShadowOutcomeValidationError(ValueError):
+    """Raised when an outcome or market bar violates the tracking invariants."""
+
+
+def _finite_float(value: Any, field_name: str) -> float:
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ShadowOutcomeValidationError(
+            f"{field_name} must be numeric"
+        ) from exc
+
+    if not math.isfinite(result):
+        raise ShadowOutcomeValidationError(
+            f"{field_name} must be finite"
+        )
+
+    return result
+
+
+def _optional_finite_float(value: Any, field_name: str) -> float | None:
+    if value is None:
+        return None
+    return _finite_float(value, field_name)
+
+
 @dataclass
 class ShadowOutcome:
     signal_id: str
@@ -28,6 +78,7 @@ class ShadowOutcome:
 
     entry: float
     stop_loss: float
+    direction: OutcomeDirection = OutcomeDirection.LONG
 
     target_1: float | None = None
     target_2: float | None = None
@@ -38,8 +89,7 @@ class ShadowOutcome:
     status: OutcomeStatus = OutcomeStatus.PENDING
 
     entry_time: str = field(
-        default_factory=lambda:
-        datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
 
     exit_time: str | None = None
@@ -47,9 +97,7 @@ class ShadowOutcome:
     r_multiple: float | None = None
 
     bars_observed: int = 0
-    metadata: dict[str, Any] = field(
-        default_factory=dict
-    )
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     @property
     def resolved(self) -> bool:
@@ -66,73 +114,74 @@ class ShadowOutcomeTracker:
         self.outcomes: dict[str, ShadowOutcome] = {}
         self.load()
 
-    # --------------------------------------------------
-    # Persistence
-    # --------------------------------------------------
-
     def load(self) -> None:
         if not os.path.exists(self.storage_path):
             return
 
         try:
-            with open(
-                self.storage_path,
-                "r",
-                encoding="utf-8",
-            ) as handle:
+            with open(self.storage_path, "r", encoding="utf-8") as handle:
                 data = json.load(handle)
 
-            for item in data:
-                item["status"] = OutcomeStatus(
-                    item["status"]
+            if not isinstance(data, list):
+                raise ShadowOutcomeValidationError(
+                    "shadow outcome storage must contain a JSON list"
                 )
 
-                self.outcomes[
-                    item["signal_id"]
-                ] = ShadowOutcome(**item)
+            loaded: dict[str, ShadowOutcome] = {}
+            for item in data:
+                if not isinstance(item, dict):
+                    continue
 
-        except (
-            OSError,
-            ValueError,
-            TypeError,
-            KeyError,
-        ):
+                normalized = dict(item)
+                normalized["status"] = OutcomeStatus(
+                    normalized.get("status", OutcomeStatus.PENDING.value)
+                )
+                normalized["direction"] = OutcomeDirection.normalize(
+                    normalized.get("direction", OutcomeDirection.LONG.value)
+                )
+                normalized["metadata"] = (
+                    dict(normalized.get("metadata") or {})
+                    if isinstance(normalized.get("metadata") or {}, dict)
+                    else {}
+                )
+                loaded[str(normalized["signal_id"])] = ShadowOutcome(
+                    **normalized
+                )
+
+            self.outcomes = loaded
+        except (OSError, json.JSONDecodeError, TypeError, KeyError, ValueError):
             self.outcomes = {}
 
     def save(self) -> None:
         payload = []
-
         for outcome in self.outcomes.values():
             item = asdict(outcome)
             item["status"] = outcome.status.value
+            item["direction"] = outcome.direction.value
             payload.append(item)
 
-        directory = os.path.dirname(
-            self.storage_path
-        )
-
+        directory = os.path.dirname(self.storage_path)
         if directory:
-            os.makedirs(
-                directory,
-                exist_ok=True,
-            )
+            os.makedirs(directory, exist_ok=True)
 
-        with open(
-            self.storage_path,
-            "w",
-            encoding="utf-8",
-        ) as handle:
-            json.dump(
-                payload,
-                handle,
-                ensure_ascii=False,
-                indent=2,
-                default=str,
-            )
-
-    # --------------------------------------------------
-    # Registration
-    # --------------------------------------------------
+        temporary_path = f"{self.storage_path}.tmp"
+        try:
+            with open(temporary_path, "w", encoding="utf-8") as handle:
+                json.dump(
+                    payload,
+                    handle,
+                    ensure_ascii=False,
+                    indent=2,
+                    default=str,
+                )
+            os.replace(temporary_path, self.storage_path)
+        except OSError:
+            try:
+                if os.path.exists(temporary_path):
+                    os.remove(temporary_path)
+            except OSError:
+                pass
+            raise
 
     def register(
         self,
@@ -143,6 +192,7 @@ class ShadowOutcomeTracker:
         strategy: str,
         entry: float,
         stop_loss: float,
+        direction: str | OutcomeDirection = OutcomeDirection.LONG,
         target_1: float | None = None,
         target_2: float | None = None,
         target_3: float | None = None,
@@ -150,55 +200,75 @@ class ShadowOutcomeTracker:
         macro_target: float | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> ShadowOutcome:
-
         existing = self.outcomes.get(signal_id)
-
         if existing is not None:
             return existing
 
+        normalized_direction = OutcomeDirection.normalize(
+            direction.value if isinstance(direction, OutcomeDirection) else direction
+        )
+        normalized_entry = _finite_float(entry, "entry")
+        normalized_stop = _finite_float(stop_loss, "stop_loss")
+
+        if normalized_direction == OutcomeDirection.LONG and normalized_stop >= normalized_entry:
+            raise ShadowOutcomeValidationError(
+                "long outcome requires stop_loss below entry"
+            )
+        if normalized_direction == OutcomeDirection.SHORT and normalized_stop <= normalized_entry:
+            raise ShadowOutcomeValidationError(
+                "short outcome requires stop_loss above entry"
+            )
+
+        normalized_targets = [
+            _optional_finite_float(target_1, "target_1"),
+            _optional_finite_float(target_2, "target_2"),
+            _optional_finite_float(target_3, "target_3"),
+            _optional_finite_float(target_4, "target_4"),
+            _optional_finite_float(macro_target, "macro_target"),
+        ]
+        present_targets = [value for value in normalized_targets if value is not None]
+        if normalized_direction == OutcomeDirection.LONG and any(
+            value <= normalized_entry for value in present_targets
+        ):
+            raise ShadowOutcomeValidationError(
+                "long targets must be above entry"
+            )
+        if normalized_direction == OutcomeDirection.SHORT and any(
+            value >= normalized_entry for value in present_targets
+        ):
+            raise ShadowOutcomeValidationError(
+                "short targets must be below entry"
+            )
+
+        for previous, current in zip(present_targets, present_targets[1:]):
+            if normalized_direction == OutcomeDirection.LONG and current <= previous:
+                raise ShadowOutcomeValidationError(
+                    "long targets must be strictly increasing"
+                )
+            if normalized_direction == OutcomeDirection.SHORT and current >= previous:
+                raise ShadowOutcomeValidationError(
+                    "short targets must be strictly decreasing"
+                )
+
         outcome = ShadowOutcome(
-            signal_id=signal_id,
-            symbol=symbol,
-            timeframe=timeframe,
-            strategy=strategy,
-            entry=float(entry),
-            stop_loss=float(stop_loss),
-            target_1=(
-                float(target_1)
-                if target_1 is not None
-                else None
-            ),
-            target_2=(
-                float(target_2)
-                if target_2 is not None
-                else None
-            ),
-            target_3=(
-                float(target_3)
-                if target_3 is not None
-                else None
-            ),
-            target_4=(
-                float(target_4)
-                if target_4 is not None
-                else None
-            ),
-            macro_target=(
-                float(macro_target)
-                if macro_target is not None
-                else None
-            ),
-            metadata=metadata or {},
+            signal_id=str(signal_id),
+            symbol=str(symbol),
+            timeframe=str(timeframe),
+            strategy=str(strategy),
+            entry=normalized_entry,
+            stop_loss=normalized_stop,
+            direction=normalized_direction,
+            target_1=normalized_targets[0],
+            target_2=normalized_targets[1],
+            target_3=normalized_targets[2],
+            target_4=normalized_targets[3],
+            macro_target=normalized_targets[4],
+            metadata=dict(metadata or {}),
         )
 
-        self.outcomes[signal_id] = outcome
+        self.outcomes[outcome.signal_id] = outcome
         self.save()
-
         return outcome
-
-    # --------------------------------------------------
-    # Real candle observation
-    # --------------------------------------------------
 
     def process_bar(
         self,
@@ -208,24 +278,31 @@ class ShadowOutcomeTracker:
         low: float,
         timestamp: str | None = None,
     ) -> ShadowOutcome | None:
-
         outcome = self.outcomes.get(signal_id)
-
         if outcome is None:
             return None
-
         if outcome.resolved:
             return outcome
 
+        normalized_high = _finite_float(high, "high")
+        normalized_low = _finite_float(low, "low")
+        if normalized_low > normalized_high:
+            raise ShadowOutcomeValidationError(
+                "bar low cannot be greater than bar high"
+            )
+
         outcome.bars_observed += 1
 
-        high = float(high)
-        low = float(low)
+        if outcome.direction == OutcomeDirection.LONG:
+            stop_hit = normalized_low <= outcome.stop_loss
+            target_hit = lambda level: normalized_high >= level
+        else:
+            stop_hit = normalized_high >= outcome.stop_loss
+            target_hit = lambda level: normalized_low <= level
 
-        # Conservative rule:
-        # If SL and TP are touched in the same candle,
-        # SL is assumed to have happened first.
-        if low <= outcome.stop_loss:
+        # Without intrabar tick data, an SL/TP collision is resolved against the
+        # strategy first so shadow results never assume a favorable candle path.
+        if stop_hit:
             self._resolve(
                 outcome=outcome,
                 status=OutcomeStatus.STOPPED,
@@ -235,47 +312,26 @@ class ShadowOutcomeTracker:
             return outcome
 
         targets = [
-            (
-                OutcomeStatus.TARGET_1,
-                outcome.target_1,
-            ),
-            (
-                OutcomeStatus.TARGET_2,
-                outcome.target_2,
-            ),
-            (
-                OutcomeStatus.TARGET_3,
-                outcome.target_3,
-            ),
-            (
-                OutcomeStatus.TARGET_4,
-                outcome.target_4,
-            ),
-            (
-                OutcomeStatus.MACRO_TARGET,
-                outcome.macro_target,
-            ),
+            (OutcomeStatus.TARGET_1, outcome.target_1),
+            (OutcomeStatus.TARGET_2, outcome.target_2),
+            (OutcomeStatus.TARGET_3, outcome.target_3),
+            (OutcomeStatus.TARGET_4, outcome.target_4),
+            (OutcomeStatus.MACRO_TARGET, outcome.macro_target),
         ]
 
-        reached = [
-            (status, level)
-            for status, level in targets
-            if level is not None
-            and high >= level
-        ]
+        # The first crossed target is the only defensible result when a candle
+        # crosses multiple levels because the exact intrabar path is unknown.
+        for status, level in targets:
+            if level is not None and target_hit(level):
+                self._resolve(
+                    outcome=outcome,
+                    status=status,
+                    exit_price=level,
+                    timestamp=timestamp,
+                )
+                return outcome
 
-        if reached:
-            status, price = reached[-1]
-
-            self._resolve(
-                outcome=outcome,
-                status=status,
-                exit_price=price,
-                timestamp=timestamp,
-            )
-        else:
-            self.save()
-
+        self.save()
         return outcome
 
     def expire(
@@ -283,12 +339,9 @@ class ShadowOutcomeTracker:
         signal_id: str,
         timestamp: str | None = None,
     ) -> ShadowOutcome | None:
-
         outcome = self.outcomes.get(signal_id)
-
         if outcome is None:
             return None
-
         if outcome.resolved:
             return outcome
 
@@ -298,12 +351,7 @@ class ShadowOutcomeTracker:
             exit_price=outcome.entry,
             timestamp=timestamp,
         )
-
         return outcome
-
-    # --------------------------------------------------
-    # Resolution
-    # --------------------------------------------------
 
     def _resolve(
         self,
@@ -313,108 +361,53 @@ class ShadowOutcomeTracker:
         exit_price: float,
         timestamp: str | None,
     ) -> None:
+        if outcome.resolved:
+            return
 
+        normalized_exit = _finite_float(exit_price, "exit_price")
         outcome.status = status
-        outcome.exit_price = float(exit_price)
+        outcome.exit_price = normalized_exit
+        outcome.exit_time = timestamp or datetime.now(timezone.utc).isoformat()
 
-        outcome.exit_time = (
-            timestamp
-            or datetime.now(
-                timezone.utc
-            ).isoformat()
-        )
-
-        risk = abs(
-            outcome.entry
-            - outcome.stop_loss
-        )
-
+        risk = abs(outcome.entry - outcome.stop_loss)
         if risk > 0:
-            outcome.r_multiple = (
-                outcome.exit_price
-                - outcome.entry
-            ) / risk
+            if outcome.direction == OutcomeDirection.LONG:
+                outcome.r_multiple = (normalized_exit - outcome.entry) / risk
+            else:
+                outcome.r_multiple = (outcome.entry - normalized_exit) / risk
 
         self.save()
 
-    # --------------------------------------------------
-    # Collections
-    # --------------------------------------------------
-
     def pending(self) -> list[ShadowOutcome]:
-        return [
-            item
-            for item in self.outcomes.values()
-            if not item.resolved
-        ]
+        return [item for item in self.outcomes.values() if not item.resolved]
 
     def resolved(self) -> list[ShadowOutcome]:
-        return [
-            item
-            for item in self.outcomes.values()
-            if item.resolved
-        ]
-
-    # --------------------------------------------------
-    # Performance report
-    # --------------------------------------------------
+        return [item for item in self.outcomes.values() if item.resolved]
 
     def summary(self) -> dict[str, Any]:
-
         resolved = self.resolved()
-
-        wins = [
-            item
-            for item in resolved
-            if item.r_multiple is not None
-            and item.r_multiple > 0
+        measurable = [
+            item for item in resolved if item.r_multiple is not None
         ]
+        wins = [item for item in measurable if item.r_multiple > 0]
+        losses = [item for item in measurable if item.r_multiple <= 0]
 
-        losses = [
-            item
-            for item in resolved
-            if item.r_multiple is not None
-            and item.r_multiple <= 0
-        ]
-
-        positive_r = sum(
-            item.r_multiple
-            for item in wins
-            if item.r_multiple is not None
-        )
-
-        negative_r = sum(
-            item.r_multiple
-            for item in losses
-            if item.r_multiple is not None
-        )
-
+        positive_r = sum(item.r_multiple for item in wins)
+        negative_r = sum(item.r_multiple for item in losses)
         average_r = (
-            sum(
-                item.r_multiple
-                for item in resolved
-                if item.r_multiple is not None
-            )
-            / len(resolved)
-            if resolved
+            sum(item.r_multiple for item in measurable) / len(measurable)
+            if measurable
             else 0.0
         )
-
         profit_factor = (
             positive_r / abs(negative_r)
             if negative_r < 0
-            else (
-                float("inf")
-                if positive_r > 0
-                else 0.0
-            )
+            else float("inf") if positive_r > 0 else 0.0
         )
 
         by_status = {
             status.value: sum(
-                1
-                for item in self.outcomes.values()
-                if item.status == status
+                1 for item in self.outcomes.values() if item.status == status
             )
             for status in OutcomeStatus
         }
@@ -425,11 +418,7 @@ class ShadowOutcomeTracker:
             "resolved": len(resolved),
             "wins": len(wins),
             "losses": len(losses),
-            "win_rate": (
-                len(wins) / len(resolved)
-                if resolved
-                else 0.0
-            ),
+            "win_rate": len(wins) / len(measurable) if measurable else 0.0,
             "average_r": average_r,
             "profit_factor": profit_factor,
             "by_status": by_status,
