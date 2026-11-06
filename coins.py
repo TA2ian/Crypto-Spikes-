@@ -7,6 +7,14 @@
 WATCHLIST = [
     "BTC-USDT",
     "ETH-USDT",
+    "LINK-USDT",
+    "AIO-USDT",
+    "AVAX-USDT",
+    "NEAR-USDT",
+    "TAO-USDT",
+    "ARB-USDT",
+    "SOL-USDT",
+]
     "BNB-USDT",
     "XRP-USDT",
     "SOL-USDT",
@@ -15,14 +23,13 @@ WATCHLIST = [
     "XLM-USDT",
     "XMR-USDT",
     "ADA-USDT",
-    "LINK-USDT",
+
     "BCH-USDT",
     "GRAM-USDT",
     "LTC-USDT",
     "SUI-USDT",
-    "AVAX-USDT",
-    "NEAR-USDT",
-    "TAO-USDT",
+
+
     "DOT-USDT",
     "WLD-USDT",
     "ICP-USDT",
@@ -31,7 +38,7 @@ WATCHLIST = [
     "ATOM-USDT",
     "QNT-USDT",
     "UB-USDT",
-    "AIO-USDT",
+
     "H-USDT",
     "XLM-USDT",
     "HBAR-USDT",
@@ -46,9 +53,8 @@ WATCHLIST = [
     "RENDER-USDT",
     "FET-USDT",
     "XTZ-USDT",
-    "ARB-USDT",
+
     "ATOM-USDT",
-    "AVAX-USDT",
+    "-USDT",
     "DCR-USDT",
     "ZEN-USDT",
-]
